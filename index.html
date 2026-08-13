@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[ИМЯ] — Дроны в гражданской авиации</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    /* ── Hero ── */
+    .hero {
+      position: relative;
+      min-height: 92vh;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    /* HUD-grid signature element */
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,168,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,168,255,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+    }
+
+    .hero-crosshair {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 320px; height: 320px;
+      border: 1px solid rgba(0,168,255,0.08);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .hero-crosshair::before,
+    .hero-crosshair::after {
+      content: '';
+      position: absolute;
+      background: rgba(0,168,255,0.12);
+    }
+    .hero-crosshair::before { width: 1px; height: 100%; left: 50%; top: 0; }
+    .hero-crosshair::after  { height: 1px; width: 100%; top: 50%; left: 0; }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.72rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 1.75rem;
+    }
+    .hero-eyebrow-line {
+      width: 28px; height: 1px;
+      background: var(--blue);
+    }
+
+    .hero h1 {
+      max-width: 720px;
+      margin-bottom: 1.5rem;
+      color: var(--text);
+    }
+
+    .hero h1 span {
+      color: var(--blue);
+    }
+
+    .hero-desc {
+      font-size: 1.05rem;
+      line-height: 1.75;
+      color: var(--text-muted);
+      max-width: 520px;
+      margin-bottom: 2.5rem;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 3rem;
+      margin-top: 5rem;
+      padding-top: 2.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .hero-stat-num {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.03em;
+    }
+
+    .hero-stat-num span { color: var(--blue); }
+
+    .hero-stat-label {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-top: 0.2rem;
+    }
+
+    /* ── Overview: что такое дроны ── */
+    .overview-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+
+    .overview-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 2rem;
+      transition: border-color 0.2s;
+    }
+    .overview-card:hover { border-color: var(--border-accent); }
+
+    .ov-icon {
+      width: 40px; height: 40px;
+      background: var(--blue-dim);
+      border: 1px solid var(--border-accent);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 1.25rem;
+      font-size: 1.1rem;
+    }
+
+    .ov-title {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 0.6rem;
+    }
+
+    /* ── Области применения ── */
+    .areas-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-top: 3rem;
+    }
+
+    .area-item {
+      background: var(--bg-card);
+      padding: 2rem 1.75rem;
+      transition: background 0.2s;
+    }
+    .area-item:hover { background: var(--bg-subtle); }
+
+    .area-num {
+      font-family: var(--font-display);
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+      margin-bottom: 1rem;
+    }
+
+    .area-title {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+    }
+
+    /* ── Регуляторика ── */
+    .regs-layout {
+      display: grid;
+      grid-template-columns: 1fr 1.4fr;
+      gap: 4rem;
+      align-items: start;
+      margin-top: 3rem;
+    }
+
+    .regs-intro h3 {
+      font-size: 1.5rem;
+      color: var(--text);
+      margin-bottom: 1rem;
+    }
+
+    .regs-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .reg-item {
+      background: var(--bg-card);
+      padding: 1.25rem 1.5rem;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 1rem;
+      align-items: start;
+      transition: background 0.2s;
+    }
+    .reg-item:hover { background: var(--bg-subtle); }
+
+    .reg-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--blue);
+      margin-top: 0.5rem;
+      flex-shrink: 0;
+    }
+
+    .reg-title {
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 0.3rem;
+    }
+
+    .reg-desc { font-size: 0.85rem; }
+
+    /* ── CTA ── */
+    .cta-band {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 3.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2rem;
+      margin: 0 0 6rem;
+    }
+
+    .cta-band h2 { font-size: 1.8rem; margin-bottom: 0.5rem; }
+    .cta-band p  { font-size: 0.95rem; }
+    .cta-actions { display: flex; gap: 1rem; flex-shrink: 0; }
+
+    @media (max-width: 900px) {
+      .overview-grid { grid-template-columns: 1fr; }
+      .areas-grid { grid-template-columns: 1fr 1fr; }
+      .regs-layout { grid-template-columns: 1fr; gap: 2rem; }
+      .cta-band { flex-direction: column; align-items: flex-start; }
+    }
+
+    @media (max-width: 560px) {
+      .areas-grid { grid-template-columns: 1fr; }
+      .hero-stats { flex-wrap: wrap; gap: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ NAV ══ -->
+<header class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <span class="nav-logo-dot"></span>
+      [ИМЯ]
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html" class="active">Обзор</a></li>
+      <li><a href="events.html">Ивенты</a></li>
+      <li><a href="courses.html">Курсы</a></li>
+      <li><a href="cases.html">Кейсы</a></li>
+    </ul>
+  </div>
+</header>
+
+<!-- ══ HERO ══ -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-crosshair"></div>
+  <div class="container hero-content">
+    <div class="hero-eyebrow">
+      <span class="hero-eyebrow-line"></span>
+      Гражданская авиация · БПЛА
+    </div>
+    <h1>Дроны меняют<br><span>гражданскую авиацию</span></h1>
+    <p class="hero-desc">
+      Разбираемся в технологиях беспилотных летательных аппаратов,
+      их применении в реальных задачах, регулировании и будущем отрасли.
+    </p>
+    <div class="hero-actions">
+      <a href="#overview" class="btn btn-primary">Читать обзор</a>
+      <a href="courses.html" class="btn btn-outline">Посмотреть курсы</a>
+    </div>
+    <div class="hero-stats">
+      <div>
+        <div class="hero-stat-num">120<span>+</span></div>
+        <div class="hero-stat-label">стран легализовали БПЛА</div>
+      </div>
+      <div>
+        <div class="hero-stat-num">$54<span>B</span></div>
+        <div class="hero-stat-label">рынок к 2030 году</div>
+      </div>
+      <div>
+        <div class="hero-stat-num">2.3<span>M</span></div>
+        <div class="hero-stat-label">зарегистрированных дронов (США)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ OVERVIEW ══ -->
+<section class="section" id="overview">
+  <div class="container">
+    <div class="section-label">Общие сведения</div>
+    <h2>Что такое гражданские БПЛА</h2>
+    <p style="max-width:560px; margin-top:1rem;">
+      Беспилотные летательные аппараты (БПЛА, или дроны) в гражданской авиации —
+      это воздушные суда без пилота на борту, управляемые дистанционно или автономно.
+    </p>
+
+    <div class="overview-grid">
+      <div class="overview-card">
+        <div class="ov-icon">◈</div>
+        <div class="ov-title">Мультикоптеры</div>
+        <p>Самый распространённый тип: квадро-, гексо- и октокоптеры. Вертикальный взлёт и посадка, высокая маневренность. Используются в съёмке, доставке, инспекции.</p>
+      </div>
+      <div class="overview-card">
+        <div class="ov-icon">◇</div>
+        <div class="ov-title">Самолётного типа (Fixed-wing)</div>
+        <p>Аэродинамическое крыло, длительный полёт на большие расстояния. Оптимальны для картографии, мониторинга сельхозугодий и линейных объектов.</p>
+      </div>
+      <div class="overview-card">
+        <div class="ov-icon">⬡</div>
+        <div class="ov-title">Гибридные (VTOL)</div>
+        <p>Вертикальный взлёт/посадка плюс крейсерский полёт как у самолёта. Сочетают преимущества обоих типов — перспективный класс для доставки и логистики.</p>
+      </div>
+      <div class="overview-card">
+        <div class="ov-icon">○</div>
+        <div class="ov-title">Привязные дроны (Tethered)</div>
+        <p>Питание и связь по кабелю с земли. Теоретически неограниченное время полёта. Применяются для мониторинга событий, телекоммуникаций, охраны периметра.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ AREAS ══ -->
+<section class="section">
+  <div class="container">
+    <div class="section-label">Применение</div>
+    <h2>Где используют дроны</h2>
+
+    <div class="areas-grid">
+      <div class="area-item">
+        <div class="area-num">01</div>
+        <div class="area-title">Аэрофотосъёмка и картография</div>
+        <p>Создание ортофотопланов, 3D-моделей местности, топографических карт с точностью до 2–3 см.</p>
+      </div>
+      <div class="area-item">
+        <div class="area-num">02</div>
+        <div class="area-title">Инспекция инфраструктуры</div>
+        <p>Проверка ЛЭП, трубопроводов, мостов, вышек и кровель без риска для персонала.</p>
+      </div>
+      <div class="area-item">
+        <div class="area-num">03</div>
+        <div class="area-title">Сельское хозяйство</div>
+        <p>Мониторинг посевов, точечное внесение удобрений и средств защиты растений, оценка урожая.</p>
+      </div>
+      <div class="area-item">
+        <div class="area-num">04</div>
+        <div class="area-title">Доставка грузов</div>
+        <p>Last-mile delivery медикаментов, крови, малогабаритных посылок. Активно тестируется Wing, Zipline, Manna.</p>
+      </div>
+      <div class="area-item">
+        <div class="area-num">05</div>
+        <div class="area-title">Поисково-спасательные операции</div>
+        <p>Тепловизионный поиск пострадавших, доставка спасательного снаряжения в труднодоступные места.</p>
+      </div>
+      <div class="area-item">
+        <div class="area-num">06</div>
+        <div class="area-title">Строительство и девелопмент</div>
+        <p>Контроль хода строительства, объёмные расчёты грунта, мониторинг прогресса в реальном времени.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ REGULATIONS ══ -->
+<section class="section">
+  <div class="container">
+    <div class="section-label">Регуляторика</div>
+    <div class="regs-layout">
+      <div class="regs-intro">
+        <h3>Правовое поле для операторов БПЛА</h3>
+        <p>Работа с дроном в коммерческих целях требует соблюдения нормативных актов. Ключевые документы и требования для России и мира.</p>
+        <br>
+        <a href="courses.html" class="btn btn-outline" style="margin-top:0.5rem;">Обучиться на оператора →</a>
+      </div>
+      <ul class="regs-list">
+        <li class="reg-item">
+          <span class="reg-dot"></span>
+          <div>
+            <div class="reg-title">Постановление Правительства РФ № 658</div>
+            <p class="reg-desc">Регулирует использование воздушного пространства БПЛА, порядок подачи заявок и зоны ограничений.</p>
+          </div>
+        </li>
+        <li class="reg-item">
+          <span class="reg-dot"></span>
+          <div>
+            <div class="reg-title">Регистрация БПЛА (Росавиация)</div>
+            <p class="reg-desc">Дроны от 250 г подлежат регистрации. Коммерческие операторы получают свидетельство пилота-любителя или профессиональное удостоверение.</p>
+          </div>
+        </li>
+        <li class="reg-item">
+          <span class="reg-dot"></span>
+          <div>
+            <div class="reg-title">EASA (EU) — категории A1/A2/A3</div>
+            <p class="reg-desc">Европейская система открытых, специфических и сертифицированных категорий. Актуально для полётов в Европе и понимания мировых трендов.</p>
+          </div>
+        </li>
+        <li class="reg-item">
+          <span class="reg-dot"></span>
+          <div>
+            <div class="reg-title">FAA Part 107 (США)</div>
+            <p class="reg-desc">Международный стандарт коммерческой сертификации. Знание Part 107 полезно при работе с иностранными партнёрами и пониманием глобального рынка.</p>
+          </div>
+        </li>
+        <li class="reg-item">
+          <span class="reg-dot"></span>
+          <div>
+            <div class="reg-title">UTM — управление трафиком БПЛА</div>
+            <p class="reg-desc">Системы автоматического управления воздушным пространством для дронов. Развивается как глобальный стандарт ИКАО.</p>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CTA ══ -->
+<div class="container">
+  <div class="cta-band">
+    <div>
+      <h2>Хотите войти в отрасль?</h2>
+      <p>Смотрите курсы, приходите на ивенты и изучайте реальные кейсы из практики.</p>
+    </div>
+    <div class="cta-actions">
+      <a href="events.html" class="btn btn-outline">Ивенты</a>
+      <a href="courses.html" class="btn btn-primary">Курсы</a>
+    </div>
+  </div>
+</div>
+
+<!-- ══ FOOTER ══ -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="nav-logo" style="font-size:0.9rem;">
+      <span class="nav-logo-dot"></span>
+      [ИМЯ]
+    </div>
+    <div class="footer-copy">© 2026 · Дроны в гражданской авиации</div>
+  </div>
+</footer>
+
+</body>
+</html>

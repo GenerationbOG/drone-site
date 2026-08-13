@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Курсы — [ИМЯ]</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    /* ── Page Hero ── */
+    .page-hero {
+      padding: 5rem 0 4rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .page-hero h1 { margin-bottom: 1rem; }
+    .page-hero p  { max-width: 520px; }
+
+    /* ── Why block ── */
+    .why-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-top: 3rem;
+    }
+
+    .why-item {
+      background: var(--bg-card);
+      padding: 2rem 1.75rem;
+    }
+
+    .why-num {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--blue);
+      letter-spacing: -0.03em;
+      margin-bottom: 0.5rem;
+    }
+
+    .why-title {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 0.4rem;
+    }
+
+    /* ── Course Cards ── */
+    .courses-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.25rem;
+      margin-top: 3rem;
+    }
+
+    .course-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .course-card:hover {
+      border-color: var(--border-accent);
+      transform: translateY(-2px);
+    }
+
+    .course-card.featured {
+      grid-column: 1 / -1;
+      flex-direction: row;
+    }
+
+    .course-card-header {
+      padding: 1.75rem 1.75rem 0;
+    }
+
+    .course-card.featured .course-card-header {
+      padding: 2.5rem;
+      flex: 1;
+    }
+
+    .course-level {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.68rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+
+    .course-level.beginner { color: #00D68F; }
+    .course-level.intermediate { color: #FFB400; }
+    .course-level.advanced { color: var(--blue); }
+
+    .course-level-dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .course-card h3 {
+      font-size: 1.2rem;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 0.75rem;
+      line-height: 1.35;
+    }
+
+    .course-card.featured h3 { font-size: 1.6rem; }
+
+    .course-card p {
+      font-size: 0.88rem;
+      line-height: 1.7;
+      margin-bottom: 1.5rem;
+    }
+
+    .course-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .course-tag {
+      font-size: 0.68rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.2rem 0.6rem;
+      border-radius: 3px;
+      background: var(--bg-subtle);
+      color: var(--text-dim);
+      border: 1px solid var(--border);
+    }
+
+    .course-card-footer {
+      padding: 1.25rem 1.75rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: auto;
+    }
+
+    .course-meta {
+      display: flex;
+      gap: 1.25rem;
+    }
+
+    .course-meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    .course-meta-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .course-meta-value {
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .course-visual {
+      width: 260px;
+      flex-shrink: 0;
+      background: var(--bg-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 260px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Drone icon SVG animation */
+    .drone-anim {
+      animation: hover-drone 3s ease-in-out infinite;
+    }
+
+    @keyframes hover-drone {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-10px); }
+    }
+
+    /* ── Curriculum accordion ── */
+    .curriculum {
+      margin-top: 3rem;
+    }
+
+    .curriculum-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .curriculum-header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 1rem;
+      padding: 1.5rem 1.75rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-subtle);
+    }
+
+    .curriculum-header h3 {
+      font-size: 1.1rem;
+      color: var(--text);
+    }
+
+    .curriculum-header p { font-size: 0.85rem; margin-top: 0.3rem; }
+
+    .module-list {
+      list-style: none;
+    }
+
+    .module-item {
+      display: grid;
+      grid-template-columns: 36px 1fr auto;
+      gap: 1rem;
+      align-items: center;
+      padding: 1.1rem 1.75rem;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.2s;
+    }
+
+    .module-item:last-child { border-bottom: none; }
+    .module-item:hover { background: var(--bg-subtle); }
+
+    .module-num {
+      font-family: var(--font-display);
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-dim);
+      text-align: center;
+    }
+
+    .module-title {
+      font-size: 0.9rem;
+      color: var(--text);
+    }
+
+    .module-duration {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      white-space: nowrap;
+    }
+
+    /* ── Pricing ── */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-top: 3rem;
+    }
+
+    .pricing-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      transition: border-color 0.2s;
+    }
+
+    .pricing-card:hover { border-color: var(--border-accent); }
+
+    .pricing-card.popular {
+      border-color: var(--border-accent);
+      background: var(--bg-subtle);
+    }
+
+    .popular-badge {
+      display: inline-block;
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--blue);
+      background: var(--blue-dim);
+      border: 1px solid var(--border-accent);
+      padding: 0.2rem 0.6rem;
+      border-radius: 3px;
+      margin-bottom: 0.5rem;
+    }
+
+    .pricing-name {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .pricing-price {
+      font-family: var(--font-display);
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+
+    .pricing-price span {
+      font-size: 1rem;
+      font-weight: 400;
+      color: var(--text-dim);
+    }
+
+    .pricing-features {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      flex: 1;
+    }
+
+    .pricing-features li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .pricing-features li::before {
+      content: '✓';
+      color: var(--blue);
+      font-size: 0.8rem;
+      flex-shrink: 0;
+      margin-top: 0.1rem;
+    }
+
+    @media (max-width: 900px) {
+      .courses-grid { grid-template-columns: 1fr; }
+      .course-card.featured { flex-direction: column; }
+      .course-visual { width: 100%; min-height: 180px; }
+      .why-grid { grid-template-columns: 1fr; }
+      .pricing-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 600px) {
+      .course-meta { gap: 0.75rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ NAV ══ -->
+<header class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <span class="nav-logo-dot"></span>
+      [ИМЯ]
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Обзор</a></li>
+      <li><a href="events.html">Ивенты</a></li>
+      <li><a href="courses.html" class="active">Курсы</a></li>
+      <li><a href="cases.html">Кейсы</a></li>
+    </ul>
+  </div>
+</header>
+
+<!-- ══ PAGE HERO ══ -->
+<section class="page-hero">
+  <div class="container">
+    <div class="section-label">Обучение</div>
+    <h1>Курсы по БПЛА</h1>
+    <p>Практические программы для тех, кто хочет работать в сфере беспилотных систем — от первого полёта до коммерческой сертификации.</p>
+  </div>
+</section>
+
+<!-- ══ WHY ══ -->
+<section class="section">
+  <div class="container">
+    <div class="section-label">Почему эти курсы</div>
+    <h2>Обучение на реальных задачах</h2>
+
+    <div class="why-grid">
+      <div class="why-item">
+        <div class="why-num">100%</div>
+        <div class="why-title">Практика с первого занятия</div>
+        <p>Никаких лишних слайдов. Уже на первом занятии вы работаете с реальным оборудованием и задачами.</p>
+      </div>
+      <div class="why-item">
+        <div class="why-num">3–6</div>
+        <div class="why-title">Недель до первого проекта</div>
+        <p>Короткие, плотные программы. Быстрый старт в профессии без затяжного обучения.</p>
+      </div>
+      <div class="why-item">
+        <div class="why-num">∞</div>
+        <div class="why-title">Доступ к материалам</div>
+        <p>После курса — пожизненный доступ к записям, обновлениям программы и закрытому сообществу выпускников.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ COURSES ══ -->
+<section class="section">
+  <div class="container">
+    <div class="section-label">Программы</div>
+    <h2>Все курсы</h2>
+
+    <div class="courses-grid">
+
+      <!-- Featured course -->
+      <div class="course-card featured">
+        <div class="course-card-header">
+          <div class="course-level advanced">
+            <span class="course-level-dot"></span>
+            Флагманский курс
+          </div>
+          <h3>Оператор БПЛА: от нуля до сертификации</h3>
+          <p>Полная программа подготовки коммерческого оператора беспилотных систем. Теория, практические полёты, регуляторная база, работа с клиентами.</p>
+          <div class="course-tags">
+            <span class="course-tag">Полёты</span>
+            <span class="course-tag">Регуляторика</span>
+            <span class="course-tag">Съёмка</span>
+            <span class="course-tag">Картография</span>
+            <span class="course-tag">Бизнес</span>
+          </div>
+          <div class="course-card-footer" style="padding: 0; border: none; margin-top: 0;">
+            <div class="course-meta">
+              <div class="course-meta-item">
+                <span class="course-meta-label">Длительность</span>
+                <span class="course-meta-value">6 недель</span>
+              </div>
+              <div class="course-meta-item">
+                <span class="course-meta-label">Формат</span>
+                <span class="course-meta-value">Гибрид</span>
+              </div>
+              <div class="course-meta-item">
+                <span class="course-meta-label">Старт</span>
+                <span class="course-meta-value">1 сентября</span>
+              </div>
+            </div>
+            <a href="#pricing" class="btn btn-primary" style="margin-top:1.5rem;">Записаться</a>
+          </div>
+        </div>
+        <div class="course-visual">
+          <svg class="drone-anim" width="120" height="80" viewBox="0 0 120 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Body -->
+            <rect x="45" y="32" width="30" height="16" rx="4" fill="rgba(0,168,255,0.15)" stroke="rgba(0,168,255,0.5)" stroke-width="1"/>
+            <!-- Center dot -->
+            <circle cx="60" cy="40" r="4" fill="rgba(0,168,255,0.6)"/>
+            <!-- Arms -->
+            <line x1="45" y1="36" x2="20" y2="20" stroke="rgba(0,168,255,0.3)" stroke-width="1.5"/>
+            <line x1="75" y1="36" x2="100" y2="20" stroke="rgba(0,168,255,0.3)" stroke-width="1.5"/>
+            <line x1="45" y1="44" x2="20" y2="60" stroke="rgba(0,168,255,0.3)" stroke-width="1.5"/>
+            <line x1="75" y1="44" x2="100" y2="60" stroke="rgba(0,168,255,0.3)" stroke-width="1.5"/>
+            <!-- Rotors -->
+            <ellipse cx="20" cy="20" rx="14" ry="4" fill="none" stroke="rgba(0,168,255,0.4)" stroke-width="1"/>
+            <ellipse cx="100" cy="20" rx="14" ry="4" fill="none" stroke="rgba(0,168,255,0.4)" stroke-width="1"/>
+            <ellipse cx="20" cy="60" rx="14" ry="4" fill="none" stroke="rgba(0,168,255,0.4)" stroke-width="1"/>
+            <ellipse cx="100" cy="60" rx="14" ry="4" fill="none" stroke="rgba(0,168,255,0.4)" stroke-width="1"/>
+            <!-- Rotor centers -->
+            <circle cx="20" cy="20" r="2" fill="rgba(0,168,255,0.7)"/>
+            <circle cx="100" cy="20" r="2" fill="rgba(0,168,255,0.7)"/>
+            <circle cx="20" cy="60" r="2" fill="rgba(0,168,255,0.7)"/>
+            <circle cx="100" cy="60" r="2" fill="rgba(0,168,255,0.7)"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Course 2 -->
+      <div class="course-card">
+        <div class="course-card-header">
+          <div class="course-level beginner">
+            <span class="course-level-dot"></span>
+            Начальный
+          </div>
+          <h3>Первый полёт: основы управления БПЛА</h3>
+          <p>Для тех, кто никогда не держал пульт. Безопасные полёты, правила, первые навыки управления мультикоптером.</p>
+          <div class="course-tags">
+            <span class="course-tag">Управление</span>
+            <span class="course-tag">Безопасность</span>
+            <span class="course-tag">Правила</span>
+          </div>
+        </div>
+        <div class="course-card-footer">
+          <div class="course-meta">
+            <div class="course-meta-item">
+              <span class="course-meta-label">Длительность</span>
+              <span class="course-meta-value">2 недели</span>
+            </div>
+            <div class="course-meta-item">
+              <span class="course-meta-label">Формат</span>
+              <span class="course-meta-value">Офлайн</span>
+            </div>
+          </div>
+          <a href="#pricing" class="btn btn-outline">Подробнее</a>
+        </div>
+      </div>
+
+      <!-- Course 3 -->
+      <div class="course-card">
+        <div class="course-card-header">
+          <div class="course-level intermediate">
+            <span class="course-level-dot"></span>
+            Средний
+          </div>
+          <h3>Аэросъёмка и фотограмметрия</h3>
+          <p>Коммерческая съёмка, обработка RAW, создание ортофотопланов и 3D-моделей в Agisoft Metashape и DroneDeploy.</p>
+          <div class="course-tags">
+            <span class="course-tag">Съёмка</span>
+            <span class="course-tag">Фотограмметрия</span>
+            <span class="course-tag">Metashape</span>
+          </div>
+        </div>
+        <div class="course-card-footer">
+          <div class="course-meta">
+            <div class="course-meta-item">
+              <span class="course-meta-label">Длительность</span>
+              <span class="course-meta-value">3 недели</span>
+            </div>
+            <div class="course-meta-item">
+              <span class="course-meta-label">Формат</span>
+              <span class="course-meta-value">Онлайн</span>
+            </div>
+          </div>
+          <a href="#pricing" class="btn btn-outline">Подробнее</a>
+        </div>
+      </div>
+
+      <!-- Course 4 -->
+      <div class="course-card">
+        <div class="course-card-header">
+          <div class="course-level intermediate">
+            <span class="course-level-dot"></span>
+            Средний
+          </div>
+          <h3>Инспекция объектов с помощью дронов</h3>
+          <p>Методики инспекции ЛЭП, трубопроводов, кровель и фасадов. Работа с тепловизорами и составление отчётов.</p>
+          <div class="course-tags">
+            <span class="course-tag">Инспекция</span>
+            <span class="course-tag">Тепловизор</span>
+            <span class="course-tag">Отчёты</span>
+          </div>
+        </div>
+        <div class="course-card-footer">
+          <div class="course-meta">
+            <div class="course-meta-item">
+              <span class="course-meta-label">Длительность</span>
+              <span class="course-meta-value">3 недели</span>
+            </div>
+            <div class="course-meta-item">
+              <span class="course-meta-label">Формат</span>
+              <span class="course-meta-value">Гибрид</span>
+            </div>
+          </div>
+          <a href="#pricing" class="btn btn-outline">Подробнее</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══ CURRICULUM ══ -->
+<section class="section">
+  <div class="container">
+    <div class="section-label">Программа</div>
+    <h2>Что входит в флагманский курс</h2>
+
+    <div class="curriculum" style="margin-top: 2.5rem;">
+      <div class="curriculum-card">
+        <div class="curriculum-header">
+          <div>
+            <h3>Оператор БПЛА: от нуля до сертификации</h3>
+            <p>6 недель · 18 модулей · 40+ часов практики</p>
+          </div>
+          <div class="tag">6 нед.</div>
+        </div>
+        <ul class="module-list">
+          <li class="module-item">
+            <span class="module-num">01</span>
+            <span class="module-title">Введение в БПЛА: типы, компоненты, принципы полёта</span>
+            <span class="module-duration">3 ч</span>
+          </li>
+          <li class="module-item">
+            <span class="module-num">02</span>
+            <span class="module-title">Правовая база: регистрация, разрешения, зоны полётов</span>
+            <span class="module-duration">4 ч</span>
+          </li>
+          <li class="module-item">
+            <span class="module-num">03</span>
+            <span class="module-title">Первые полёты: управление, ориентация, манёвры</span>
+            <span class="module-duration">6 ч</span>
+          </li>
+          <li class="module-item">
+            <span class="module-num">04</span>
+            <span class="module-title">Безопасность полётов и нештатные ситуации</span>
+            <span class="module-duration">3 ч</span>
+          </li>
+          <li class="module-item">
+            <span class="module-num">05</span>
+            <span class="module-title">Планирование миссий: автоматические маршруты</span>
+            <span class="module-duration">5 ч</span>
+          </li>
+          <li class="module-item">
+            <span class="module-num">06</span>
+            <span class="module-title">Аэросъёмка: настройки камеры, перекрытия, RAW</span>
+            <span class="module-duration">4 ч</span>
+          </li>
+          <li class="module-item">
+            <span class="module-num">07</span>
+            <span class="module-title">Фотограмметрия: ортофотопланы и 3D-модели</span>
+            <span class="module-duration">6 ч</span>
+          </li>
+          <li class="module-item">
+            <span class="module-num">08</span>
+            <span class="module-title">Работа с заказчиком: брифинг, договор, сдача проекта</span>
+            <span class="module-duration">3 ч</span>
+          </li>
+          <li class="module-item">
+            <span class="module-num">09</span>
+            <span class="module-title">Финальный проект: съёмка реального объекта</span>
+            <span class="module-duration">6 ч</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ PRICING ══ -->
+<section class="section" id="pricing">
+  <div class="container">
+    <div class="section-label">Стоимость</div>
+    <h2>Выберите формат</h2>
+
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <div>
+          <div class="pricing-name">Базовый</div>
+          <div class="pricing-price">25 000 <span>₽</span></div>
+        </div>
+        <ul class="pricing-features">
+          <li>Доступ ко всем видеозаписям</li>
+          <li>Материалы и конспекты</li>
+          <li>Проверка домашних заданий</li>
+          <li>Сертификат об окончании</li>
+        </ul>
+        <a href="#" class="btn btn-outline" style="width:100%; justify-content:center;">Выбрать</a>
+      </div>
+
+      <div class="pricing-card popular">
+        <div>
+          <div class="popular-badge">Популярный</div>
+          <div class="pricing-name">Практик</div>
+          <div class="pricing-price">45 000 <span>₽</span></div>
+        </div>
+        <ul class="pricing-features">
+          <li>Всё из базового</li>
+          <li>4 практических полёта с инструктором</li>
+          <li>Разбор ваших полётов и съёмок</li>
+          <li>Доступ к закрытому чату</li>
+          <li>Помощь с первым проектом</li>
+        </ul>
+        <a href="#" class="btn btn-primary" style="width:100%; justify-content:center;">Выбрать</a>
+      </div>
+
+      <div class="pricing-card">
+        <div>
+          <div class="pricing-name">Профи</div>
+          <div class="pricing-price">80 000 <span>₽</span></div>
+        </div>
+        <ul class="pricing-features">
+          <li>Всё из «Практика»</li>
+          <li>8 часов индивидуальных занятий</li>
+          <li>Подготовка к сдаче экзамена Росавиации</li>
+          <li>Нетворкинг с партнёрами</li>
+          <li>Рекомендательное письмо</li>
+          <li>Гарантия трудоустройства*</li>
+        </ul>
+        <a href="#" class="btn btn-outline" style="width:100%; justify-content:center;">Выбрать</a>
+      </div>
+    </div>
+
+    <p style="margin-top:1.5rem; font-size:0.78rem; color:var(--text-dim);">* При выполнении всех заданий курса и прохождении финального проекта.</p>
+  </div>
+</section>
+
+<!-- ══ FOOTER ══ -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="nav-logo" style="font-size:0.9rem;">
+      <span class="nav-logo-dot"></span>
+      [ИМЯ]
+    </div>
+    <div class="footer-copy">© 2026 · Дроны в гражданской авиации</div>
+  </div>
+</footer>
+
+</body>
+</html>

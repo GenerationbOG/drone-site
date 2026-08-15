@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Доставка дроном — COREPLUS</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .page-hero { padding: 3rem 0 2.5rem; border-bottom: 1px solid var(--border); }
+
+    .game-layout {
+      display: grid;
+      grid-template-columns: 1fr 240px;
+      gap: 1.25rem;
+      margin: 2rem 0 4rem;
+      align-items: start;
+    }
+
+    .game-wrap {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    #deliveryCanvas { display: block; width: 100%; }
+
+    .game-start-screen {
+      position: absolute; inset: 0;
+      background: rgba(10,12,15,0.92);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 1rem; z-index: 10;
+      backdrop-filter: blur(4px);
+    }
+    .game-start-screen h2 { font-family: var(--font-display); font-size: 1.5rem; color: var(--text); }
+    .game-start-screen p { font-size: 0.88rem; color: var(--text-muted); text-align: center; max-width: 300px; line-height: 1.6; }
+
+    .side-panel { display: flex; flex-direction: column; gap: 1rem; }
+
+    .info-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem;
+    }
+
+    .info-title {
+      font-size: 0.68rem; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--text-dim);
+      margin-bottom: 1rem;
+    }
+
+    .info-row {
+      display: flex; justify-content: space-between;
+      padding: 0.4rem 0; border-bottom: 1px solid var(--border);
+      font-size: 0.82rem;
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-row-label { color: var(--text-dim); }
+    .info-row-val { color: var(--text); font-weight: 500; font-family: var(--font-display); }
+
+    .order-card {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.85rem;
+      margin-bottom: 0.5rem;
+      font-size: 0.8rem;
+    }
+    .order-card.active { border-color: var(--border-accent); }
+    .order-title { color: var(--text); font-weight: 500; margin-bottom: 0.2rem; }
+    .order-meta { color: var(--text-dim); font-size: 0.72rem; }
+    .order-reward { color: #00D68F; font-family: var(--font-display); margin-top: 0.3rem; }
+
+    .mobile-dpad {
+      display: none;
+      justify-content: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    .dpad { display: grid; grid-template-columns: repeat(3, 48px); grid-template-rows: repeat(3,48px); gap: 4px; }
+    .dpad-btn { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; color: var(--text-muted); font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; user-select: none; -webkit-tap-highlight-color: transparent; transition: all 0.1s; }
+    .dpad-btn:active, .dpad-btn.pressed { background: var(--blue-dim); border-color: var(--border-accent); color: var(--blue); }
+    .dpad-btn.empty { background: transparent; border-color: transparent; pointer-events: none; }
+
+    /* Mobile nav */
+    .burger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; background: none; border: none; }
+    .burger span { display: block; width: 22px; height: 2px; background: var(--text-muted); border-radius: 2px; transition: all 0.3s; }
+    .burger.open span:nth-child(1) { transform: rotate(45deg) translate(5px,5px); }
+    .burger.open span:nth-child(2) { opacity: 0; }
+    .burger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px,-5px); }
+    .mobile-menu { display: none; position: fixed; top: 64px; left: 0; right: 0; background: rgba(10,12,15,0.98); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 1.5rem 2rem; z-index: 99; flex-direction: column; }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a { font-size: 1rem; color: var(--text-muted); text-decoration: none; padding: 0.9rem 0; border-bottom: 1px solid var(--border); transition: color 0.2s; }
+    .mobile-menu a:last-child { border-bottom: none; }
+    .mobile-menu a.active { color: var(--blue); }
+
+    .footer-legal { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+    .footer-legal a { font-size: 0.75rem; color: var(--text-dim); text-decoration: none; }
+    .footer-legal a:hover { color: var(--blue); opacity: 1; }
+    .footer-inner { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 1.5rem; }
+
+    @media (max-width: 768px) {
+      .game-layout { grid-template-columns: 1fr; }
+      .mobile-dpad { display: flex; }
+      .nav-links { display: none; }
+      .burger { display: flex; }
+      .footer-inner { grid-template-columns: 1fr; gap: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <img src="assets/logo.jpeg" alt="COREPLUS" style="width:26px;height:26px;border-radius:0;object-fit:cover;mix-blend-mode:lighten;">
+      COREPLUS
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Обзор</a></li>
+      <li><a href="events.html">Ивенты</a></li>
+      <li><a href="courses.html">Курсы</a></li>
+      <li><a href="cases.html">Кейсы</a></li>
+      <li><a href="stats.html">Статистика</a></li>
+      <li><a href="simulator.html">Симулятор</a></li>
+      <li><a href="builder.html">Сборка</a></li>
+      <li><a href="delivery.html" class="active">Доставка</a></li>
+    </ul>
+    <button class="burger" id="burger"><span></span><span></span><span></span></button>
+  </div>
+</header>
+<nav class="mobile-menu" id="mobileMenu">
+  <a href="index.html">Обзор</a><a href="events.html">Ивенты</a><a href="courses.html">Курсы</a>
+  <a href="cases.html">Кейсы</a><a href="stats.html">Статистика</a><a href="simulator.html">Симулятор</a>
+  <a href="builder.html">Сборка</a><a href="delivery.html" class="active">Доставка</a>
+</nav>
+
+<section class="page-hero">
+  <div class="container">
+    <div class="section-label">Интерактив</div>
+    <h1>Мини-игра: доставка дроном</h1>
+    <p>Управляй дроном-курьером. Забирай посылки со склада и доставляй адресатам до истечения времени. WASD / стрелки или кнопки на экране.</p>
+  </div>
+</section>
+
+<div class="container">
+  <div class="mobile-dpad" id="mobileDpad">
+    <div class="dpad">
+      <div class="dpad-btn empty"></div><div class="dpad-btn" id="du">↑</div><div class="dpad-btn empty"></div>
+      <div class="dpad-btn" id="dl">←</div><div class="dpad-btn empty"></div><div class="dpad-btn" id="dr">→</div>
+      <div class="dpad-btn empty"></div><div class="dpad-btn" id="dd">↓</div><div class="dpad-btn empty"></div>
+    </div>
+  </div>
+
+  <div class="game-layout">
+    <div class="game-wrap">
+      <canvas id="deliveryCanvas"></canvas>
+      <div class="game-start-screen" id="gameScreen">
+        <div style="font-size:2.5rem">📦</div>
+        <h2>Дрон-курьер</h2>
+        <p>Лети на склад 🏭, забирай посылку и доставляй к адресату 🏠. Успей до истечения времени!</p>
+        <button class="btn btn-primary" onclick="startDelivery()">Начать смену</button>
+      </div>
+    </div>
+
+    <div class="side-panel">
+      <div class="info-card">
+        <div class="info-title">Смена</div>
+        <div class="info-row"><span class="info-row-label">Время</span><span class="info-row-val" id="dTime">2:00</span></div>
+        <div class="info-row"><span class="info-row-label">Заработано</span><span class="info-row-val" id="dMoney">0 ₽</span></div>
+        <div class="info-row"><span class="info-row-label">Доставок</span><span class="info-row-val" id="dDeliveries">0</span></div>
+        <div class="info-row"><span class="info-row-label">Батарея</span><span class="info-row-val" id="dBattery">100%</span></div>
+        <div class="info-row"><span class="info-row-label">Груз</span><span class="info-row-val" id="dCargo">Пусто</span></div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-title">Активные заказы</div>
+        <div id="ordersList">
+          <div style="font-size:0.82rem;color:var(--text-dim)">Заказы появятся после старта</div>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-title">Управление</div>
+        <div style="font-size:0.8rem;color:var(--text-muted);line-height:1.8;">
+          <div>⬆⬇⬅➡ / WASD — движение</div>
+          <div>Подлети к 🏭 — взять груз</div>
+          <div>Подлети к 🏠 — сдать груз</div>
+          <div>⚡ — зарядная станция</div>
+          <div>R — рестарт</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="nav-logo" style="font-size:0.9rem;">
+      <img src="assets/logo.jpeg" alt="COREPLUS" style="width:22px;height:22px;border-radius:0;object-fit:cover;mix-blend-mode:lighten;">
+      COREPLUS
+    </div>
+    <div class="footer-legal">
+      <a href="privacy-policy.html">Privacy Policy</a>
+      <a href="terms-of-service.html">Terms of Service</a>
+      <a href="mobile-messaging-terms.html">Mobile Messaging Terms</a>
+    </div>
+    <div class="footer-copy">© 2025 COREPLUS · Дроны в гражданской авиации</div>
+  </div>
+</footer>
+
+<script>
+// Burger
+const burger = document.getElementById('burger');
+const mm = document.getElementById('mobileMenu');
+burger.addEventListener('click', () => { burger.classList.toggle('open'); mm.classList.toggle('open'); });
+
+// Mobile buttons
+['du','dd','dl','dr'].forEach((id, i) => {
+  const keys_map = { du:'ArrowUp', dd:'ArrowDown', dl:'ArrowLeft', dr:'ArrowRight' };
+  const el = document.getElementById(id);
+  const k = keys_map[id];
+  el.addEventListener('touchstart', e => { e.preventDefault(); keys[k]=true; el.classList.add('pressed'); }, {passive:false});
+  el.addEventListener('touchend',   e => { e.preventDefault(); keys[k]=false; el.classList.remove('pressed'); }, {passive:false});
+  el.addEventListener('mousedown', () => { keys[k]=true; el.classList.add('pressed'); });
+  el.addEventListener('mouseup',   () => { keys[k]=false; el.classList.remove('pressed'); });
+  el.addEventListener('mouseleave',() => { keys[k]=false; el.classList.remove('pressed'); });
+});
+
+// ── Canvas ──
+const canvas = document.getElementById('deliveryCanvas');
+const ctx = canvas.getContext('2d');
+let W, H;
+
+function resizeCanvas() {
+  W = canvas.parentElement.clientWidth;
+  H = Math.max(300, Math.min(W * 0.65, 460));
+  canvas.width = W; canvas.height = H;
+}
+resizeCanvas();
+window.addEventListener('resize', () => { resizeCanvas(); if (gameState !== 'idle') initGame(); });
+
+// ── Game State ──
+let gameState = 'idle';
+let keys = {};
+let drone2, warehouse, customers, chargers, orders;
+let money, deliveries, timeLeft, animId2, lastT;
+let popups = [];
+
+const TILE = 60;
+const DRONE_SPD = 160;
+const BATT_DRAIN = 4;
+
+function initGame() {
+  drone2 = { x: W/2, y: H/2, vx:0, vy:0, battery:100, cargo:null, r:14 };
+  warehouse = { x: 60, y: 60, w:50, h:40, label:'🏭' };
+  customers = [
+    { x: W-70, y: 60,  w:44, h:40, label:'🏠', id:1, name:'Иванов' },
+    { x: W-70, y: H-70, w:44, h:40, label:'🏠', id:2, name:'Петров' },
+    { x: 60,   y: H-70, w:44, h:40, label:'🏠', id:3, name:'Сидоров' },
+    { x: W/2,  y: 55,   w:44, h:40, label:'🏠', id:4, name:'Козлов' },
+  ];
+  chargers = [
+    { x: W/2-20, y: H/2, w:32, h:22, label:'⚡' },
+  ];
+  money = 0; deliveries = 0; timeLeft = 120;
+  orders = [];
+  popups = [];
+  spawnOrder();
+  updateSidePanel();
+}
+
+const rewards = [250, 400, 600, 350, 500];
+const weights = ['1.2 кг', '0.8 кг', '2.1 кг', '0.5 кг', '1.8 кг'];
+const goods   = ['Медикаменты','Еда','Электроника','Документы','Запчасти'];
+
+function spawnOrder() {
+  if (orders.length >= 3) return;
+  const cust = customers[Math.floor(Math.random() * customers.length)];
+  orders.push({
+    id: Date.now(),
+    customer: cust,
+    reward: rewards[Math.floor(Math.random()*rewards.length)],
+    weight: weights[Math.floor(Math.random()*weights.length)],
+    good: goods[Math.floor(Math.random()*goods.length)],
+    timeLimit: 45 + Math.floor(Math.random()*30),
+    elapsed: 0,
+  });
+  renderOrders();
+}
+
+function renderOrders() {
+  const el = document.getElementById('ordersList');
+  if (!orders.length) { el.innerHTML = '<div style="font-size:0.82rem;color:var(--text-dim)">Нет заказов</div>'; return; }
+  el.innerHTML = orders.map(o => `
+    <div class="order-card ${drone2?.cargo?.id===o.id?'active':''}">
+      <div class="order-title">${o.good} → ${o.customer.name}</div>
+      <div class="order-meta">${o.weight} · ⏱ ${Math.ceil(o.timeLimit - o.elapsed)}с</div>
+      <div class="order-reward">+${o.reward} ₽</div>
+    </div>
+  `).join('');
+}
+
+function startDelivery() {
+  document.getElementById('gameScreen').style.display = 'none';
+  initGame();
+  gameState = 'playing';
+  lastT = performance.now();
+  cancelAnimationFrame(animId2);
+  loop2(lastT);
+}
+
+document.addEventListener('keydown', e => {
+  keys[e.key] = true;
+  if ((e.key==='r'||e.key==='R') && gameState !== 'idle') startDelivery();
+});
+document.addEventListener('keyup', e => { keys[e.key] = false; });
+
+function loop2(ts) {
+  const dt = Math.min((ts - lastT)/1000, 0.05);
+  lastT = ts;
+  if (gameState === 'playing') { update2(dt); }
+  draw2();
+  animId2 = requestAnimationFrame(loop2);
+}
+
+function update2(dt) {
+  // Drone movement
+  let ax=0, ay=0;
+  if (keys['ArrowLeft']||keys['a']||keys['A'])  ax=-1;
+  if (keys['ArrowRight']||keys['d']||keys['D']) ax= 1;
+  if (keys['ArrowUp']||keys['w']||keys['W'])    ay=-1;
+  if (keys['ArrowDown']||keys['s']||keys['S'])  ay= 1;
+
+  const spd = DRONE_SPD * (drone2.cargo ? 0.75 : 1);
+  drone2.vx = (drone2.vx + ax * spd * dt * 8) * 0.82;
+  drone2.vy = (drone2.vy + ay * spd * dt * 8) * 0.82;
+  drone2.x = Math.max(drone2.r, Math.min(W-drone2.r, drone2.x + drone2.vx * dt));
+  drone2.y = Math.max(drone2.r, Math.min(H-drone2.r, drone2.y + drone2.vy * dt));
+
+  // Battery
+  const moving = Math.abs(drone2.vx)+Math.abs(drone2.vy)>5;
+  drone2.battery -= dt*(moving ? BATT_DRAIN : 1.2);
+  if (drone2.battery <= 0) { drone2.battery=0; endGame('Батарея разряжена!'); return; }
+
+  // Timer
+  timeLeft -= dt;
+  if (timeLeft <= 0) { timeLeft=0; endGame('Время вышло!'); return; }
+
+  // Order timers
+  orders.forEach(o => {
+    o.elapsed += dt;
+    if (o.elapsed > o.timeLimit) {
+      if (drone2.cargo?.id === o.id) drone2.cargo = null;
+      orders = orders.filter(x => x.id !== o.id);
+      addPopup('❌ Заказ просрочен!', '#FF6B6B');
+      renderOrders();
+    }
+  });
+
+  // Charger collision
+  for (const c of chargers) {
+    if (overlap(drone2, c)) {
+      drone2.battery = Math.min(100, drone2.battery + dt * 40);
+      addPopup('⚡ Зарядка...', '#FFB400');
+    }
+  }
+
+  // Warehouse pickup
+  if (!drone2.cargo && overlap(drone2, warehouse)) {
+    const available = orders.filter(o => !drone2.cargo);
+    if (available.length > 0) {
+      drone2.cargo = available[0];
+      addPopup('📦 Груз взят!', '#00A8FF');
+      renderOrders();
+    }
+  }
+
+  // Customer delivery
+  if (drone2.cargo) {
+    const cust = customers.find(c => c.id === drone2.cargo.customer.id);
+    if (cust && overlap(drone2, cust)) {
+      money += drone2.cargo.reward;
+      deliveries++;
+      addPopup(`+${drone2.cargo.reward} ₽ 🎉`, '#00D68F');
+      orders = orders.filter(o => o.id !== drone2.cargo.id);
+      drone2.cargo = null;
+      renderOrders();
+      setTimeout(spawnOrder, 1500);
+    }
+  }
+
+  // Spawn orders periodically
+  if (Math.random() < dt * 0.3 && orders.length < 3) spawnOrder();
+
+  // Popups
+  popups = popups.filter(p => { p.life -= dt; return p.life > 0; });
+  popups.forEach(p => { p.y -= dt * 40; });
+
+  updateSidePanel();
+}
+
+function overlap(d, b) {
+  return d.x + d.r > b.x && d.x - d.r < b.x + b.w &&
+         d.y + d.r > b.y && d.y - d.r < b.y + b.h;
+}
+
+function addPopup(text, color) {
+  popups.push({ text, color, x: drone2.x, y: drone2.y - 20, life: 1.5 });
+}
+
+function endGame(reason) {
+  gameState = 'idle';
+  const screen = document.getElementById('gameScreen');
+  screen.style.display = 'flex';
+  screen.innerHTML = `
+    <div style="font-size:2.5rem">${money >= 2000 ? '🏆' : '📦'}</div>
+    <h2>${reason}</h2>
+    <p>Заработано: <strong style="color:var(--blue)">${money.toLocaleString('ru')} ₽</strong><br>
+    Доставок: <strong style="color:var(--blue)">${deliveries}</strong></p>
+    <button class="btn btn-primary" onclick="startDelivery()">Ещё смена</button>
+  `;
+}
+
+function updateSidePanel() {
+  const mins = Math.floor(timeLeft/60);
+  const secs = Math.floor(timeLeft%60);
+  document.getElementById('dTime').textContent = `${mins}:${String(secs).padStart(2,'0')}`;
+  document.getElementById('dMoney').textContent = money.toLocaleString('ru') + ' ₽';
+  document.getElementById('dDeliveries').textContent = deliveries;
+  document.getElementById('dBattery').textContent = Math.round(drone2?.battery||0) + '%';
+  document.getElementById('dCargo').textContent = drone2?.cargo ? drone2.cargo.good : 'Пусто';
+}
+
+function draw2() {
+  ctx.fillStyle = '#0A0C0F';
+  ctx.fillRect(0,0,W,H);
+
+  // Grid
+  ctx.strokeStyle = 'rgba(0,168,255,0.04)';
+  ctx.lineWidth = 1;
+  for (let x=0;x<W;x+=50){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for (let y=0;y<H;y+=50){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+
+  if (gameState==='idle'&&!drone2) return;
+
+  // Draw route line if carrying cargo
+  if (drone2?.cargo) {
+    const cust = customers.find(c => c.id === drone2.cargo.customer.id);
+    if (cust) {
+      ctx.strokeStyle = 'rgba(0,214,143,0.2)';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([6,6]);
+      ctx.beginPath();
+      ctx.moveTo(drone2.x, drone2.y);
+      ctx.lineTo(cust.x + cust.w/2, cust.y + cust.h/2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+  }
+
+  // Chargers
+  for (const c of chargers) {
+    ctx.fillStyle = 'rgba(255,180,0,0.1)';
+    ctx.strokeStyle = 'rgba(255,180,0,0.4)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.roundRect(c.x, c.y, c.w, c.h, 6); ctx.fill(); ctx.stroke();
+    ctx.font = '16px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(c.label, c.x+c.w/2, c.y+c.h/2);
+  }
+
+  // Warehouse
+  const wh = warehouse;
+  const whActive = !drone2?.cargo && orders.length > 0;
+  ctx.fillStyle = whActive ? 'rgba(0,168,255,0.12)' : 'rgba(0,168,255,0.05)';
+  ctx.strokeStyle = whActive ? 'rgba(0,168,255,0.6)' : 'rgba(0,168,255,0.2)';
+  ctx.lineWidth = whActive ? 2 : 1;
+  if (whActive) { ctx.shadowBlur=12; ctx.shadowColor='rgba(0,168,255,0.4)'; }
+  ctx.beginPath(); ctx.roundRect(wh.x, wh.y, wh.w, wh.h, 8); ctx.fill(); ctx.stroke();
+  ctx.shadowBlur=0;
+  ctx.font='22px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(wh.label, wh.x+wh.w/2, wh.y+wh.h/2);
+  ctx.font='9px Inter'; ctx.fillStyle='rgba(0,168,255,0.7)';
+  ctx.fillText('СКЛАД', wh.x+wh.w/2, wh.y+wh.h+10);
+
+  // Customers
+  for (const c of customers) {
+    const isTarget = drone2?.cargo?.customer?.id === c.id;
+    const hasOrder = orders.some(o => o.customer.id === c.id);
+    ctx.fillStyle = isTarget ? 'rgba(0,214,143,0.15)' : hasOrder ? 'rgba(0,168,255,0.08)' : 'rgba(255,255,255,0.03)';
+    ctx.strokeStyle = isTarget ? 'rgba(0,214,143,0.8)' : hasOrder ? 'rgba(0,168,255,0.3)' : 'rgba(255,255,255,0.1)';
+    ctx.lineWidth = isTarget ? 2 : 1;
+    if (isTarget) { ctx.shadowBlur=12; ctx.shadowColor='rgba(0,214,143,0.5)'; }
+    ctx.beginPath(); ctx.roundRect(c.x, c.y, c.w, c.h, 6); ctx.fill(); ctx.stroke();
+    ctx.shadowBlur=0;
+    ctx.font='18px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(c.label, c.x+c.w/2, c.y+c.h/2);
+    ctx.font='8px Inter';
+    ctx.fillStyle = isTarget ? 'rgba(0,214,143,0.8)' : 'rgba(255,255,255,0.2)';
+    ctx.fillText(c.name, c.x+c.w/2, c.y+c.h+10);
+  }
+
+  if (!drone2) return;
+
+  // Drone shadow
+  ctx.fillStyle='rgba(0,0,0,0.3)';
+  ctx.beginPath(); ctx.ellipse(drone2.x, drone2.y+12, 14, 5, 0, 0, Math.PI*2); ctx.fill();
+
+  // Drone
+  ctx.save();
+  ctx.translate(drone2.x, drone2.y);
+  const tilt = drone2.vx*0.015;
+  ctx.rotate(tilt);
+
+  // Glow
+  ctx.shadowBlur=16; ctx.shadowColor='rgba(0,168,255,0.4)';
+
+  // Arms
+  ctx.strokeStyle='#1A3A55'; ctx.lineWidth=3;
+  [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([sx,sy])=>{
+    ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(sx*14,sy*10); ctx.stroke();
+  });
+
+  // Body
+  ctx.fillStyle='#0D2233'; ctx.strokeStyle='#00A8FF'; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.roundRect(-10,-6,20,12,3); ctx.fill(); ctx.stroke();
+
+  // Cargo indicator
+  if (drone2.cargo) {
+    ctx.shadowBlur=0;
+    ctx.fillStyle='rgba(0,214,143,0.9)';
+    ctx.beginPath(); ctx.roundRect(-5,6,10,8,2); ctx.fill();
+    ctx.fillStyle='#fff'; ctx.font='7px monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('PKG', 0, 10);
+  }
+
+  ctx.shadowBlur=0;
+  // Rotors
+  ctx.strokeStyle='rgba(0,168,255,0.7)'; ctx.lineWidth=1.5;
+  [[-14,-10],[14,-10],[-14,10],[14,10]].forEach(([rx,ry])=>{
+    ctx.beginPath(); ctx.ellipse(rx,ry,10,3,Date.now()*0.01,0,Math.PI*2); ctx.stroke();
+  });
+
+  ctx.restore();
+
+  // Battery bar on drone
+  if (drone2.battery < 30) {
+    const bw = 28, bx = drone2.x - bw/2, by = drone2.y - 28;
+    ctx.fillStyle='rgba(255,107,107,0.3)'; ctx.fillRect(bx,by,bw,4);
+    ctx.fillStyle='#FF6B6B'; ctx.fillRect(bx,by,bw*(drone2.battery/100),4);
+  }
+
+  // Popups
+  for (const p of popups) {
+    ctx.globalAlpha = Math.min(p.life, 1);
+    ctx.fillStyle = p.color;
+    ctx.font = 'bold 13px Inter, sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(p.text, p.x, p.y);
+  }
+  ctx.globalAlpha = 1;
+
+  // Timer warning
+  if (timeLeft < 20) {
+    ctx.fillStyle = `rgba(255,107,107,${0.3+Math.sin(Date.now()*0.008)*0.2})`;
+    ctx.fillRect(0,0,W,H);
+  }
+}
+
+draw2();
+</script>
+</body>
+</html>

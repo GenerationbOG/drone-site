@@ -481,6 +481,7 @@ function spawnBeacons(n) {
 
 function startGame() {
   document.getElementById('simStart').style.display = 'none';
+  document.body.style.overflow = 'hidden';
   initWorld();
   state = 'flying';
   lastTime = performance.now();
@@ -495,12 +496,22 @@ function resetGame() {
 }
 
 // ── Input ──
-document.addEventListener('keydown', e => {
+const BLOCK_KEYS = ['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '];
+
+// Prevent page scrolling when game is running
+window.addEventListener('keydown', e => {
+  if (BLOCK_KEYS.includes(e.key) && state !== 'idle') e.preventDefault();
   keys[e.key] = true;
-  if (e.key === ' ') { e.preventDefault(); togglePause(); }
+  if (e.key === ' ') togglePause();
   if (e.key === 'r' || e.key === 'R') resetGame();
-});
-document.addEventListener('keyup', e => { keys[e.key] = false; });
+}, { passive: false });
+
+window.addEventListener('keyup', e => { keys[e.key] = false; });
+
+// Also block scroll when mouse is over canvas
+canvas.addEventListener('wheel', e => {
+  if (state !== 'idle') e.preventDefault();
+}, { passive: false });
 
 // Mobile buttons
 function setupMobileBtn(id, key) {
@@ -863,6 +874,7 @@ function drawHUD(W, H) {
 }
 
 function showDead(reason) {
+  document.body.style.overflow = '';
   const start = document.getElementById('simStart');
   start.style.display = 'flex';
   start.innerHTML = `

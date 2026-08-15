@@ -15,7 +15,6 @@
       overflow: hidden;
     }
 
-    /* HUD-grid signature element */
     .hero-grid {
       position: absolute;
       inset: 0;
@@ -44,10 +43,7 @@
     .hero-crosshair::before { width: 1px; height: 100%; left: 50%; top: 0; }
     .hero-crosshair::after  { height: 1px; width: 100%; top: 50%; left: 0; }
 
-    .hero-content {
-      position: relative;
-      z-index: 2;
-    }
+    .hero-content { position: relative; z-index: 2; padding: 2rem 0; }
 
     .hero-eyebrow {
       display: inline-flex;
@@ -59,20 +55,10 @@
       color: var(--blue);
       margin-bottom: 1.75rem;
     }
-    .hero-eyebrow-line {
-      width: 28px; height: 1px;
-      background: var(--blue);
-    }
+    .hero-eyebrow-line { width: 28px; height: 1px; background: var(--blue); }
 
-    .hero h1 {
-      max-width: 720px;
-      margin-bottom: 1.5rem;
-      color: var(--text);
-    }
-
-    .hero h1 span {
-      color: var(--blue);
-    }
+    .hero h1 { max-width: 720px; margin-bottom: 1.5rem; color: var(--text); }
+    .hero h1 span { color: var(--blue); }
 
     .hero-desc {
       font-size: 1.05rem;
@@ -82,16 +68,12 @@
       margin-bottom: 2.5rem;
     }
 
-    .hero-actions {
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
+    .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
 
     .hero-stats {
       display: flex;
       gap: 3rem;
-      margin-top: 5rem;
+      margin-top: 4rem;
       padding-top: 2.5rem;
       border-top: 1px solid var(--border);
     }
@@ -103,9 +85,7 @@
       color: var(--text);
       letter-spacing: -0.03em;
     }
-
     .hero-stat-num span { color: var(--blue); }
-
     .hero-stat-label {
       font-size: 0.78rem;
       color: var(--text-dim);
@@ -114,7 +94,52 @@
       margin-top: 0.2rem;
     }
 
-    /* ── Overview: что такое дроны ── */
+    /* ── Mobile burger ── */
+    .burger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 4px;
+      background: none;
+      border: none;
+    }
+    .burger span {
+      display: block;
+      width: 22px; height: 2px;
+      background: var(--text-muted);
+      border-radius: 2px;
+      transition: all 0.3s;
+    }
+    .burger.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+    .burger.open span:nth-child(2) { opacity: 0; }
+    .burger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+    .mobile-menu {
+      display: none;
+      position: fixed;
+      top: 64px; left: 0; right: 0;
+      background: rgba(10,12,15,0.98);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 1.5rem 2rem;
+      z-index: 99;
+      flex-direction: column;
+      gap: 0;
+    }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a {
+      font-size: 1rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      padding: 0.9rem 0;
+      border-bottom: 1px solid var(--border);
+      transition: color 0.2s;
+    }
+    .mobile-menu a:last-child { border-bottom: none; }
+    .mobile-menu a:hover, .mobile-menu a.active { color: var(--blue); }
+
+    /* ── Overview grid ── */
     .overview-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -128,28 +153,53 @@
       border-radius: 10px;
       padding: 2rem;
       transition: border-color 0.2s;
+      cursor: pointer;
     }
     .overview-card:hover { border-color: var(--border-accent); }
 
+    /* Mobile accordion for overview cards */
+    .overview-card .card-body { display: block; }
+
+    .ov-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .ov-header-left { display: flex; align-items: center; gap: 0.75rem; }
+
     .ov-icon {
-      width: 40px; height: 40px;
+      width: 36px; height: 36px;
       background: var(--blue-dim);
       border: 1px solid var(--border-accent);
       border-radius: 8px;
       display: flex; align-items: center; justify-content: center;
-      margin-bottom: 1.25rem;
-      font-size: 1.1rem;
+      font-size: 1rem;
+      flex-shrink: 0;
     }
 
     .ov-title {
       font-family: var(--font-display);
-      font-size: 1.1rem;
+      font-size: 1rem;
       font-weight: 500;
       color: var(--text);
-      margin-bottom: 0.6rem;
     }
 
-    /* ── Области применения ── */
+    .ov-chevron {
+      color: var(--text-dim);
+      font-size: 0.75rem;
+      transition: transform 0.3s;
+      display: none;
+    }
+    .overview-card.open .ov-chevron { transform: rotate(180deg); }
+
+    .ov-desc {
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      line-height: 1.7;
+    }
+
+    /* ── Areas grid ── */
     .areas-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -184,7 +234,7 @@
       margin-bottom: 0.5rem;
     }
 
-    /* ── Регуляторика ── */
+    /* ── Regulations ── */
     .regs-layout {
       display: grid;
       grid-template-columns: 1fr 1.4fr;
@@ -193,11 +243,7 @@
       margin-top: 3rem;
     }
 
-    .regs-intro h3 {
-      font-size: 1.5rem;
-      color: var(--text);
-      margin-bottom: 1rem;
-    }
+    .regs-intro h3 { font-size: 1.5rem; color: var(--text); margin-bottom: 1rem; }
 
     .regs-list {
       list-style: none;
@@ -225,7 +271,7 @@
       width: 6px; height: 6px;
       border-radius: 50%;
       background: var(--blue);
-      margin-top: 0.5rem;
+      margin-top: 0.55rem;
       flex-shrink: 0;
     }
 
@@ -256,16 +302,73 @@
     .cta-band p  { font-size: 0.95rem; }
     .cta-actions { display: flex; gap: 1rem; flex-shrink: 0; }
 
+    /* ── Footer ── */
+    .footer-legal {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .footer-legal a {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-legal a:hover { color: var(--blue); opacity: 1; }
+
+    .footer-inner {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    /* ══ RESPONSIVE ══ */
     @media (max-width: 900px) {
       .overview-grid { grid-template-columns: 1fr; }
       .areas-grid { grid-template-columns: 1fr 1fr; }
       .regs-layout { grid-template-columns: 1fr; gap: 2rem; }
       .cta-band { flex-direction: column; align-items: flex-start; }
+      .footer-inner { grid-template-columns: 1fr 1fr; }
     }
 
-    @media (max-width: 560px) {
+    @media (max-width: 640px) {
+      /* Nav */
+      .nav-links { display: none; }
+      .burger { display: flex; }
+
+      /* Hero */
+      .hero { min-height: 85vh; }
+      .hero-crosshair { width: 200px; height: 200px; }
+      .hero h1 { font-size: 2rem; }
+      .hero-desc { font-size: 0.95rem; }
+      .hero-stats {
+        gap: 1.5rem;
+        flex-wrap: wrap;
+        margin-top: 2.5rem;
+        padding-top: 1.75rem;
+      }
+      .hero-stat-num { font-size: 1.6rem; }
+
+      /* Overview — accordion on mobile */
+      .ov-chevron { display: block; }
+      .overview-card .ov-desc { display: none; }
+      .overview-card.open .ov-desc { display: block; }
+
+      /* Areas */
       .areas-grid { grid-template-columns: 1fr; }
-      .hero-stats { flex-wrap: wrap; gap: 1.5rem; }
+      .area-item { padding: 1.25rem; }
+
+      /* CTA */
+      .cta-band { padding: 2rem 1.5rem; }
+      .cta-band h2 { font-size: 1.4rem; }
+
+      /* Footer */
+      .footer-inner {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+      .footer-legal { gap: 1rem; }
     }
   </style>
 </head>
@@ -284,8 +387,19 @@
       <li><a href="courses.html">Курсы</a></li>
       <li><a href="cases.html">Кейсы</a></li>
     </ul>
+    <button class="burger" id="burger" aria-label="Меню">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </header>
+
+<!-- Mobile menu -->
+<nav class="mobile-menu" id="mobileMenu">
+  <a href="index.html" class="active">Обзор</a>
+  <a href="events.html">Ивенты</a>
+  <a href="courses.html">Курсы</a>
+  <a href="cases.html">Кейсы</a>
+</nav>
 
 <!-- ══ HERO ══ -->
 <section class="hero">
@@ -333,25 +447,45 @@
     </p>
 
     <div class="overview-grid">
-      <div class="overview-card">
-        <div class="ov-icon">◈</div>
-        <div class="ov-title">Мультикоптеры</div>
-        <p>Самый распространённый тип: квадро-, гексо- и октокоптеры. Вертикальный взлёт и посадка, высокая маневренность. Используются в съёмке, доставке, инспекции.</p>
+      <div class="overview-card open">
+        <div class="ov-header">
+          <div class="ov-header-left">
+            <div class="ov-icon">◈</div>
+            <div class="ov-title">Мультикоптеры</div>
+          </div>
+          <span class="ov-chevron">▼</span>
+        </div>
+        <p class="ov-desc">Самый распространённый тип: квадро-, гексо- и октокоптеры. Вертикальный взлёт и посадка, высокая маневренность. Используются в съёмке, доставке, инспекции.</p>
       </div>
       <div class="overview-card">
-        <div class="ov-icon">◇</div>
-        <div class="ov-title">Самолётного типа (Fixed-wing)</div>
-        <p>Аэродинамическое крыло, длительный полёт на большие расстояния. Оптимальны для картографии, мониторинга сельхозугодий и линейных объектов.</p>
+        <div class="ov-header">
+          <div class="ov-header-left">
+            <div class="ov-icon">◇</div>
+            <div class="ov-title">Самолётного типа (Fixed-wing)</div>
+          </div>
+          <span class="ov-chevron">▼</span>
+        </div>
+        <p class="ov-desc">Аэродинамическое крыло, длительный полёт на большие расстояния. Оптимальны для картографии, мониторинга сельхозугодий и линейных объектов.</p>
       </div>
       <div class="overview-card">
-        <div class="ov-icon">⬡</div>
-        <div class="ov-title">Гибридные (VTOL)</div>
-        <p>Вертикальный взлёт/посадка плюс крейсерский полёт как у самолёта. Сочетают преимущества обоих типов — перспективный класс для доставки и логистики.</p>
+        <div class="ov-header">
+          <div class="ov-header-left">
+            <div class="ov-icon">⬡</div>
+            <div class="ov-title">Гибридные (VTOL)</div>
+          </div>
+          <span class="ov-chevron">▼</span>
+        </div>
+        <p class="ov-desc">Вертикальный взлёт/посадка плюс крейсерский полёт как у самолёта. Сочетают преимущества обоих типов — перспективный класс для доставки и логистики.</p>
       </div>
       <div class="overview-card">
-        <div class="ov-icon">○</div>
-        <div class="ov-title">Привязные дроны (Tethered)</div>
-        <p>Питание и связь по кабелю с земли. Теоретически неограниченное время полёта. Применяются для мониторинга событий, телекоммуникаций, охраны периметра.</p>
+        <div class="ov-header">
+          <div class="ov-header-left">
+            <div class="ov-icon">○</div>
+            <div class="ov-title">Привязные дроны (Tethered)</div>
+          </div>
+          <span class="ov-chevron">▼</span>
+        </div>
+        <p class="ov-desc">Питание и связь по кабелю с земли. Теоретически неограниченное время полёта. Применяются для мониторинга событий, телекоммуникаций, охраны периметра.</p>
       </div>
     </div>
   </div>
@@ -471,9 +605,41 @@
       <img src="assets/logo.jpeg" alt="COREPLUS" style="width:22px;height:22px;border-radius:0;object-fit:cover;mix-blend-mode:lighten;">
       COREPLUS
     </div>
+    <div class="footer-legal">
+      <a href="privacy-policy.html">Privacy Policy</a>
+      <a href="terms-of-service.html">Terms of Service</a>
+      <a href="mobile-messaging-terms.html">Mobile Messaging Terms</a>
+    </div>
     <div class="footer-copy">© 2025 COREPLUS · Дроны в гражданской авиации</div>
   </div>
 </footer>
+
+<script>
+  // ── Burger menu ──
+  const burger = document.getElementById('burger');
+  const mobileMenu = document.getElementById('mobileMenu');
+
+  burger.addEventListener('click', () => {
+    burger.classList.toggle('open');
+    mobileMenu.classList.toggle('open');
+  });
+
+  // Close on link click
+  mobileMenu.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => {
+      burger.classList.remove('open');
+      mobileMenu.classList.remove('open');
+    });
+  });
+
+  // ── Overview accordion (mobile only) ──
+  document.querySelectorAll('.overview-card').forEach(card => {
+    card.addEventListener('click', () => {
+      if (window.innerWidth > 640) return;
+      card.classList.toggle('open');
+    });
+  });
+</script>
 
 </body>
 </html>

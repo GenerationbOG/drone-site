@@ -6,390 +6,191 @@
   <title>Ивенты — COREPLUS</title>
   <link rel="stylesheet" href="css/style.css" />
   <style>
-    /* ── Page Hero ── */
-    .page-hero {
-      padding: 5rem 0 4rem;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .page-hero-inner {
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      gap: 2rem;
-    }
-
+    .page-hero { padding: 5rem 0 4rem; border-bottom: 1px solid var(--border); }
+    .page-hero-inner { display: flex; align-items: flex-end; justify-content: space-between; gap: 2rem; }
     .page-hero h1 { margin-bottom: 1rem; }
     .page-hero p  { max-width: 480px; }
+    .events-count { font-family: var(--font-display); font-size: 4rem; font-weight: 700; color: var(--blue); letter-spacing: -0.04em; line-height: 1; flex-shrink: 0; }
+    .events-count span { display: block; font-size: 0.7rem; font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); margin-top: 0.4rem; }
 
-    .events-count {
-      font-family: var(--font-display);
-      font-size: 4rem;
-      font-weight: 700;
-      color: var(--blue);
-      letter-spacing: -0.04em;
-      line-height: 1;
-      flex-shrink: 0;
+    /* Filter */
+    .filter-bar { display: flex; align-items: center; gap: 0.75rem; padding: 1.5rem 0; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+    .filter-label { font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); margin-right: 0.5rem; }
+    .filter-btn { font-family: var(--font-body); font-size: 0.8rem; padding: 0.35rem 0.9rem; border-radius: 4px; border: 1px solid var(--border); background: transparent; color: var(--text-muted); cursor: pointer; transition: all 0.2s; }
+    .filter-btn:hover, .filter-btn.active { border-color: var(--border-accent); color: var(--blue); background: var(--blue-dim); }
+
+    /* Featured */
+    .featured-event { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin: 3rem 0 2.5rem; cursor: pointer; transition: border-color 0.2s; }
+    .featured-event:hover { border-color: var(--border-accent); }
+    .featured-event-info { padding: 2.5rem; background: var(--bg-card); }
+    .featured-badge { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: #00D68F; background: rgba(0,214,143,0.1); border: 1px solid rgba(0,214,143,0.25); padding: 0.25rem 0.7rem; border-radius: 3px; margin-bottom: 1.25rem; }
+    .featured-badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: #00D68F; animation: pulse 1.8s ease-in-out infinite; }
+    .featured-event-info h2 { font-size: 1.75rem; color: var(--text); margin-bottom: 0.75rem; }
+    .featured-event-info p { margin-bottom: 1.5rem; }
+    .event-meta-row { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 2rem; }
+    .event-meta-item { display: flex; align-items: center; gap: 0.6rem; font-size: 0.85rem; color: var(--text-muted); }
+    .event-meta-item strong { color: var(--text); font-weight: 500; }
+    .meta-icon { width: 18px; height: 18px; opacity: 0.4; }
+    .featured-event-visual { background: var(--bg-subtle); display: flex; align-items: center; justify-content: center; min-height: 300px; position: relative; overflow: hidden; }
+
+    /* Radar */
+    .radar { position: relative; width: 220px; height: 220px; }
+    .radar-ring { position: absolute; border-radius: 50%; border: 1px solid rgba(0,168,255,0.15); top: 50%; left: 50%; transform: translate(-50%, -50%); }
+    .radar-ring:nth-child(1) { width: 60px; height: 60px; }
+    .radar-ring:nth-child(2) { width: 110px; height: 110px; }
+    .radar-ring:nth-child(3) { width: 160px; height: 160px; }
+    .radar-ring:nth-child(4) { width: 210px; height: 210px; }
+    .radar-sweep { position: absolute; width: 50%; height: 50%; top: 0; right: 0; transform-origin: bottom left; background: conic-gradient(transparent 300deg, rgba(0,168,255,0.18) 360deg); animation: sweep 3s linear infinite; border-radius: 0 100% 0 0; }
+    @keyframes sweep { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .radar-dot { position: absolute; width: 5px; height: 5px; border-radius: 50%; background: var(--blue); box-shadow: 0 0 6px var(--blue); }
+    .radar-dot:nth-child(3) { top: 30%; left: 60%; }
+    .radar-dot:nth-child(4) { top: 60%; left: 35%; }
+    .radar-dot:nth-child(5) { top: 45%; left: 70%; }
+    .radar-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 8px; height: 8px; border-radius: 50%; background: var(--blue); box-shadow: 0 0 12px var(--blue); }
+
+    /* Section title */
+    .events-section-title { font-family: var(--font-display); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem; }
+    .events-section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    /* Events grid */
+    .events-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 3rem; }
+
+    .event-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; transition: border-color 0.2s, transform 0.2s; cursor: pointer; text-decoration: none; }
+    .event-card:hover { border-color: var(--border-accent); transform: translateY(-2px); opacity: 1; }
+    .event-card-top { display: flex; justify-content: space-between; align-items: flex-start; }
+    .event-type { font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); }
+    .event-card-date { font-family: var(--font-display); font-size: 0.8rem; font-weight: 500; color: var(--blue); text-align: right; }
+    .event-card h3 { font-size: 1rem; font-weight: 500; color: var(--text); line-height: 1.4; }
+    .event-card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--border); }
+    .event-location { font-size: 0.78rem; color: var(--text-dim); }
+    .event-format { font-size: 0.7rem; padding: 0.2rem 0.6rem; border-radius: 3px; }
+    .event-format.online { background: rgba(0,214,143,0.1); color: #00D68F; border: 1px solid rgba(0,214,143,0.2); }
+    .event-format.offline { background: var(--blue-dim); color: var(--blue); border: 1px solid var(--border-accent); }
+    .event-format.hybrid { background: rgba(255,180,0,0.08); color: #FFB400; border: 1px solid rgba(255,180,0,0.2); }
+
+    /* Past events — now clickable with itog */
+    .past-list { display: flex; flex-direction: column; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 6rem; }
+    .past-item { background: var(--bg-card); padding: 1.1rem 1.5rem; display: grid; grid-template-columns: 110px 1fr auto auto; gap: 1.25rem; align-items: center; cursor: pointer; transition: background 0.2s; }
+    .past-item:hover { background: var(--bg-subtle); }
+    .past-date { font-size: 0.8rem; color: var(--text-dim); }
+    .past-title { font-family: var(--font-display); font-size: 0.95rem; font-weight: 500; color: var(--text); }
+    .past-tag { font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-dim); }
+    .past-arrow { color: var(--text-dim); font-size: 0.75rem; transition: transform 0.2s, color 0.2s; }
+    .past-item:hover .past-arrow { transform: translateX(3px); color: var(--blue); }
+
+    /* ══ MODAL ══ */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(6px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 1.5rem;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.25s;
     }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
 
-    .events-count span {
-      display: block;
-      font-size: 0.7rem;
-      font-weight: 400;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--text-dim);
-      margin-top: 0.4rem;
+    .modal {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      width: 100%; max-width: 620px;
+      max-height: 90vh;
+      overflow-y: auto;
+      transform: translateY(16px);
+      transition: transform 0.25s;
     }
+    .modal-overlay.open .modal { transform: translateY(0); }
 
-    /* ── Filter Bar ── */
-    .filter-bar {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 1.5rem 0;
+    .modal-header {
+      padding: 2rem 2rem 1.25rem;
       border-bottom: 1px solid var(--border);
-      flex-wrap: wrap;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+      position: sticky; top: 0;
+      background: var(--bg-card);
+      z-index: 1;
     }
 
-    .filter-label {
-      font-size: 0.75rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--text-dim);
-      margin-right: 0.5rem;
-    }
-
-    .filter-btn {
-      font-family: var(--font-body);
-      font-size: 0.8rem;
-      padding: 0.35rem 0.9rem;
-      border-radius: 4px;
+    .modal-close {
+      width: 32px; height: 32px;
+      border-radius: 50%;
       border: 1px solid var(--border);
       background: transparent;
       color: var(--text-muted);
       cursor: pointer;
+      font-size: 1.1rem;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
       transition: all 0.2s;
     }
+    .modal-close:hover { border-color: var(--border-accent); color: var(--blue); }
 
-    .filter-btn:hover,
-    .filter-btn.active {
-      border-color: var(--border-accent);
-      color: var(--blue);
-      background: var(--blue-dim);
-    }
+    .modal-body { padding: 1.75rem 2rem 2rem; }
 
-    /* ── Featured Event ── */
-    .featured-event {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      overflow: hidden;
-      margin: 3rem 0 2.5rem;
-      transition: border-color 0.2s;
-    }
+    .modal-badge { margin-bottom: 0.75rem; }
 
-    .featured-event:hover { border-color: var(--border-accent); }
+    .modal-title { font-family: var(--font-display); font-size: 1.5rem; font-weight: 600; color: var(--text); line-height: 1.25; }
 
-    .featured-event-info {
-      padding: 2.5rem;
-      background: var(--bg-card);
-    }
+    .modal-meta { display: flex; flex-direction: column; gap: 0.5rem; margin: 1.5rem 0; padding: 1.25rem; background: var(--bg-subtle); border-radius: 8px; border: 1px solid var(--border); }
+    .modal-meta-item { display: flex; align-items: center; gap: 0.6rem; font-size: 0.88rem; color: var(--text-muted); }
+    .modal-meta-item strong { color: var(--text); }
 
-    .featured-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      font-size: 0.68rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: #00D68F;
-      background: rgba(0,214,143,0.1);
-      border: 1px solid rgba(0,214,143,0.25);
-      padding: 0.25rem 0.7rem;
-      border-radius: 3px;
-      margin-bottom: 1.25rem;
-    }
+    .modal-desc { font-size: 0.92rem; line-height: 1.75; color: var(--text-muted); margin-bottom: 1.5rem; }
 
-    .featured-badge::before {
-      content: '';
-      width: 5px; height: 5px;
-      border-radius: 50%;
-      background: #00D68F;
-      animation: pulse 1.8s ease-in-out infinite;
-    }
+    .modal-section-title { font-family: var(--font-display); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.75rem; }
 
-    .featured-event-info h2 {
-      font-size: 1.75rem;
-      color: var(--text);
-      margin-bottom: 0.75rem;
-    }
+    .modal-topics { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1.5rem; }
+    .modal-topics li { font-size: 0.88rem; color: var(--text-muted); padding-left: 1rem; position: relative; }
+    .modal-topics li::before { content: '·'; position: absolute; left: 0; color: var(--blue); }
 
-    .featured-event-info p {
-      margin-bottom: 1.5rem;
-    }
+    /* Итоги прошедших */
+    .modal-results { background: var(--bg-subtle); border: 1px solid var(--border-accent); border-radius: 10px; padding: 1.25rem; margin-bottom: 1.5rem; }
+    .modal-results-title { font-family: var(--font-display); font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--blue); margin-bottom: 0.75rem; }
+    .modal-results-stats { display: flex; gap: 1.5rem; margin-bottom: 0.75rem; }
+    .modal-result-stat { text-align: center; }
+    .modal-result-num { font-family: var(--font-display); font-size: 1.4rem; font-weight: 700; color: var(--blue); }
+    .modal-result-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-dim); margin-top: 0.15rem; }
+    .modal-result-text { font-size: 0.85rem; color: var(--text-muted); line-height: 1.65; }
 
-    .event-meta-row {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      margin-bottom: 2rem;
-    }
+    .modal-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1.75rem; }
 
-    .event-meta-item {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      font-size: 0.85rem;
-      color: var(--text-muted);
-    }
+    /* Mobile nav */
+    .burger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; background: none; border: none; }
+    .burger span { display: block; width: 22px; height: 2px; background: var(--text-muted); border-radius: 2px; transition: all 0.3s; }
+    .burger.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+    .burger.open span:nth-child(2) { opacity: 0; }
+    .burger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+    .mobile-menu { display: none; position: fixed; top: 64px; left: 0; right: 0; background: rgba(10,12,15,0.98); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 1.5rem 2rem; z-index: 99; flex-direction: column; gap: 0; }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a { font-size: 1rem; color: var(--text-muted); text-decoration: none; padding: 0.9rem 0; border-bottom: 1px solid var(--border); transition: color 0.2s; }
+    .mobile-menu a:last-child { border-bottom: none; }
+    .mobile-menu a:hover, .mobile-menu a.active { color: var(--blue); }
 
-    .event-meta-item strong {
-      color: var(--text);
-      font-weight: 500;
-    }
+    /* Footer legal */
+    .footer-legal { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+    .footer-legal a { font-size: 0.75rem; color: var(--text-dim); text-decoration: none; transition: color 0.2s; }
+    .footer-legal a:hover { color: var(--blue); opacity: 1; }
+    .footer-inner { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 1.5rem; }
 
-    .meta-icon {
-      width: 18px;
-      height: 18px;
-      opacity: 0.4;
-    }
-
-    .featured-event-visual {
-      background: var(--bg-subtle);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 300px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    /* Animated radar */
-    .radar {
-      position: relative;
-      width: 220px;
-      height: 220px;
-    }
-
-    .radar-ring {
-      position: absolute;
-      border-radius: 50%;
-      border: 1px solid rgba(0,168,255,0.15);
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-    }
-
-    .radar-ring:nth-child(1) { width: 60px;  height: 60px; }
-    .radar-ring:nth-child(2) { width: 110px; height: 110px; }
-    .radar-ring:nth-child(3) { width: 160px; height: 160px; }
-    .radar-ring:nth-child(4) { width: 210px; height: 210px; }
-
-    .radar-sweep {
-      position: absolute;
-      width: 50%; height: 50%;
-      top: 0; right: 0;
-      transform-origin: bottom left;
-      background: conic-gradient(transparent 300deg, rgba(0,168,255,0.18) 360deg);
-      animation: sweep 3s linear infinite;
-      border-radius: 0 100% 0 0;
-    }
-
-    @keyframes sweep {
-      from { transform: rotate(0deg); }
-      to   { transform: rotate(360deg); }
-    }
-
-    .radar-dot {
-      position: absolute;
-      width: 5px; height: 5px;
-      border-radius: 50%;
-      background: var(--blue);
-      box-shadow: 0 0 6px var(--blue);
-    }
-
-    .radar-dot:nth-child(3) { top: 30%; left: 60%; }
-    .radar-dot:nth-child(4) { top: 60%; left: 35%; }
-    .radar-dot:nth-child(5) { top: 45%; left: 70%; }
-
-    .radar-center {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      background: var(--blue);
-      box-shadow: 0 0 12px var(--blue);
-    }
-
-    /* ── Events Grid ── */
-    .events-section-title {
-      font-family: var(--font-display);
-      font-size: 0.75rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--text-dim);
-      margin-bottom: 1.5rem;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-
-    .events-section-title::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--border);
-    }
-
-    .events-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1rem;
-      margin-bottom: 3rem;
-    }
-
-    .event-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1.5rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      transition: border-color 0.2s, transform 0.2s;
-      cursor: pointer;
-      text-decoration: none;
-    }
-
-    .event-card:hover {
-      border-color: var(--border-accent);
-      transform: translateY(-2px);
-      opacity: 1;
-    }
-
-    .event-card-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-    }
-
-    .event-type {
-      font-size: 0.68rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--text-dim);
-    }
-
-    .event-card-date {
-      font-family: var(--font-display);
-      font-size: 0.8rem;
-      font-weight: 500;
-      color: var(--blue);
-      text-align: right;
-    }
-
-    .event-card h3 {
-      font-size: 1rem;
-      font-weight: 500;
-      color: var(--text);
-      line-height: 1.4;
-    }
-
-    .event-card-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: auto;
-      padding-top: 1rem;
-      border-top: 1px solid var(--border);
-    }
-
-    .event-location {
-      font-size: 0.78rem;
-      color: var(--text-dim);
-    }
-
-    .event-format {
-      font-size: 0.7rem;
-      padding: 0.2rem 0.6rem;
-      border-radius: 3px;
-    }
-
-    .event-format.online {
-      background: rgba(0,214,143,0.1);
-      color: #00D68F;
-      border: 1px solid rgba(0,214,143,0.2);
-    }
-
-    .event-format.offline {
-      background: var(--blue-dim);
-      color: var(--blue);
-      border: 1px solid var(--border-accent);
-    }
-
-    .event-format.hybrid {
-      background: rgba(255,180,0,0.08);
-      color: #FFB400;
-      border: 1px solid rgba(255,180,0,0.2);
-    }
-
-    /* ── Past events ── */
-    .past-list {
-      display: flex;
-      flex-direction: column;
-      gap: 1px;
-      background: var(--border);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      overflow: hidden;
-      margin-bottom: 6rem;
-    }
-
-    .past-item {
-      background: var(--bg-card);
-      padding: 1.1rem 1.5rem;
-      display: grid;
-      grid-template-columns: 120px 1fr auto;
-      gap: 1.5rem;
-      align-items: center;
-      transition: background 0.2s;
-    }
-
-    .past-item:hover { background: var(--bg-subtle); }
-
-    .past-date {
-      font-size: 0.8rem;
-      color: var(--text-dim);
-    }
-
-    .past-title {
-      font-family: var(--font-display);
-      font-size: 0.95rem;
-      font-weight: 500;
-      color: var(--text);
-    }
-
-    .past-tag {
-      font-size: 0.68rem;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--text-dim);
-    }
-
+    /* Responsive */
     @media (max-width: 900px) {
       .featured-event { grid-template-columns: 1fr; }
       .featured-event-visual { min-height: 200px; }
       .events-grid { grid-template-columns: 1fr 1fr; }
       .page-hero-inner { flex-direction: column; align-items: flex-start; }
+      .footer-inner { grid-template-columns: 1fr 1fr; }
     }
-
-    @media (max-width: 600px) {
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      .burger { display: flex; }
       .events-grid { grid-template-columns: 1fr; }
-      .past-item { grid-template-columns: 1fr; gap: 0.25rem; }
+      .past-item { grid-template-columns: 1fr auto; }
       .past-tag { display: none; }
+      .modal-results-stats { flex-wrap: wrap; gap: 1rem; }
+      .footer-inner { grid-template-columns: 1fr; gap: 1rem; }
     }
   </style>
 </head>
@@ -408,8 +209,15 @@
       <li><a href="courses.html">Курсы</a></li>
       <li><a href="cases.html">Кейсы</a></li>
     </ul>
+    <button class="burger" id="burger" aria-label="Меню"><span></span><span></span><span></span></button>
   </div>
 </header>
+<nav class="mobile-menu" id="mobileMenu">
+  <a href="index.html">Обзор</a>
+  <a href="events.html" class="active">Ивенты</a>
+  <a href="courses.html">Курсы</a>
+  <a href="cases.html">Кейсы</a>
+</nav>
 
 <!-- ══ PAGE HERO ══ -->
 <section class="page-hero">
@@ -420,10 +228,7 @@
         <h1>Ивенты по дронам</h1>
         <p>Конференции, выставки, воркшопы и митапы для специалистов в области БПЛА и гражданской авиации. Очные и онлайн.</p>
       </div>
-      <div class="events-count">
-        8
-        <span>мероприятий в 2026</span>
-      </div>
+      <div class="events-count">8<span>мероприятий в 2026</span></div>
     </div>
   </div>
 </section>
@@ -432,16 +237,16 @@
 <div class="container">
   <div class="filter-bar">
     <span class="filter-label">Формат</span>
-    <button class="filter-btn active">Все</button>
-    <button class="filter-btn">Офлайн</button>
-    <button class="filter-btn">Онлайн</button>
-    <button class="filter-btn">Гибрид</button>
+    <button class="filter-btn active" data-filter="all">Все</button>
+    <button class="filter-btn" data-filter="offline">Офлайн</button>
+    <button class="filter-btn" data-filter="online">Онлайн</button>
+    <button class="filter-btn" data-filter="hybrid">Гибрид</button>
   </div>
 </div>
 
 <!-- ══ FEATURED ══ -->
 <div class="container">
-  <div class="featured-event">
+  <div class="featured-event" onclick="openModal('summit')">
     <div class="featured-event-info">
       <div class="featured-badge">Ближайшее</div>
       <h2>Drone Tech Summit 2026</h2>
@@ -460,18 +265,14 @@
           <span>2 дня · 40+ докладчиков · 1200+ участников</span>
         </div>
       </div>
-      <a href="#" class="btn btn-primary">Зарегистрироваться</a>
+      <span class="btn btn-primary">Подробнее →</span>
     </div>
     <div class="featured-event-visual">
       <div class="radar">
-        <div class="radar-ring"></div>
-        <div class="radar-ring"></div>
-        <div class="radar-ring"></div>
-        <div class="radar-ring"></div>
+        <div class="radar-ring"></div><div class="radar-ring"></div>
+        <div class="radar-ring"></div><div class="radar-ring"></div>
         <div class="radar-sweep"></div>
-        <div class="radar-dot"></div>
-        <div class="radar-dot"></div>
-        <div class="radar-dot"></div>
+        <div class="radar-dot"></div><div class="radar-dot"></div><div class="radar-dot"></div>
         <div class="radar-center"></div>
       </div>
     </div>
@@ -481,9 +282,9 @@
 <!-- ══ UPCOMING ══ -->
 <div class="container">
   <div class="events-section-title">Предстоящие мероприятия</div>
-  <div class="events-grid">
+  <div class="events-grid" id="eventsGrid">
 
-    <a href="#" class="event-card">
+    <div class="event-card" data-format="offline" onclick="openModal('workshop1')">
       <div class="event-card-top">
         <div class="event-type">Воркшоп</div>
         <div class="event-card-date">18 июл<br>2026</div>
@@ -493,9 +294,9 @@
         <span class="event-location">Санкт-Петербург</span>
         <span class="event-format offline">Офлайн</span>
       </div>
-    </a>
+    </div>
 
-    <a href="#" class="event-card">
+    <div class="event-card" data-format="online" onclick="openModal('webinar1')">
       <div class="event-card-top">
         <div class="event-type">Вебинар</div>
         <div class="event-card-date">24 июл<br>2026</div>
@@ -505,9 +306,9 @@
         <span class="event-location">Онлайн</span>
         <span class="event-format online">Онлайн</span>
       </div>
-    </a>
+    </div>
 
-    <a href="#" class="event-card">
+    <div class="event-card" data-format="offline" onclick="openModal('expo1')">
       <div class="event-card-top">
         <div class="event-type">Выставка</div>
         <div class="event-card-date">5 авг<br>2026</div>
@@ -517,9 +318,9 @@
         <span class="event-location">Казань</span>
         <span class="event-format offline">Офлайн</span>
       </div>
-    </a>
+    </div>
 
-    <a href="#" class="event-card">
+    <div class="event-card" data-format="hybrid" onclick="openModal('meetup1')">
       <div class="event-card-top">
         <div class="event-type">Митап</div>
         <div class="event-card-date">20 авг<br>2026</div>
@@ -529,9 +330,9 @@
         <span class="event-location">Москва + стрим</span>
         <span class="event-format hybrid">Гибрид</span>
       </div>
-    </a>
+    </div>
 
-    <a href="#" class="event-card">
+    <div class="event-card" data-format="online" onclick="openModal('utm1')">
       <div class="event-card-top">
         <div class="event-type">Конференция</div>
         <div class="event-card-date">3 окт<br>2026</div>
@@ -541,9 +342,9 @@
         <span class="event-location">Онлайн</span>
         <span class="event-format online">Онлайн</span>
       </div>
-    </a>
+    </div>
 
-    <a href="#" class="event-card">
+    <div class="event-card" data-format="offline" onclick="openModal('map1')">
       <div class="event-card-top">
         <div class="event-type">Воркшоп</div>
         <div class="event-card-date">25 окт<br>2026</div>
@@ -553,37 +354,42 @@
         <span class="event-location">Екатеринбург</span>
         <span class="event-format offline">Офлайн</span>
       </div>
-    </a>
+    </div>
 
   </div>
 
-  <!-- ══ PAST EVENTS ══ -->
-  <div class="events-section-title" style="margin-top:1rem;">Прошедшие</div>
+  <!-- ══ PAST ══ -->
+  <div class="events-section-title" style="margin-top:1rem;">Прошедшие — нажми для итогов</div>
   <div class="past-list">
-    <div class="past-item">
+    <div class="past-item" onclick="openModal('past1')">
       <div class="past-date">Март 2026</div>
       <div class="past-title">Drone Days Russia — весна 2026</div>
       <div class="past-tag">Конференция</div>
+      <div class="past-arrow">→</div>
     </div>
-    <div class="past-item">
+    <div class="past-item" onclick="openModal('past2')">
       <div class="past-date">Янв 2026</div>
       <div class="past-title">Вебинар: новые правила регистрации БПЛА в РФ</div>
       <div class="past-tag">Вебинар</div>
+      <div class="past-arrow">→</div>
     </div>
-    <div class="past-item">
+    <div class="past-item" onclick="openModal('past3')">
       <div class="past-date">Нояб 2025</div>
       <div class="past-title">AgroDrone Forum — применение в сельском хозяйстве</div>
       <div class="past-tag">Выставка</div>
+      <div class="past-arrow">→</div>
     </div>
-    <div class="past-item">
+    <div class="past-item" onclick="openModal('past4')">
       <div class="past-date">Сент 2025</div>
       <div class="past-title">Drone Tech Summit 2025</div>
       <div class="past-tag">Конференция</div>
+      <div class="past-arrow">→</div>
     </div>
-    <div class="past-item">
+    <div class="past-item" onclick="openModal('past5')">
       <div class="past-date">Июнь 2025</div>
       <div class="past-title">Воркшоп: FPV для коммерческих задач</div>
       <div class="past-tag">Воркшоп</div>
+      <div class="past-arrow">→</div>
     </div>
   </div>
 </div>
@@ -595,18 +401,246 @@
       <img src="assets/logo.jpeg" alt="COREPLUS" style="width:22px;height:22px;border-radius:0;object-fit:cover;mix-blend-mode:lighten;">
       COREPLUS
     </div>
+    <div class="footer-legal">
+      <a href="privacy-policy.html">Privacy Policy</a>
+      <a href="terms-of-service.html">Terms of Service</a>
+      <a href="mobile-messaging-terms.html">Mobile Messaging Terms</a>
+    </div>
     <div class="footer-copy">© 2025 COREPLUS · Дроны в гражданской авиации</div>
   </div>
 </footer>
 
+<!-- ══ MODALS ══ -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOnBg(event)">
+  <div class="modal" id="modalBox">
+    <div class="modal-header">
+      <div>
+        <div class="modal-badge" id="mBadge"></div>
+        <div class="modal-title" id="mTitle"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-meta" id="mMeta"></div>
+      <div class="modal-desc" id="mDesc"></div>
+      <div id="mResults"></div>
+      <div class="modal-section-title" id="mTopicsLabel"></div>
+      <ul class="modal-topics" id="mTopics"></ul>
+      <div class="modal-actions" id="mActions"></div>
+    </div>
+  </div>
+</div>
+
 <script>
-  // Filter buttons toggle
-  document.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
+// ── Burger ──
+const burger = document.getElementById('burger');
+const mobileMenu = document.getElementById('mobileMenu');
+burger.addEventListener('click', () => {
+  burger.classList.toggle('open');
+  mobileMenu.classList.toggle('open');
+});
+mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+  burger.classList.remove('open');
+  mobileMenu.classList.remove('open');
+}));
+
+// ── Filter ──
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const f = btn.dataset.filter;
+    document.querySelectorAll('#eventsGrid .event-card').forEach(card => {
+      card.style.display = (f === 'all' || card.dataset.format === f) ? '' : 'none';
     });
   });
+});
+
+// ── Modal data ──
+const events = {
+  summit: {
+    badge: '<span class="featured-badge">Ближайшее</span>',
+    title: 'Drone Tech Summit 2026',
+    meta: [
+      {icon:'📅', text:'<strong>15–16 сентября 2026</strong>'},
+      {icon:'📍', text:'<strong>Москва</strong>, Экспоцентр, павильон 7'},
+      {icon:'⏱', text:'2 дня · 40+ докладчиков · 1200+ участников'},
+      {icon:'🎫', text:'Формат: <strong>Офлайн</strong>'},
+    ],
+    desc: 'Главная отраслевая конференция России по беспилотным системам. Доклады от ведущих операторов, живые демонстрации полётов, нетворкинг-зона и выставка оборудования.',
+    topicsLabel: 'Темы докладов',
+    topics: ['Регуляторика 2026–2027: что ожидать','UTM системы и интеграция в воздушное пространство','Коммерческое применение FPV-дронов','Беспилотная доставка: реальные кейсы','Картография и фотограмметрия: новые инструменты','Тепловизионная инспекция инфраструктуры'],
+    actions: ['<a href="#" class="btn btn-primary">Зарегистрироваться</a>','<a href="#" class="btn btn-outline">Программа PDF</a>'],
+  },
+  workshop1: {
+    badge: '<span class="tag">Воркшоп</span>',
+    title: 'Практика полётов: сертификация оператора БПЛА',
+    meta: [{icon:'📅',text:'<strong>18 июля 2026</strong>'},{icon:'📍',text:'<strong>Санкт-Петербург</strong>, аэродром Скворицы'},{icon:'⏱',text:'1 день · 8 часов практики'},{icon:'👥',text:'Группа: до 12 человек'}],
+    desc: 'Интенсивный практический день для тех, кто готовится к сдаче экзамена Росавиации. Полёты, разбор типичных ошибок, нормативная база.',
+    topicsLabel: 'Программа дня',
+    topics: ['Предполётная подготовка и чек-лист','Практические манёвры по программе экзамена','Нештатные ситуации: действия оператора','Оформление документации и полётного задания','Разбор ошибок и индивидуальные рекомендации'],
+    actions: ['<a href="courses.html" class="btn btn-primary">Записаться через курс</a>'],
+  },
+  webinar1: {
+    badge: '<span class="event-format online" style="display:inline-block">Онлайн</span>',
+    title: 'Регуляторика 2026: что изменилось для операторов',
+    meta: [{icon:'📅',text:'<strong>24 июля 2026, 19:00 МСК</strong>'},{icon:'💻',text:'Онлайн, Zoom + запись'},{icon:'⏱',text:'2 часа + Q&A'}],
+    desc: 'Разбираем все изменения в законодательстве о БПЛА за 2025–2026 год: новые зоны ограничений, обновлённый порядок регистрации, требования к операторам.',
+    topicsLabel: 'Темы вебинара',
+    topics: ['Постановление № 658 — актуальная редакция','Новые запретные зоны и порядок получения разрешений','Страхование ответственности оператора','Ответы на вопросы участников'],
+    actions: ['<a href="#" class="btn btn-primary">Получить ссылку</a>'],
+  },
+  expo1: {
+    badge: '<span class="tag">Выставка</span>',
+    title: 'AeroExpo Russia — Казань 2026',
+    meta: [{icon:'📅',text:'<strong>5–7 августа 2026</strong>'},{icon:'📍',text:'<strong>Казань</strong>, КВЦ «Казань Экспо»'},{icon:'⏱',text:'3 дня · 80+ экспонентов'}],
+    desc: 'Крупнейшая выставка авиационного и беспилотного оборудования в Поволжье. Новинки техники, переговорные зоны, демонстрационные полёты.',
+    topicsLabel: 'Что представят',
+    topics: ['Новые модели коммерческих БПЛА 2026','Системы управления трафиком (UTM)','Программное обеспечение для обработки данных','Тепловизионные и мультиспектральные камеры','Зарядные станции и логистические решения'],
+    actions: ['<a href="#" class="btn btn-primary">Зарегистрироваться</a>','<a href="#" class="btn btn-outline">Стать экспонентом</a>'],
+  },
+  meetup1: {
+    badge: '<span class="event-format hybrid" style="display:inline-block">Гибрид</span>',
+    title: 'Drone Builders Meetup — осенний выпуск',
+    meta: [{icon:'📅',text:'<strong>20 августа 2026, 18:30</strong>'},{icon:'📍',text:'<strong>Москва</strong> + онлайн-трансляция'},{icon:'⏱',text:'3 часа · нетворкинг'}],
+    desc: 'Неформальная встреча энтузиастов и профессионалов рынка БПЛА. Молниеносные доклады, демонстрация самосборных платформ, живое общение.',
+    topicsLabel: 'Формат вечера',
+    topics: ['5 молниеносных докладов по 7 минут','Демонстрация кастомных сборок','Открытый нетворкинг с едой и напитками','Онлайн-трансляция для удалённых участников'],
+    actions: ['<a href="#" class="btn btn-primary">Зарегистрироваться</a>'],
+  },
+  utm1: {
+    badge: '<span class="event-format online" style="display:inline-block">Онлайн</span>',
+    title: 'UTM Forum: управление трафиком БПЛА в городской среде',
+    meta: [{icon:'📅',text:'<strong>3 октября 2026</strong>'},{icon:'💻',text:'Онлайн, международный'},{icon:'⏱',text:'1 день · 6 сессий'}],
+    desc: 'Международный форум по системам управления воздушным трафиком беспилотников в городской среде. Доклады от ИКАО, Eurocontrol и российских разработчиков.',
+    topicsLabel: 'Сессии форума',
+    topics: ['Глобальные стандарты UTM: обзор ИКАО','City Air Mobility: опыт Дубая и Сингапура','Российская UTM-экосистема: статус 2026','Взаимодействие БПЛА и пилотируемой авиации','Кибербезопасность беспилотных систем'],
+    actions: ['<a href="#" class="btn btn-primary">Зарегистрироваться</a>'],
+  },
+  map1: {
+    badge: '<span class="tag">Воркшоп</span>',
+    title: 'Картография с воздуха: от полёта до ортофотоплана',
+    meta: [{icon:'📅',text:'<strong>25 октября 2026</strong>'},{icon:'📍',text:'<strong>Екатеринбург</strong>, учебный полигон'},{icon:'⏱',text:'1 день · теория + практика'},{icon:'👥',text:'Группа: до 10 человек'}],
+    desc: 'Полный цикл создания ортофотоплана: планирование съёмки, выполнение полёта, обработка в Agisoft Metashape, экспорт в GIS.',
+    topicsLabel: 'Программа',
+    topics: ['Планирование сетки перекрытий','Полёт и сбор данных (4 часа практики)','Обработка в Metashape от А до Я','Контрольные точки и повышение точности','Экспорт: GeoTIFF, LAS, OBJ'],
+    actions: ['<a href="courses.html" class="btn btn-primary">Записаться</a>'],
+  },
+
+  // Past events с итогами
+  past1: {
+    badge: '<span style="font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim)">Прошедшее · Март 2026</span>',
+    title: 'Drone Days Russia — весна 2026',
+    meta: [{icon:'📅',text:'14–15 марта 2026'},{icon:'📍',text:'Москва, Цифровое деловое пространство'},{icon:'👥',text:'~900 участников'}],
+    desc: 'Двухдневная конференция с фокусом на коммерческое применение БПЛА в 2026 году. Впервые проводилась отдельная секция по сельскохозяйственным дронам.',
+    results: {
+      stats: [{num:'900+',label:'участников'},{num:'28',label:'докладов'},{num:'15',label:'стендов'}],
+      text: 'Главным итогом стало подписание меморандума между Росавиацией и тремя ведущими операторами об упрощении процедуры согласования полётов над с/х угодьями. Представлены два новых отечественных мультикоптера для агросектора.',
+    },
+    topicsLabel: 'Ключевые темы',
+    topics: ['Агродроны: итоги сезона 2025','Новые требования к страхованию БПЛА','Роботизация логистики последней мили','Меморандум Росавиации: что изменится'],
+    actions: ['<a href="#" class="btn btn-outline">Скачать материалы</a>'],
+  },
+  past2: {
+    badge: '<span style="font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim)">Прошедшее · Январь 2026</span>',
+    title: 'Вебинар: новые правила регистрации БПЛА в РФ',
+    meta: [{icon:'📅',text:'22 января 2026'},{icon:'💻',text:'Онлайн'},{icon:'👥',text:'1 240 зрителей'}],
+    desc: 'Разбор обновлённого порядка регистрации БПЛА, вступившего в силу с 1 января 2026 года. Прямые вопросы представителю Росавиации.',
+    results: {
+      stats: [{num:'1240',label:'зрителей'},{num:'87',label:'вопросов'},{num:'4.9',label:'оценка'}],
+      text: 'Запись вебинара набрала более 12 000 просмотров. Основной вывод: дроны до 500 г теперь регистрируются онлайн за 15 минут, старые свидетельства действительны до июля 2026.',
+    },
+    topicsLabel: 'Разобранные вопросы',
+    topics: ['Новый порядок регистрации с 01.01.2026','Переходный период для старых владельцев','Штрафы за нарушения и как их избежать','Коммерческая эксплуатация: что нового'],
+    actions: ['<a href="#" class="btn btn-outline">Смотреть запись</a>'],
+  },
+  past3: {
+    badge: '<span style="font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim)">Прошедшее · Ноябрь 2025</span>',
+    title: 'AgroDrone Forum — применение в сельском хозяйстве',
+    meta: [{icon:'📅',text:'11–12 ноября 2025'},{icon:'📍',text:'Краснодар, МВЦ «КубаньЭКСПО»'},{icon:'👥',text:'~1 500 участников'}],
+    desc: 'Специализированный форум по применению БПЛА в АПК. Демонстрации опрыскивателей в полевых условиях, разбор кейсов хозяйств-первопроходцев.',
+    results: {
+      stats: [{num:'1500',label:'участников'},{num:'42',label:'кейса'},{num:'6',label:'новинок'}],
+      text: 'Представлено 6 новых агродронов-опрыскивателей грузоподъёмностью от 16 до 40 кг. Участники хозяйств отметили снижение расхода пестицидов на 30–35% при переходе на точечное внесение. Подписаны соглашения о пилотных проектах в трёх регионах.',
+    },
+    topicsLabel: 'Ключевые итоги',
+    topics: ['Экономика агродрона: окупаемость за сезон','NDVI-мониторинг: лучшие практики 2025','Регуляторика опрыскивания с воздуха','Новые модели и сравнительные тесты'],
+    actions: ['<a href="#" class="btn btn-outline">Отчёт форума PDF</a>'],
+  },
+  past4: {
+    badge: '<span style="font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim)">Прошедшее · Сентябрь 2025</span>',
+    title: 'Drone Tech Summit 2025',
+    meta: [{icon:'📅',text:'18–19 сентября 2025'},{icon:'📍',text:'Москва, Экспоцентр'},{icon:'👥',text:'~1 100 участников'}],
+    desc: 'Предыдущий выпуск главной конференции отрасли. Впервые на сцену вышли стартапы из сегмента грузовой беспилотной авиации.',
+    results: {
+      stats: [{num:'1100',label:'участников'},{num:'35',label:'докладов'},{num:'12',label:'стартапов'}],
+      text: 'Главной новостью стал анонс первого российского сертифицированного грузового БПЛА грузоподъёмностью 200 кг. Три стартапа получили инвестиции прямо на площадке. COREPLUS провёл мастер-класс по картографии — 120 участников.',
+    },
+    topicsLabel: 'Хайлайты',
+    topics: ['Анонс грузового БПЛА 200 кг (Skyline Robotics)','UTM: первые пилотные зоны в России','COREPLUS: мастер-класс по фотограмметрии','Дискуссия: частные vs корпоративные операторы'],
+    actions: ['<a href="#" class="btn btn-outline">Смотреть записи докладов</a>'],
+  },
+  past5: {
+    badge: '<span style="font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim)">Прошедшее · Июнь 2025</span>',
+    title: 'Воркшоп: FPV для коммерческих задач',
+    meta: [{icon:'📅',text:'7 июня 2025'},{icon:'📍',text:'Москва, COREPLUS полигон'},{icon:'👥',text:'18 участников'}],
+    desc: 'Практический день: как применять FPV-дроны для инспекции труднодоступных объектов — тоннелей, резервуаров, ферм. Небольшая группа, интенсив.',
+    results: {
+      stats: [{num:'18',label:'участников'},{num:'6',label:'часов практики'},{num:'4.8',label:'оценка'}],
+      text: 'Все участники выполнили практическое задание — инспекцию модели резервуара в условиях ограниченного пространства. По итогам двое участников получили контракты на реальную инспекцию промышленных объектов.',
+    },
+    topicsLabel: 'Программа',
+    topics: ['FPV vs обычный дрон: когда что выбирать','Полёт в закрытых помещениях: безопасность','Видеофиксация и протокол инспекции','Составление отчёта для заказчика'],
+    actions: ['<a href="courses.html" class="btn btn-outline">Следующий поток</a>'],
+  },
+};
+
+function openModal(id) {
+  const e = events[id];
+  if (!e) return;
+
+  document.getElementById('mBadge').innerHTML = e.badge;
+  document.getElementById('mTitle').textContent = e.title;
+
+  document.getElementById('mMeta').innerHTML = e.meta.map(m =>
+    `<div class="modal-meta-item"><span>${m.icon}</span><span>${m.text}</span></div>`
+  ).join('');
+
+  document.getElementById('mDesc').textContent = e.desc;
+
+  // Results (past events)
+  const rEl = document.getElementById('mResults');
+  if (e.results) {
+    rEl.innerHTML = `
+      <div class="modal-results">
+        <div class="modal-results-title">📊 Итоги мероприятия</div>
+        <div class="modal-results-stats">
+          ${e.results.stats.map(s => `<div class="modal-result-stat"><div class="modal-result-num">${s.num}</div><div class="modal-result-label">${s.label}</div></div>`).join('')}
+        </div>
+        <div class="modal-result-text">${e.results.text}</div>
+      </div>`;
+  } else {
+    rEl.innerHTML = '';
+  }
+
+  document.getElementById('mTopicsLabel').textContent = e.topicsLabel || '';
+  document.getElementById('mTopics').innerHTML = (e.topics || []).map(t => `<li>${t}</li>`).join('');
+  document.getElementById('mActions').innerHTML = (e.actions || []).join('');
+
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function closeModalOnBg(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 </script>
 
 </body>

@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Симулятор дрона — COREPLUS</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .page-hero { padding: 3rem 0 2.5rem; border-bottom: 1px solid var(--border); }
+    .page-hero h1 { margin-bottom: 0.5rem; }
+    .page-hero p { max-width: 560px; margin-top: 0.4rem; }
+
+    /* Simulator wrapper */
+    .sim-wrapper {
+      display: grid;
+      grid-template-columns: 1fr 280px;
+      gap: 1.25rem;
+      margin: 2rem 0 4rem;
+      align-items: start;
+    }
+
+    /* Canvas area */
+    .sim-canvas-wrap {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    #simCanvas {
+      display: block;
+      width: 100%;
+      background: #0A0C0F;
+    }
+
+    /* HUD overlay */
+    .hud-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none;
+    }
+
+    /* Side panel */
+    .sim-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .panel-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem;
+    }
+
+    .panel-title {
+      font-family: var(--font-display);
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 1rem;
+    }
+
+    /* Gauges */
+    .gauge-row {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .gauge-item { }
+    .gauge-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-bottom: 0.3rem;
+    }
+    .gauge-label span { color: var(--text); font-weight: 500; }
+    .gauge-bar {
+      height: 4px;
+      background: var(--bg-subtle);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .gauge-fill {
+      height: 100%;
+      border-radius: 2px;
+      background: var(--blue);
+      transition: width 0.15s, background 0.3s;
+    }
+    .gauge-fill.warn { background: #FFB400; }
+    .gauge-fill.danger { background: #FF6B6B; }
+
+    /* Controls hint */
+    .controls-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.4rem;
+    }
+    .ctrl-key {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.3rem 0.5rem;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .ctrl-key kbd {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 3px;
+      padding: 0.1rem 0.35rem;
+      font-size: 0.68rem;
+      color: var(--blue);
+      font-family: monospace;
+    }
+
+    /* Score / stats */
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.4rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.82rem;
+    }
+    .stat-row:last-child { border-bottom: none; }
+    .stat-row-label { color: var(--text-dim); }
+    .stat-row-val { color: var(--text); font-weight: 500; font-family: var(--font-display); }
+
+    /* Mobile controls */
+    .mobile-controls {
+      display: none;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+      justify-content: center;
+    }
+
+    .dpad {
+      display: grid;
+      grid-template-columns: repeat(3, 48px);
+      grid-template-rows: repeat(3, 48px);
+      gap: 4px;
+    }
+
+    .dpad-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+      transition: background 0.1s, border-color 0.1s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .dpad-btn:active, .dpad-btn.pressed {
+      background: var(--blue-dim);
+      border-color: var(--border-accent);
+      color: var(--blue);
+    }
+    .dpad-btn.empty { background: transparent; border-color: transparent; pointer-events: none; }
+
+    .alt-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .alt-btn {
+      width: 64px; height: 48px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      user-select: none;
+      transition: background 0.1s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .alt-btn:active, .alt-btn.pressed {
+      background: var(--blue-dim);
+      border-color: var(--border-accent);
+      color: var(--blue);
+    }
+    .alt-btn span { font-size: 1rem; }
+
+    /* Start screen overlay */
+    .sim-start {
+      position: absolute;
+      inset: 0;
+      background: rgba(10,12,15,0.88);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      z-index: 10;
+      backdrop-filter: blur(4px);
+    }
+    .sim-start h2 {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      color: var(--text);
+    }
+    .sim-start p { font-size: 0.9rem; color: var(--text-muted); text-align: center; max-width: 280px; }
+
+    /* Mobile nav */
+    .burger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; background: none; border: none; }
+    .burger span { display: block; width: 22px; height: 2px; background: var(--text-muted); border-radius: 2px; transition: all 0.3s; }
+    .burger.open span:nth-child(1) { transform: rotate(45deg) translate(5px,5px); }
+    .burger.open span:nth-child(2) { opacity: 0; }
+    .burger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px,-5px); }
+    .mobile-menu { display: none; position: fixed; top: 64px; left: 0; right: 0; background: rgba(10,12,15,0.98); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 1.5rem 2rem; z-index: 99; flex-direction: column; }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a { font-size: 1rem; color: var(--text-muted); text-decoration: none; padding: 0.9rem 0; border-bottom: 1px solid var(--border); transition: color 0.2s; }
+    .mobile-menu a:last-child { border-bottom: none; }
+    .mobile-menu a.active { color: var(--blue); }
+
+    .footer-legal { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+    .footer-legal a { font-size: 0.75rem; color: var(--text-dim); text-decoration: none; transition: color 0.2s; }
+    .footer-legal a:hover { color: var(--blue); opacity: 1; }
+    .footer-inner { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 1.5rem; }
+
+    @media (max-width: 900px) {
+      .sim-wrapper { grid-template-columns: 1fr; }
+      .mobile-controls { display: flex; }
+      .footer-inner { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      .burger { display: flex; }
+      .footer-inner { grid-template-columns: 1fr; gap: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ NAV ══ -->
+<header class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <img src="assets/logo.jpeg" alt="COREPLUS" style="width:26px;height:26px;border-radius:0;object-fit:cover;mix-blend-mode:lighten;">
+      COREPLUS
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Обзор</a></li>
+      <li><a href="events.html">Ивенты</a></li>
+      <li><a href="courses.html">Курсы</a></li>
+      <li><a href="cases.html">Кейсы</a></li>
+      <li><a href="stats.html">Статистика</a></li>
+      <li><a href="simulator.html" class="active">Симулятор</a></li>
+    </ul>
+    <button class="burger" id="burger" aria-label="Меню"><span></span><span></span><span></span></button>
+  </div>
+</header>
+<nav class="mobile-menu" id="mobileMenu">
+  <a href="index.html">Обзор</a>
+  <a href="events.html">Ивенты</a>
+  <a href="courses.html">Курсы</a>
+  <a href="cases.html">Кейсы</a>
+  <a href="stats.html">Статистика</a>
+  <a href="simulator.html" class="active">Симулятор</a>
+</nav>
+
+<!-- ══ HERO ══ -->
+<section class="page-hero">
+  <div class="container">
+    <div class="section-label">Интерактив</div>
+    <h1>Симулятор дрона</h1>
+    <p>Почувствуй управление БПЛА. Собирай маяки, избегай препятствий, следи за зарядом батареи. На ПК — WASD / стрелки, на телефоне — кнопки ниже.</p>
+  </div>
+</section>
+
+<div class="container">
+
+  <!-- Mobile D-pad -->
+  <div class="mobile-controls" id="mobileControls">
+    <div class="dpad">
+      <div class="dpad-btn empty"></div>
+      <div class="dpad-btn" id="btn-up">↑</div>
+      <div class="dpad-btn empty"></div>
+      <div class="dpad-btn" id="btn-left">←</div>
+      <div class="dpad-btn empty"></div>
+      <div class="dpad-btn" id="btn-right">→</div>
+      <div class="dpad-btn empty"></div>
+      <div class="dpad-btn" id="btn-down">↓</div>
+      <div class="dpad-btn empty"></div>
+    </div>
+    <div class="alt-controls">
+      <div class="alt-btn" id="btn-rise"><span>↑</span>Взлёт</div>
+      <div class="alt-btn" id="btn-land"><span>↓</span>Спуск</div>
+    </div>
+  </div>
+
+  <div class="sim-wrapper">
+    <!-- Canvas -->
+    <div class="sim-canvas-wrap">
+      <canvas id="simCanvas"></canvas>
+      <div class="sim-start" id="simStart">
+        <div style="font-size:2.5rem;">🚁</div>
+        <h2>Готов к взлёту?</h2>
+        <p>Управляй дроном, собирай синие маяки и избегай красных башен</p>
+        <button class="btn btn-primary" onclick="startGame()">Запустить симулятор</button>
+      </div>
+    </div>
+
+    <!-- Side panel -->
+    <div class="sim-panel">
+
+      <div class="panel-card">
+        <div class="panel-title">Телеметрия</div>
+        <div class="gauge-row">
+          <div class="gauge-item">
+            <div class="gauge-label">Батарея <span id="battVal">100%</span></div>
+            <div class="gauge-bar"><div class="gauge-fill" id="battBar" style="width:100%"></div></div>
+          </div>
+          <div class="gauge-item">
+            <div class="gauge-label">Скорость <span id="speedVal">0 м/с</span></div>
+            <div class="gauge-bar"><div class="gauge-fill" id="speedBar" style="width:0%"></div></div>
+          </div>
+          <div class="gauge-item">
+            <div class="gauge-label">Высота <span id="altVal">0 м</span></div>
+            <div class="gauge-bar"><div class="gauge-fill" id="altBar" style="width:0%"></div></div>
+          </div>
+          <div class="gauge-item">
+            <div class="gauge-label">Сигнал <span id="signalVal">100%</span></div>
+            <div class="gauge-bar"><div class="gauge-fill" id="signalBar" style="width:100%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-card">
+        <div class="panel-title">Полётная статистика</div>
+        <div class="stat-row"><span class="stat-row-label">Очки</span><span class="stat-row-val" id="scoreVal">0</span></div>
+        <div class="stat-row"><span class="stat-row-label">Маяков собрано</span><span class="stat-row-val" id="beaconsVal">0</span></div>
+        <div class="stat-row"><span class="stat-row-label">Столкновений</span><span class="stat-row-val" id="crashVal">0</span></div>
+        <div class="stat-row"><span class="stat-row-label">Время полёта</span><span class="stat-row-val" id="timeVal">0:00</span></div>
+        <div class="stat-row"><span class="stat-row-label">Макс. высота</span><span class="stat-row-val" id="maxAltVal">0 м</span></div>
+      </div>
+
+      <div class="panel-card">
+        <div class="panel-title">Управление</div>
+        <div class="controls-grid">
+          <div class="ctrl-key"><kbd>W</kbd> / <kbd>↑</kbd> Вперёд</div>
+          <div class="ctrl-key"><kbd>S</kbd> / <kbd>↓</kbd> Назад</div>
+          <div class="ctrl-key"><kbd>A</kbd> / <kbd>←</kbd> Влево</div>
+          <div class="ctrl-key"><kbd>D</kbd> / <kbd>→</kbd> Вправо</div>
+          <div class="ctrl-key"><kbd>Q</kbd> Взлёт</div>
+          <div class="ctrl-key"><kbd>E</kbd> Снижение</div>
+          <div class="ctrl-key"><kbd>R</kbd> Сброс</div>
+          <div class="ctrl-key"><kbd>Space</kbd> Пауза</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══ FOOTER ══ -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="nav-logo" style="font-size:0.9rem;">
+      <img src="assets/logo.jpeg" alt="COREPLUS" style="width:22px;height:22px;border-radius:0;object-fit:cover;mix-blend-mode:lighten;">
+      COREPLUS
+    </div>
+    <div class="footer-legal">
+      <a href="privacy-policy.html">Privacy Policy</a>
+      <a href="terms-of-service.html">Terms of Service</a>
+      <a href="mobile-messaging-terms.html">Mobile Messaging Terms</a>
+    </div>
+    <div class="footer-copy">© 2025 COREPLUS · Дроны в гражданской авиации</div>
+  </div>
+</footer>
+
+<script>
+// ── Burger ──
+const burger = document.getElementById('burger');
+const mobileMenu = document.getElementById('mobileMenu');
+burger.addEventListener('click', () => { burger.classList.toggle('open'); mobileMenu.classList.toggle('open'); });
+mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => { burger.classList.remove('open'); mobileMenu.classList.remove('open'); }));
+
+// ══════════════════════════════════════════
+// SIMULATOR ENGINE
+// ══════════════════════════════════════════
+const canvas = document.getElementById('simCanvas');
+const ctx = canvas.getContext('2d');
+
+// Responsive canvas
+function resizeCanvas() {
+  const wrap = canvas.parentElement;
+  canvas.width = wrap.clientWidth;
+  canvas.height = Math.min(wrap.clientWidth * 0.6, 480);
+}
+resizeCanvas();
+window.addEventListener('resize', () => { resizeCanvas(); initWorld(); });
+
+// ── State ──
+let state = 'idle'; // idle | flying | paused | dead
+let drone, obstacles, beacons, particles, score, beaconCount, crashCount, flightTime, maxAlt;
+let keys = {};
+let lastTime = 0;
+let animId;
+
+const COLORS = {
+  bg: '#0A0C0F',
+  grid: 'rgba(0,168,255,0.04)',
+  drone: '#00A8FF',
+  droneGlow: 'rgba(0,168,255,0.3)',
+  obstacle: '#FF4455',
+  obstacleGlow: 'rgba(255,68,85,0.2)',
+  beacon: '#00D68F',
+  beaconGlow: 'rgba(0,214,143,0.25)',
+  ground: '#161A20',
+  groundLine: 'rgba(0,168,255,0.15)',
+  particle: '#00A8FF',
+  sky: '#0D1117',
+};
+
+function initWorld() {
+  const W = canvas.width, H = canvas.height;
+
+  drone = {
+    x: W / 2, y: H * 0.6,
+    vx: 0, vy: 0,
+    alt: 0,       // 0–100 virtual altitude
+    tilt: 0,      // visual tilt
+    rotorSpin: 0,
+    width: 44, height: 14,
+  };
+
+  // Generate obstacles (towers)
+  obstacles = [];
+  const count = Math.floor(W / 140);
+  for (let i = 0; i < count; i++) {
+    const x = 80 + i * (W - 160) / Math.max(count - 1, 1) + (Math.random() - 0.5) * 60;
+    const h = 60 + Math.random() * (H * 0.35);
+    obstacles.push({ x: Math.max(60, Math.min(W - 60, x)), h, w: 28 + Math.random() * 16 });
+  }
+
+  // Generate beacons
+  beacons = [];
+  spawnBeacons(4);
+
+  particles = [];
+  score = 0;
+  beaconCount = 0;
+  crashCount = 0;
+  flightTime = 0;
+  maxAlt = 0;
+  drone.battery = 100;
+  updateUI();
+}
+
+function spawnBeacons(n) {
+  const W = canvas.width, H = canvas.height;
+  for (let i = 0; i < n; i++) {
+    beacons.push({
+      x: 60 + Math.random() * (W - 120),
+      y: H * 0.15 + Math.random() * (H * 0.55),
+      r: 12,
+      pulse: Math.random() * Math.PI * 2,
+    });
+  }
+}
+
+function startGame() {
+  document.getElementById('simStart').style.display = 'none';
+  initWorld();
+  state = 'flying';
+  lastTime = performance.now();
+  cancelAnimationFrame(animId);
+  loop(lastTime);
+}
+
+function resetGame() {
+  initWorld();
+  state = 'flying';
+  lastTime = performance.now();
+}
+
+// ── Input ──
+document.addEventListener('keydown', e => {
+  keys[e.key] = true;
+  if (e.key === ' ') { e.preventDefault(); togglePause(); }
+  if (e.key === 'r' || e.key === 'R') resetGame();
+});
+document.addEventListener('keyup', e => { keys[e.key] = false; });
+
+// Mobile buttons
+function setupMobileBtn(id, key) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const press = () => { keys[key] = true; el.classList.add('pressed'); };
+  const release = () => { keys[key] = false; el.classList.remove('pressed'); };
+  el.addEventListener('touchstart', e => { e.preventDefault(); press(); }, {passive:false});
+  el.addEventListener('touchend', e => { e.preventDefault(); release(); }, {passive:false});
+  el.addEventListener('mousedown', press);
+  el.addEventListener('mouseup', release);
+  el.addEventListener('mouseleave', release);
+}
+setupMobileBtn('btn-up', 'w');
+setupMobileBtn('btn-down', 's');
+setupMobileBtn('btn-left', 'a');
+setupMobileBtn('btn-right', 'd');
+setupMobileBtn('btn-rise', 'q');
+setupMobileBtn('btn-land', 'e');
+
+function togglePause() {
+  if (state === 'flying') state = 'paused';
+  else if (state === 'paused') { state = 'flying'; lastTime = performance.now(); loop(lastTime); }
+}
+
+// ── Physics ──
+function update(dt) {
+  if (state !== 'flying') return;
+
+  const W = canvas.width, H = canvas.height;
+  const groundY = H * 0.82;
+  const speed = 180;
+  const friction = 0.88;
+  const altSpeed = 40;
+
+  // Thrust
+  let ax = 0, ay = 0;
+  if (keys['ArrowLeft'] || keys['a'] || keys['A'])  ax -= speed;
+  if (keys['ArrowRight'] || keys['d'] || keys['D']) ax += speed;
+  if (keys['ArrowUp'] || keys['w'] || keys['W'])    ay -= speed;
+  if (keys['ArrowDown'] || keys['s'] || keys['S'])  ay += speed;
+  if (keys['q'] || keys['Q']) drone.alt = Math.min(100, drone.alt + altSpeed * dt);
+  if (keys['e'] || keys['E']) drone.alt = Math.max(0,   drone.alt - altSpeed * dt);
+
+  drone.vx = (drone.vx + ax * dt) * friction;
+  drone.vy = (drone.vy + ay * dt) * friction;
+
+  // Apply altitude offset to visual y
+  const altOffset = drone.alt * (H * 0.004);
+  const targetY = groundY - 40 - altOffset;
+  drone.y += (targetY - drone.y) * 0.08 + drone.vy * dt;
+  drone.x += drone.vx * dt;
+
+  // Tilt
+  drone.tilt = drone.vx * 0.003;
+  drone.rotorSpin += 18;
+
+  // Clamp
+  drone.x = Math.max(drone.width/2, Math.min(W - drone.width/2, drone.x));
+  drone.y = Math.max(30, Math.min(groundY - 20, drone.y));
+
+  // Battery drain
+  const moving = Math.abs(drone.vx) + Math.abs(drone.vy) > 5;
+  drone.battery -= dt * (moving ? 1.8 : 0.6);
+  if (drone.battery <= 0) { drone.battery = 0; state = 'dead'; showDead('Разряд батареи!'); return; }
+
+  // Flight time
+  flightTime += dt;
+  maxAlt = Math.max(maxAlt, Math.round(drone.alt));
+
+  // Rotor particles
+  if (moving && Math.random() < 0.3) spawnParticle(drone.x, drone.y - 8);
+
+  // Beacon collision
+  for (let i = beacons.length - 1; i >= 0; i--) {
+    const b = beacons[i];
+    b.pulse += dt * 3;
+    const dx = drone.x - b.x, dy = drone.y - b.y;
+    if (Math.sqrt(dx*dx + dy*dy) < b.r + 18) {
+      beacons.splice(i, 1);
+      beaconCount++;
+      score += 100;
+      spawnCollectParticles(b.x, b.y, COLORS.beacon);
+      if (beacons.length < 2) spawnBeacons(3);
+    }
+  }
+
+  // Obstacle collision
+  for (const obs of obstacles) {
+    const left = obs.x - obs.w/2, right = obs.x + obs.w/2;
+    const top = groundY - obs.h;
+    if (drone.x + 16 > left && drone.x - 16 < right && drone.y + 8 > top) {
+      crashCount++;
+      score = Math.max(0, score - 50);
+      spawnCollectParticles(drone.x, drone.y, COLORS.obstacle);
+      // Bounce back
+      drone.vx = -drone.vx * 1.5;
+      drone.vy = -80;
+      drone.x += drone.vx * 0.1;
+    }
+  }
+
+  updateUI();
+}
+
+function spawnParticle(x, y) {
+  particles.push({
+    x, y,
+    vx: (Math.random() - 0.5) * 40,
+    vy: -10 - Math.random() * 20,
+    life: 1, maxLife: 1,
+    r: 1.5 + Math.random() * 1.5,
+    color: COLORS.particle,
+  });
+}
+
+function spawnCollectParticles(x, y, color) {
+  for (let i = 0; i < 12; i++) {
+    const angle = (i / 12) * Math.PI * 2;
+    particles.push({
+      x, y,
+      vx: Math.cos(angle) * (40 + Math.random() * 60),
+      vy: Math.sin(angle) * (40 + Math.random() * 60),
+      life: 1, maxLife: 1,
+      r: 2 + Math.random() * 2,
+      color,
+    });
+  }
+}
+
+function updateParticles(dt) {
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+    p.x += p.vx * dt;
+    p.y += p.vy * dt;
+    p.vy += 30 * dt;
+    p.life -= dt * 2;
+    if (p.life <= 0) particles.splice(i, 1);
+  }
+}
+
+// ── Draw ──
+function draw() {
+  const W = canvas.width, H = canvas.height;
+  const groundY = H * 0.82;
+
+  // Background
+  ctx.fillStyle = COLORS.bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // Grid
+  ctx.strokeStyle = COLORS.grid;
+  ctx.lineWidth = 1;
+  for (let x = 0; x < W; x += 50) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
+  for (let y = 0; y < H; y += 50) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+
+  // Sky gradient
+  const skyGrad = ctx.createLinearGradient(0, 0, 0, groundY);
+  skyGrad.addColorStop(0, 'rgba(0,10,20,0)');
+  skyGrad.addColorStop(1, 'rgba(0,168,255,0.03)');
+  ctx.fillStyle = skyGrad;
+  ctx.fillRect(0, 0, W, groundY);
+
+  // Ground
+  ctx.fillStyle = COLORS.ground;
+  ctx.fillRect(0, groundY, W, H - groundY);
+  ctx.strokeStyle = COLORS.groundLine;
+  ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(0, groundY); ctx.lineTo(W, groundY); ctx.stroke();
+
+  // Ground grid
+  ctx.strokeStyle = 'rgba(0,168,255,0.06)';
+  ctx.lineWidth = 1;
+  for (let x = 0; x < W; x += 40) {
+    ctx.beginPath(); ctx.moveTo(x, groundY); ctx.lineTo(x - 20, H); ctx.stroke();
+  }
+
+  // Obstacles
+  for (const obs of obstacles) {
+    const top = groundY - obs.h;
+    // Glow
+    const grad = ctx.createLinearGradient(obs.x - obs.w/2, 0, obs.x + obs.w/2, 0);
+    grad.addColorStop(0, 'rgba(255,68,85,0.06)');
+    grad.addColorStop(0.5, 'rgba(255,68,85,0.18)');
+    grad.addColorStop(1, 'rgba(255,68,85,0.06)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(obs.x - obs.w/2 - 8, top, obs.w + 16, obs.h);
+
+    // Tower body
+    ctx.fillStyle = '#1A0810';
+    ctx.strokeStyle = '#FF4455';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.roundRect(obs.x - obs.w/2, top, obs.w, obs.h, 3);
+    ctx.fill(); ctx.stroke();
+
+    // Warning light
+    ctx.fillStyle = Math.sin(Date.now() * 0.004) > 0 ? '#FF4455' : '#800020';
+    ctx.beginPath(); ctx.arc(obs.x, top - 5, 4, 0, Math.PI * 2); ctx.fill();
+
+    // Stripes
+    ctx.strokeStyle = 'rgba(255,68,85,0.25)';
+    ctx.lineWidth = 1;
+    for (let y = top + 15; y < groundY - 10; y += 20) {
+      ctx.beginPath(); ctx.moveTo(obs.x - obs.w/2, y); ctx.lineTo(obs.x + obs.w/2, y); ctx.stroke();
+    }
+  }
+
+  // Beacons
+  for (const b of beacons) {
+    const pulse = (Math.sin(b.pulse) + 1) / 2;
+    // Outer glow
+    ctx.beginPath();
+    ctx.arc(b.x, b.y, b.r + 10 + pulse * 8, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(0,214,143,${0.05 + pulse * 0.08})`;
+    ctx.fill();
+    // Ring
+    ctx.beginPath();
+    ctx.arc(b.x, b.y, b.r + 4 + pulse * 4, 0, Math.PI * 2);
+    ctx.strokeStyle = `rgba(0,214,143,${0.3 + pulse * 0.3})`;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    // Core
+    ctx.beginPath();
+    ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+    ctx.fillStyle = '#00D68F';
+    ctx.fill();
+    // Label
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 9px Inter';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('+100', b.x, b.y);
+  }
+
+  // Particles
+  for (const p of particles) {
+    ctx.globalAlpha = p.life;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fillStyle = p.color;
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+
+  // Drone shadow
+  const shadowDist = (drone.alt / 100) * (H * 0.2);
+  const shadowX = drone.x, shadowY = groundY - 4;
+  const shadowScale = Math.max(0.2, 1 - drone.alt / 120);
+  ctx.save();
+  ctx.translate(shadowX, shadowY);
+  ctx.scale(shadowScale, 1);
+  ctx.fillStyle = 'rgba(0,0,0,0.3)';
+  ctx.beginPath();
+  ctx.ellipse(0, 0, 28, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+
+  // Drone
+  ctx.save();
+  ctx.translate(drone.x, drone.y);
+  ctx.rotate(drone.tilt);
+
+  // Drone glow
+  ctx.shadowBlur = 20;
+  ctx.shadowColor = COLORS.droneGlow;
+
+  // Rotor arms
+  const armLen = 20;
+  ctx.strokeStyle = '#1A3A55';
+  ctx.lineWidth = 3;
+  [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([sx,sy]) => {
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(sx * armLen, sy * 10);
+    ctx.stroke();
+  });
+
+  // Body
+  ctx.fillStyle = '#0D2233';
+  ctx.strokeStyle = COLORS.drone;
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.roundRect(-14, -6, 28, 12, 4);
+  ctx.fill(); ctx.stroke();
+
+  // Center light
+  ctx.fillStyle = COLORS.drone;
+  ctx.beginPath(); ctx.arc(0, 0, 3, 0, Math.PI * 2); ctx.fill();
+
+  // Rotors (spinning ellipses)
+  ctx.shadowBlur = 0;
+  const spin = drone.rotorSpin * Math.PI / 180;
+  [[-armLen, -10],[armLen, -10],[-armLen, 10],[armLen, 10]].forEach(([rx, ry]) => {
+    ctx.save();
+    ctx.translate(rx, ry);
+    ctx.rotate(spin);
+    ctx.strokeStyle = 'rgba(0,168,255,0.7)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 12, 3, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+  });
+
+  ctx.restore();
+
+  // HUD
+  drawHUD(W, H);
+
+  // Pause overlay
+  if (state === 'paused') {
+    ctx.fillStyle = 'rgba(10,12,15,0.7)';
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#E8ECF0';
+    ctx.font = 'bold 24px Space Grotesk, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('⏸ Пауза', W/2, H/2 - 16);
+    ctx.font = '14px Inter, sans-serif';
+    ctx.fillStyle = '#6B7580';
+    ctx.fillText('Нажми Space для продолжения', W/2, H/2 + 16);
+  }
+}
+
+function drawHUD(W, H) {
+  if (state === 'idle') return;
+  ctx.save();
+  ctx.font = '11px monospace';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
+
+  // Top-left info
+  const lines = [
+    `ALT  ${Math.round(drone.alt)} м`,
+    `SPD  ${Math.round(Math.sqrt(drone.vx**2 + drone.vy**2))} м/с`,
+    `BAT  ${Math.round(drone.battery)}%`,
+    `SCR  ${score}`,
+  ];
+  lines.forEach((line, i) => {
+    ctx.fillStyle = 'rgba(0,168,255,0.15)';
+    ctx.fillRect(12, 12 + i * 18, 110, 16);
+    ctx.fillStyle = drone.battery < 20 && i === 2 ? '#FF6B6B' : 'rgba(0,168,255,0.9)';
+    ctx.fillText(line, 18, 14 + i * 18);
+  });
+
+  // Crosshair on drone
+  if (state === 'flying') {
+    ctx.strokeStyle = 'rgba(0,168,255,0.4)';
+    ctx.lineWidth = 1;
+    const cx = drone.x, cy = drone.y;
+    ctx.beginPath(); ctx.moveTo(cx - 30, cy); ctx.lineTo(cx - 10, cy); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx + 10, cy); ctx.lineTo(cx + 30, cy); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx, cy - 20); ctx.lineTo(cx, cy - 8); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx, cy + 8); ctx.lineTo(cx, cy + 20); ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx, cy, 22, 0, Math.PI * 2); ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+function showDead(reason) {
+  const start = document.getElementById('simStart');
+  start.style.display = 'flex';
+  start.innerHTML = `
+    <div style="font-size:2.5rem;">💥</div>
+    <h2 style="color:#FF6B6B">${reason}</h2>
+    <p>Очки: <strong style="color:var(--blue)">${score}</strong> · Маяков: ${beaconCount}</p>
+    <button class="btn btn-primary" onclick="startGame()">Летать снова</button>
+  `;
+}
+
+// ── Game loop ──
+function loop(ts) {
+  const dt = Math.min((ts - lastTime) / 1000, 0.05);
+  lastTime = ts;
+  update(dt);
+  updateParticles(dt);
+  draw();
+  animId = requestAnimationFrame(loop);
+}
+
+// ── UI update ──
+function updateUI() {
+  const bat = drone.battery || 0;
+  document.getElementById('battVal').textContent = `${Math.round(bat)}%`;
+  const bf = document.getElementById('battBar');
+  bf.style.width = bat + '%';
+  bf.className = 'gauge-fill' + (bat < 20 ? ' danger' : bat < 40 ? ' warn' : '');
+
+  const spd = Math.round(Math.sqrt((drone.vx||0)**2 + (drone.vy||0)**2));
+  document.getElementById('speedVal').textContent = `${spd} м/с`;
+  document.getElementById('speedBar').style.width = Math.min(spd / 2, 100) + '%';
+
+  const alt = Math.round(drone.alt || 0);
+  document.getElementById('altVal').textContent = `${alt} м`;
+  document.getElementById('altBar').style.width = alt + '%';
+
+  const signal = Math.round(80 + Math.sin(Date.now()*0.001)*15 + Math.random()*5);
+  document.getElementById('signalVal').textContent = `${signal}%`;
+  document.getElementById('signalBar').style.width = signal + '%';
+
+  document.getElementById('scoreVal').textContent = score || 0;
+  document.getElementById('beaconsVal').textContent = beaconCount || 0;
+  document.getElementById('crashVal').textContent = crashCount || 0;
+  const t = Math.round(flightTime || 0);
+  document.getElementById('timeVal').textContent = `${Math.floor(t/60)}:${String(t%60).padStart(2,'0')}`;
+  document.getElementById('maxAltVal').textContent = `${maxAlt || 0} м`;
+}
+
+// Init idle state draw
+initWorld && (state = 'idle');
+draw();
+
+// Keep idle draw running for beacon animation
+function idleDraw() {
+  if (state === 'idle') { draw(); requestAnimationFrame(idleDraw); }
+}
+idleDraw();
+</script>
+</body>
+</html>

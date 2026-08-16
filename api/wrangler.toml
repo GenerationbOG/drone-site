@@ -1,0 +1,15 @@
+name = "coreplus-news-api"
+main = "worker.js"
+compatibility_date = "2026-01-01"
+
+# KV namespace binding — you'll get the real "id" after creating
+# the namespace (step 2 in README.md), then paste it in here.
+kv_namespaces = [
+  { binding = "NEWS_KV", id = "PASTE_YOUR_KV_NAMESPACE_ID_HERE" }
+]
+
+# Route the Worker to a subdomain of your existing domain.
+# Requires the domain to already be on Cloudflare (it is ✓).
+routes = [
+  { pattern = "api.coreplus-tech.ru/*", zone_name = "coreplus-tech.ru" }
+]

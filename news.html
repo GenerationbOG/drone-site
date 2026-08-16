@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CORE NEWS — COREPLUS</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .page-hero { padding: 4rem 0 3rem; border-bottom: 1px solid var(--border); }
+    .page-hero-inner { display: flex; align-items: flex-end; justify-content: space-between; gap: 2rem; flex-wrap: wrap; }
+    .page-hero h1 {
+      font-family: var(--font-display);
+      display: flex; align-items: baseline; gap: 0.6rem;
+    }
+    .page-hero h1 span.accent { color: var(--blue); }
+    .page-hero p { max-width: 480px; margin-top: 0.75rem; }
+
+    .live-badge {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase;
+      color: #00D68F; background: rgba(0,214,143,0.1);
+      border: 1px solid rgba(0,214,143,0.25);
+      padding: 0.3rem 0.8rem; border-radius: 4px;
+      margin-bottom: 1rem;
+    }
+    .live-badge::before { content:''; width:5px;height:5px;border-radius:50%;background:#00D68F; animation:pulse 1.8s ease-in-out infinite; }
+
+    /* Channel links row */
+    .channels-row {
+      display: flex; gap: 0.75rem; flex-wrap: wrap;
+      padding: 1.5rem 0; border-bottom: 1px solid var(--border);
+    }
+    .channel-chip {
+      display: flex; align-items: center; gap: 0.6rem;
+      padding: 0.6rem 1rem;
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 8px; text-decoration: none;
+      transition: border-color 0.2s, transform 0.15s;
+    }
+    .channel-chip:hover { border-color: var(--border-accent); transform: translateY(-1px); opacity:1; }
+    .channel-icon {
+      width: 26px; height: 26px; border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem; font-weight: 700; flex-shrink: 0;
+    }
+    .channel-info { display: flex; flex-direction: column; }
+    .channel-name { font-size: 0.82rem; color: var(--text); font-weight: 500; }
+    .channel-handle { font-size: 0.7rem; color: var(--text-dim); }
+
+    .ch-telegram .channel-icon { background: rgba(38,155,218,0.15); color: #269BDA; }
+    .ch-dzen .channel-icon { background: rgba(255,255,255,0.1); color: #E8ECF0; }
+    .ch-vc .channel-icon { background: rgba(0,168,255,0.15); color: var(--blue); }
+    .ch-habr .channel-icon { background: rgba(102,204,102,0.15); color: #66CC66; }
+    .ch-rbc .channel-icon { background: rgba(255,180,0,0.15); color: #FFB400; }
+
+    /* Filter */
+    .filter-bar { display: flex; align-items: center; gap: 0.5rem; padding: 1.5rem 0; flex-wrap: wrap; }
+    .filter-btn {
+      font-size: 0.8rem; padding: 0.35rem 0.9rem; border-radius: 4px;
+      border: 1px solid var(--border); background: transparent; color: var(--text-muted);
+      cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 0.4rem;
+    }
+    .filter-btn:hover, .filter-btn.active { border-color: var(--border-accent); color: var(--blue); background: var(--blue-dim); }
+    .filter-dot { width:6px; height:6px; border-radius:50%; }
+
+    /* News grid */
+    .news-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 1.1rem; margin: 1rem 0 2rem;
+    }
+
+    .news-card {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 1.5rem; display: flex; flex-direction: column; gap: 0.9rem;
+      text-decoration: none; transition: border-color 0.2s, transform 0.15s;
+    }
+    .news-card:hover { border-color: var(--border-accent); transform: translateY(-2px); opacity:1; }
+
+    .news-card.featured {
+      grid-column: 1 / -1;
+      flex-direction: row; align-items: center; gap: 2rem;
+      padding: 2rem;
+    }
+    .news-card.featured .news-content { flex: 1; }
+    .news-card.featured .news-title { font-size: 1.4rem; }
+    .news-card.featured .news-visual {
+      width: 200px; height: 130px; flex-shrink: 0;
+      background: var(--bg-subtle); border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.5rem;
+    }
+
+    .news-top { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+    .source-badge {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 0.2rem 0.55rem; border-radius: 3px;
+      font-weight: 600;
+    }
+    .src-coreplus { background: var(--blue-dim); color: var(--blue); border: 1px solid var(--border-accent); }
+    .src-telegram { background: rgba(38,155,218,0.12); color: #269BDA; border:1px solid rgba(38,155,218,0.3); }
+    .src-dzen { background: rgba(255,255,255,0.08); color: #E8ECF0; border:1px solid rgba(255,255,255,0.15); }
+    .src-vc { background: rgba(0,168,255,0.12); color: #00A8FF; border:1px solid rgba(0,168,255,0.3); }
+    .src-habr { background: rgba(102,204,102,0.12); color: #66CC66; border:1px solid rgba(102,204,102,0.3); }
+    .src-rbc { background: rgba(255,180,0,0.12); color: #FFB400; border:1px solid rgba(255,180,0,0.3); }
+
+    .news-date { font-size: 0.75rem; color: var(--text-dim); white-space: nowrap; }
+    .news-title { font-family: var(--font-display); font-size: 1.02rem; font-weight: 500; color: var(--text); line-height: 1.4; }
+    .news-excerpt { font-size: 0.85rem; line-height: 1.65; color: var(--text-muted); flex: 1; }
+    .news-read { font-size: 0.78rem; color: var(--text-dim); display: flex; align-items: center; gap: 0.3rem; }
+    .news-read::after { content: '→'; transition: transform 0.2s; }
+    .news-card:hover .news-read::after { transform: translateX(3px); }
+
+    .load-more-wrap { display: flex; justify-content: center; margin: 1rem 0 4rem; }
+
+    .loading-state { text-align: center; padding: 3rem 0; color: var(--text-dim); font-size: 0.88rem; }
+
+    /* API note banner */
+    .api-banner {
+      background: var(--bg-subtle); border: 1px solid var(--border);
+      border-radius: 10px; padding: 1.25rem 1.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 1rem; margin: 0 0 3rem; flex-wrap: wrap;
+    }
+    .api-banner-text { font-size: 0.82rem; color: var(--text-muted); }
+    .api-banner-text strong { color: var(--text); }
+
+    /* Mobile nav */
+    .burger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; background: none; border: none; }
+    .burger span { display: block; width: 22px; height: 2px; background: var(--text-muted); border-radius: 2px; transition: all 0.3s; }
+    .burger.open span:nth-child(1) { transform: rotate(45deg) translate(5px,5px); }
+    .burger.open span:nth-child(2) { opacity: 0; }
+    .burger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px,-5px); }
+    .mobile-menu { display: none; position: fixed; top: 64px; left: 0; right: 0; background: rgba(10,12,15,0.98); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 1.5rem 2rem; z-index: 99; flex-direction: column; }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a { font-size: 1rem; color: var(--text-muted); text-decoration: none; padding: 0.9rem 0; border-bottom: 1px solid var(--border); transition: color 0.2s; }
+    .mobile-menu a:last-child { border-bottom: none; }
+    .mobile-menu a.active { color: var(--blue); }
+
+    .footer-legal { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+    .footer-legal a { font-size: 0.75rem; color: var(--text-dim); text-decoration: none; }
+    .footer-legal a:hover { color: var(--blue); opacity: 1; }
+    .footer-inner { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 1.5rem; }
+
+    @media (max-width: 900px) {
+      .news-grid { grid-template-columns: 1fr 1fr; }
+      .news-card.featured { flex-direction: column; align-items: stretch; }
+      .news-card.featured .news-visual { width: 100%; height: 140px; }
+      .footer-inner { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      .burger { display: flex; }
+      .news-grid { grid-template-columns: 1fr; }
+      .channels-row { gap: 0.5rem; }
+      .footer-inner { grid-template-columns: 1fr; gap: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <img src="assets/logo.jpeg" alt="COREPLUS" style="width:26px;height:26px;border-radius:0;object-fit:cover;mix-blend-mode:lighten;">
+      COREPLUS
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Обзор</a></li>
+      <li><a href="events.html">Ивенты</a></li>
+      <li><a href="courses.html">Курсы</a></li>
+      <li><a href="cases.html">Кейсы</a></li>
+      <li><a href="stats.html">Статистика</a></li>
+      <li><a href="news.html" class="active">Новости</a></li>
+    </ul>
+    <button class="burger" id="burger" aria-label="Меню"><span></span><span></span><span></span></button>
+  </div>
+</header>
+<nav class="mobile-menu" id="mobileMenu">
+  <a href="index.html">Обзор</a>
+  <a href="events.html">Ивенты</a>
+  <a href="courses.html">Курсы</a>
+  <a href="cases.html">Кейсы</a>
+  <a href="stats.html">Статистика</a>
+  <a href="simulator.html">Симулятор</a>
+  <a href="builder.html">Сборка</a>
+  <a href="delivery.html">Доставка</a>
+  <a href="news.html" class="active">Новости</a>
+</nav>
+
+<section class="page-hero">
+  <div class="container">
+    <div class="live-badge">Обновляется</div>
+    <div class="page-hero-inner">
+      <div>
+        <h1>CORE <span class="accent">NEWS</span></h1>
+        <p>Новости COREPLUS и главное из мира БПЛА — из телеграм-канала, Дзена, VC.ru и других изданий в одном месте.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="container">
+
+  <!-- Channels -->
+  <div class="channels-row">
+    <a href="https://t.me/coreplus" target="_blank" class="channel-chip ch-telegram">
+      <div class="channel-icon">TG</div>
+      <div class="channel-info"><div class="channel-name">Telegram</div><div class="channel-handle">@coreplus</div></div>
+    </a>
+    <a href="https://dzen.ru/coreplus" target="_blank" class="channel-chip ch-dzen">
+      <div class="channel-icon">Z</div>
+      <div class="channel-info"><div class="channel-name">Дзен</div><div class="channel-handle">dzen.ru/coreplus</div></div>
+    </a>
+    <a href="https://vc.ru/u/coreplus" target="_blank" class="channel-chip ch-vc">
+      <div class="channel-icon">VC</div>
+      <div class="channel-info"><div class="channel-name">VC.ru</div><div class="channel-handle">vc.ru/u/coreplus</div></div>
+    </a>
+    <a href="https://habr.com/ru/users/coreplus" target="_blank" class="channel-chip ch-habr">
+      <div class="channel-icon">H</div>
+      <div class="channel-info"><div class="channel-name">Habr</div><div class="channel-handle">habr.com/coreplus</div></div>
+    </a>
+    <a href="https://rbc.ru" target="_blank" class="channel-chip ch-rbc">
+      <div class="channel-icon">RBC</div>
+      <div class="channel-info"><div class="channel-name">РБК</div><div class="channel-handle">Упоминания</div></div>
+    </a>
+  </div>
+
+  <!-- Filter -->
+  <div class="filter-bar" id="filterBar">
+    <button class="filter-btn active" data-src="all">Все источники</button>
+    <button class="filter-btn" data-src="coreplus"><span class="filter-dot" style="background:var(--blue)"></span>COREPLUS</button>
+    <button class="filter-btn" data-src="telegram"><span class="filter-dot" style="background:#269BDA"></span>Telegram</button>
+    <button class="filter-btn" data-src="dzen"><span class="filter-dot" style="background:#E8ECF0"></span>Дзен</button>
+    <button class="filter-btn" data-src="vc"><span class="filter-dot" style="background:#00A8FF"></span>VC.ru</button>
+    <button class="filter-btn" data-src="habr"><span class="filter-dot" style="background:#66CC66"></span>Habr</button>
+  </div>
+
+  <!-- API status banner (only visible if API not connected) -->
+  <div class="api-banner" id="apiBanner" style="display:none;">
+    <div class="api-banner-text">📡 Показаны демо-новости — <strong>API не подключён</strong>. Как только подключишь Cloudflare Worker, лента станет живой.</div>
+  </div>
+
+  <!-- News grid -->
+  <div id="newsGrid" class="news-grid">
+    <div class="loading-state">Загружаем новости…</div>
+  </div>
+
+</div>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="nav-logo" style="font-size:0.9rem;">
+      <img src="assets/logo.jpeg" alt="COREPLUS" style="width:22px;height:22px;border-radius:0;object-fit:cover;mix-blend-mode:lighten;">
+      COREPLUS
+    </div>
+    <div class="footer-legal">
+      <a href="privacy-policy.html">Privacy Policy</a>
+      <a href="terms-of-service.html">Terms of Service</a>
+      <a href="mobile-messaging-terms.html">Mobile Messaging Terms</a>
+    </div>
+    <div class="footer-copy">© 2025 COREPLUS · Дроны в гражданской авиации</div>
+  </div>
+</footer>
+
+<script>
+// Burger
+const burger = document.getElementById('burger');
+const mobileMenu = document.getElementById('mobileMenu');
+burger.addEventListener('click', () => { burger.classList.toggle('open'); mobileMenu.classList.toggle('open'); });
+mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => { burger.classList.remove('open'); mobileMenu.classList.remove('open'); }));
+
+// ══════════════════════════════════════════
+// NEWS LOADING — tries API first, falls back to local JSON
+// ══════════════════════════════════════════
+
+// ⚠️ Once your Cloudflare Worker API is deployed, put its URL here:
+const API_URL = ''; // e.g. 'https://api.coreplus-tech.ru/api/news'
+const LOCAL_JSON = 'news-data.json';
+
+const SOURCE_META = {
+  coreplus: { label: 'COREPLUS', cls: 'src-coreplus', icon: '⬢' },
+  telegram: { label: 'Telegram', cls: 'src-telegram', icon: '✈' },
+  dzen:     { label: 'Дзен',     cls: 'src-dzen',     icon: 'Z' },
+  vc:       { label: 'VC.ru',    cls: 'src-vc',       icon: 'VC' },
+  habr:     { label: 'Habr',     cls: 'src-habr',     icon: 'H' },
+  rbc:      { label: 'РБК',      cls: 'src-rbc',      icon: 'RBC' },
+};
+
+let allNews = [];
+let currentFilter = 'all';
+
+async function loadNews() {
+  if (API_URL) {
+    try {
+      const res = await fetch(API_URL, { cache: 'no-store' });
+      if (!res.ok) throw new Error('API not ok');
+      const data = await res.json();
+      allNews = data.items || [];
+      renderNews();
+      return;
+    } catch (err) {
+      console.warn('News API unavailable, falling back to local data:', err);
+    }
+  }
+  // Fallback: local static JSON (works out of the box on GitHub Pages)
+  try {
+    const res = await fetch(LOCAL_JSON, { cache: 'no-store' });
+    const data = await res.json();
+    allNews = data.items || [];
+    document.getElementById('apiBanner').style.display = 'flex';
+    renderNews();
+  } catch (err) {
+    document.getElementById('newsGrid').innerHTML = '<div class="loading-state">Не удалось загрузить новости.</div>';
+  }
+}
+
+function formatDate(iso) {
+  const d = new Date(iso);
+  const months = ['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
+  return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+function renderNews() {
+  const grid = document.getElementById('newsGrid');
+  const filtered = currentFilter === 'all' ? allNews : allNews.filter(n => n.source === currentFilter);
+
+  if (!filtered.length) {
+    grid.innerHTML = '<div class="loading-state">Новостей по этому фильтру пока нет.</div>';
+    return;
+  }
+
+  // Sort by date desc
+  const sorted = [...filtered].sort((a,b) => new Date(b.date) - new Date(a.date));
+
+  grid.innerHTML = sorted.map((n, i) => {
+    const meta = SOURCE_META[n.source] || SOURCE_META.coreplus;
+    const isFeatured = n.featured && currentFilter === 'all' && i === 0;
+    const target = n.url && n.url.startsWith('http') ? ' target="_blank"' : '';
+
+    if (isFeatured) {
+      return `
+        <a href="${n.url || '#'}"${target} class="news-card featured">
+          <div class="news-content">
+            <div class="news-top">
+              <span class="source-badge ${meta.cls}">${meta.icon} ${meta.label}</span>
+              <span class="news-date">${formatDate(n.date)}</span>
+            </div>
+            <div class="news-title">${n.title}</div>
+            <div class="news-excerpt">${n.excerpt}</div>
+            <div class="news-read">Читать</div>
+          </div>
+          <div class="news-visual">📰</div>
+        </a>`;
+    }
+
+    return `
+      <a href="${n.url || '#'}"${target} class="news-card">
+        <div class="news-top">
+          <span class="source-badge ${meta.cls}">${meta.icon} ${meta.label}</span>
+          <span class="news-date">${formatDate(n.date)}</span>
+        </div>
+        <div class="news-title">${n.title}</div>
+        <div class="news-excerpt">${n.excerpt}</div>
+        <div class="news-read">Читать</div>
+      </a>`;
+  }).join('');
+}
+
+// Filter buttons
+document.getElementById('filterBar').addEventListener('click', e => {
+  const btn = e.target.closest('.filter-btn');
+  if (!btn) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentFilter = btn.dataset.src;
+  renderNews();
+});
+
+loadNews();
+</script>
+
+</body>
+</html>

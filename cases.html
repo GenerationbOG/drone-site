@@ -421,6 +421,22 @@
       .process-steps { grid-template-columns: 1fr; }
       .results-row { flex-wrap: wrap; gap: 1rem; }
     }
+
+    /* Mobile burger nav */
+    .burger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; background: none; border: none; }
+    .burger span { display: block; width: 22px; height: 2px; background: var(--text-muted); border-radius: 2px; transition: all 0.3s; }
+    .burger.open span:nth-child(1) { transform: rotate(45deg) translate(5px,5px); }
+    .burger.open span:nth-child(2) { opacity: 0; }
+    .burger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px,-5px); }
+    .mobile-menu { display: none; position: fixed; top: 64px; left: 0; right: 0; background: rgba(10,12,15,0.98); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 1.5rem 2rem; z-index: 99; flex-direction: column; }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a { font-size: 1rem; color: var(--text-muted); text-decoration: none; padding: 0.9rem 0; border-bottom: 1px solid var(--border); transition: color 0.2s; }
+    .mobile-menu a:last-child { border-bottom: none; }
+    .mobile-menu a.active { color: var(--blue); }
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      .burger { display: flex; }
+    }
   </style>
 </head>
 <body>
@@ -437,9 +453,24 @@
       <li><a href="events.html">Ивенты</a></li>
       <li><a href="courses.html">Курсы</a></li>
       <li><a href="cases.html" class="active">Кейсы</a></li>
+      <li><a href="stats.html">Статистика</a></li>
+      <li><a href="simulator.html">Симулятор</a></li>
+      <li><a href="builder.html">Сборка</a></li>
+      <li><a href="delivery.html">Доставка</a></li>
     </ul>
+    <button class="burger" id="burger" aria-label="Меню"><span></span><span></span><span></span></button>
   </div>
 </header>
+<nav class="mobile-menu" id="mobileMenu">
+  <a href="index.html">Обзор</a>
+  <a href="events.html">Ивенты</a>
+  <a href="courses.html">Курсы</a>
+  <a href="cases.html" class="active">Кейсы</a>
+  <a href="stats.html">Статистика</a>
+  <a href="simulator.html">Симулятор</a>
+  <a href="builder.html">Сборка</a>
+  <a href="delivery.html">Доставка</a>
+</nav>
 
 <!-- ══ PAGE HERO ══ -->
 <section class="page-hero">
@@ -762,5 +793,11 @@
   });
 </script>
 
+<script>
+  const burger = document.getElementById('burger');
+  const mobileMenu = document.getElementById('mobileMenu');
+  burger.addEventListener('click', () => { burger.classList.toggle('open'); mobileMenu.classList.toggle('open'); });
+  mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => { burger.classList.remove('open'); mobileMenu.classList.remove('open'); }));
+</script>
 </body>
 </html>

@@ -306,6 +306,7 @@ function renderOrders() {
 
 function startDelivery() {
   document.getElementById('gameScreen').style.display = 'none';
+  document.body.style.overflow = 'hidden';
   initGame();
   gameState = 'playing';
   lastT = performance.now();
@@ -313,11 +314,20 @@ function startDelivery() {
   loop2(lastT);
 }
 
-document.addEventListener('keydown', e => {
+const MOVE_KEYS = ['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'];
+
+window.addEventListener('keydown', e => {
+  // Track both e.key (arrows) and e.code (layout-independent WASD)
   keys[e.key] = true;
-  if ((e.key==='r'||e.key==='R') && gameState !== 'idle') startDelivery();
+  keys[e.code] = true;
+  if (MOVE_KEYS.includes(e.key) && gameState !== 'idle') e.preventDefault();
+  if ((e.key==='r'||e.key==='R'||e.code==='KeyR') && gameState !== 'idle') startDelivery();
+}, { passive: false });
+
+window.addEventListener('keyup', e => {
+  keys[e.key] = false;
+  keys[e.code] = false;
 });
-document.addEventListener('keyup', e => { keys[e.key] = false; });
 
 function loop2(ts) {
   const dt = Math.min((ts - lastT)/1000, 0.05);
@@ -330,10 +340,10 @@ function loop2(ts) {
 function update2(dt) {
   // Drone movement
   let ax=0, ay=0;
-  if (keys['ArrowLeft']||keys['a']||keys['A'])  ax=-1;
-  if (keys['ArrowRight']||keys['d']||keys['D']) ax= 1;
-  if (keys['ArrowUp']||keys['w']||keys['W'])    ay=-1;
-  if (keys['ArrowDown']||keys['s']||keys['S'])  ay= 1;
+  if (keys['ArrowLeft']||keys['KeyA'])  ax=-1;
+  if (keys['ArrowRight']||keys['KeyD']) ax= 1;
+  if (keys['ArrowUp']||keys['KeyW'])    ay=-1;
+  if (keys['ArrowDown']||keys['KeyS'])  ay= 1;
 
   const spd = DRONE_SPD * (drone2.cargo ? 0.75 : 1);
   drone2.vx = (drone2.vx + ax * spd * dt * 8) * 0.82;
@@ -414,6 +424,7 @@ function addPopup(text, color) {
 
 function endGame(reason) {
   gameState = 'idle';
+  document.body.style.overflow = '';
   const screen = document.getElementById('gameScreen');
   screen.style.display = 'flex';
   screen.innerHTML = `

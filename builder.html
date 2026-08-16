@@ -589,24 +589,9 @@ function drawSlotIndicator(x, y, type, label) {
 // Click detection
 canvas.addEventListener('click', e => {
   if (mode !== 'place' || !selectedPart) return;
-  const rect = canvas.getBoundingClientRect();
-  const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
-  const my = (e.clientY - rect.top) * (canvas.height / rect.height);
-
-  for (const [type, slot] of Object.entries(slots)) {
-    if (!slot._x) continue;
-    const dx = mx - slot._x, dy = my - slot._y;
-    if (Math.sqrt(dx*dx + dy*dy) < 30) {
-      if (selectedPart.dataset.type === type) {
-        installPart(type, selectedPart);
-        return;
-      } else {
-        // Wrong slot — flash feedback
-        hoverSlot = type;
-        setTimeout(() => { hoverSlot = null; }, 400);
-      }
-    }
-  }
+  // Forgiving UX: any click on the canvas installs the currently selected part
+  // into its matching slot — no need for pixel-precise targeting.
+  installPart(selectedPart.dataset.type, selectedPart);
 });
 
 canvas.addEventListener('mousemove', e => {

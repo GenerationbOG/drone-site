@@ -1,0 +1,26 @@
+{
+  "drone": {
+    "mass": 1.2,
+    "thrustPower": 260,
+    "maxSpeed": 140,
+    "dragCoef": 0.985,
+    "batteryCapacity": 100,
+    "batteryDrainIdle": 0.6,
+    "batteryDrainMove": 3.4,
+    "batteryDrainClimb": 1.8,
+    "batteryDrainCargo": 1.6,
+    "rthThreshold": 15,
+    "emergencyThreshold": 5
+  },
+  "world": {
+    "width": 1400,
+    "height": 1000,
+    "groundY": 820
+  },
+  "grading": {
+    "S": 90,
+    "A": 75,
+    "B": 55,
+    "C": 0
+  }
+}

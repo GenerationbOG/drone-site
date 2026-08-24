@@ -1,122 +1,241 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Доставка дроном — COREPLUS</title>
-  <link rel="stylesheet" href="css/style.css" />
-  <style>
-    .page-hero { padding: 3rem 0 2.5rem; border-bottom: 1px solid var(--border); }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Drone Delivery — COREPLUS</title>
+<link rel="stylesheet" href="css/style.css" />
+<style>
+  .page-hero { padding: 3rem 0 2rem; border-bottom: 1px solid var(--border); }
+  .page-hero p { max-width: 580px; margin-top: 0.5rem; }
 
-    .game-layout {
-      display: grid;
-      grid-template-columns: 1fr 240px;
-      gap: 1.25rem;
-      margin: 2rem 0 4rem;
-      align-items: start;
-    }
+  .app-wrap {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    margin: 2rem 0 4rem;
+    max-width: 640px;
+    margin-left: auto; margin-right: auto;
+  }
 
-    .game-wrap {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      overflow: hidden;
-      position: relative;
-    }
+  /* ── Top bar ── */
+  .topbar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .topbar-item {
+    background: var(--bg-subtle);
+    padding: 0.8rem 0.6rem;
+    text-align: center;
+  }
+  .topbar-label { font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.3rem; }
+  .topbar-val { font-family: var(--font-display); font-size: 1rem; font-weight: 700; color: var(--text); }
+  .topbar-val.money { color: #FFD166; }
+  .topbar-val.rep { color: var(--purple); }
+  .energy-bar-mini { height: 4px; background: rgba(255,255,255,0.08); border-radius: 2px; margin-top: 0.35rem; overflow: hidden; }
+  .energy-bar-mini-fill { height: 100%; background: var(--gradient-brand); transition: width 0.3s; }
 
-    #deliveryCanvas { display: block; width: 100%; }
+  /* ── View container ── */
+  .view { display: none; padding: 1.5rem; min-height: 380px; }
+  .view.active { display: block; }
 
-    .game-start-screen {
-      position: absolute; inset: 0;
-      background: rgba(10,12,15,0.92);
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      gap: 1rem; z-index: 10;
-      backdrop-filter: blur(4px);
-    }
-    .game-start-screen h2 { font-family: var(--font-display); font-size: 1.5rem; color: var(--text); }
-    .game-start-screen p { font-size: 0.88rem; color: var(--text-muted); text-align: center; max-width: 300px; line-height: 1.6; }
+  /* ── Route card (Главная) ── */
+  .route-card {
+    background: var(--bg-subtle);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+  }
+  .route-track {
+    position: relative;
+    height: 60px;
+    margin: 1.5rem 0;
+  }
+  .route-line {
+    position: absolute; top: 50%; left: 24px; right: 24px; height: 2px;
+    background: repeating-linear-gradient(90deg, var(--border) 0 6px, transparent 6px 12px);
+    transform: translateY(-50%);
+  }
+  .route-fill {
+    position: absolute; top: 50%; left: 24px; height: 2px;
+    background: var(--gradient-brand);
+    transform: translateY(-50%);
+    width: 0%;
+    transition: width 0.1s linear;
+  }
+  .route-point {
+    position: absolute; top: 50%; transform: translate(-50%,-50%);
+    width: 36px; height: 36px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem;
+    background: var(--bg-card); border: 1px solid var(--border);
+  }
+  .route-point.warehouse { left: 24px; }
+  .route-point.dest { right: 24px; left: auto; transform: translate(50%,-50%); }
+  .route-drone {
+    position: absolute; top: 50%; left: 24px;
+    transform: translate(-50%, -50%);
+    font-size: 1.3rem;
+    transition: left 0.1s linear;
+    filter: drop-shadow(0 0 6px rgba(0,168,255,0.6));
+  }
 
-    .side-panel { display: flex; flex-direction: column; gap: 1rem; }
+  .order-meta-row { display: flex; gap: 1.25rem; flex-wrap: wrap; margin: 1rem 0; }
+  .order-meta { text-align: center; flex: 1; min-width: 70px; }
+  .order-meta-val { font-family: var(--font-display); font-size: 1.05rem; font-weight: 600; color: var(--text); }
+  .order-meta-label { font-size: 0.66rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.15rem; }
 
-    .info-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1.25rem;
-    }
+  .vip-badge {
+    display: inline-flex; align-items: center; gap: 0.3rem;
+    font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase;
+    color: #FFD166; background: rgba(255,209,102,0.1);
+    border: 1px solid rgba(255,209,102,0.3);
+    padding: 0.2rem 0.55rem; border-radius: 3px;
+    margin-bottom: 0.6rem;
+  }
 
-    .info-title {
-      font-size: 0.68rem; letter-spacing: 0.1em;
-      text-transform: uppercase; color: var(--text-dim);
-      margin-bottom: 1rem;
-    }
+  .accept-timer { font-size: 0.75rem; color: var(--text-dim); margin-top: 0.75rem; text-align: center; }
+  .accept-timer-bar { height: 3px; background: var(--bg-card); border-radius: 2px; overflow: hidden; margin-top: 0.3rem; }
+  .accept-timer-fill { height: 100%; background: #FF6B6B; transition: width 1s linear; }
 
-    .info-row {
-      display: flex; justify-content: space-between;
-      padding: 0.4rem 0; border-bottom: 1px solid var(--border);
-      font-size: 0.82rem;
-    }
-    .info-row:last-child { border-bottom: none; }
-    .info-row-label { color: var(--text-dim); }
-    .info-row-val { color: var(--text); font-weight: 500; font-family: var(--font-display); }
+  .lock-msg {
+    background: rgba(255,107,107,0.08); border: 1px solid rgba(255,107,107,0.25);
+    border-radius: 8px; padding: 0.75rem 1rem; font-size: 0.82rem; color: #FF9B9B;
+    margin: 1rem 0; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap;
+  }
 
-    .order-card {
-      background: var(--bg-subtle);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 0.85rem;
-      margin-bottom: 0.5rem;
-      font-size: 0.8rem;
-    }
-    .order-card.active { border-color: var(--border-accent); }
-    .order-title { color: var(--text); font-weight: 500; margin-bottom: 0.2rem; }
-    .order-meta { color: var(--text-dim); font-size: 0.72rem; }
-    .order-reward { color: #00D68F; font-family: var(--font-display); margin-top: 0.3rem; }
+  .launch-btn { width: 100%; justify-content: center; margin-top: 1rem; padding: 0.85rem; font-size: 0.92rem; }
+  .launch-btn:disabled { opacity: 0.35; cursor: not-allowed; }
 
-    .mobile-dpad {
-      display: none;
-      justify-content: center;
-      gap: 0.75rem;
-      margin-bottom: 1rem;
-    }
-    .dpad { display: grid; grid-template-columns: repeat(3, 48px); grid-template-rows: repeat(3,48px); gap: 4px; }
-    .dpad-btn { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; color: var(--text-muted); font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; user-select: none; -webkit-tap-highlight-color: transparent; transition: all 0.1s; }
-    .dpad-btn:active, .dpad-btn.pressed { background: var(--blue-dim); border-color: var(--border-accent); color: var(--blue); }
-    .dpad-btn.empty { background: transparent; border-color: transparent; pointer-events: none; }
+  .flight-status { text-align: center; margin-top: 1rem; }
+  .flight-status-label { font-size: 0.8rem; color: var(--text-muted); }
+  .flight-status-time { font-family: var(--font-display); font-size: 1.3rem; color: var(--blue); margin-top: 0.2rem; }
 
-    /* Mobile nav */
-    .burger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; background: none; border: none; }
-    .burger span { display: block; width: 22px; height: 2px; background: var(--text-muted); border-radius: 2px; transition: all 0.3s; }
-    .burger.open span:nth-child(1) { transform: rotate(45deg) translate(5px,5px); }
-    .burger.open span:nth-child(2) { opacity: 0; }
-    .burger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px,-5px); }
-    .mobile-menu { display: none; position: fixed; top: 64px; left: 0; right: 0; background: rgba(10,12,15,0.98); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 1.5rem 2rem; z-index: 99; flex-direction: column; }
-    .mobile-menu.open { display: flex; }
-    .mobile-menu a { font-size: 1rem; color: var(--text-muted); text-decoration: none; padding: 0.9rem 0; border-bottom: 1px solid var(--border); transition: color 0.2s; }
-    .mobile-menu a:last-child { border-bottom: none; }
-    .mobile-menu a.active { color: var(--blue); }
+  /* ── Upgrade cards ── */
+  .upg-card {
+    background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 10px;
+    padding: 1.1rem 1.25rem; margin-bottom: 0.75rem;
+  }
+  .upg-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
+  .upg-name { font-family: var(--font-display); font-size: 0.95rem; font-weight: 600; color: var(--text); }
+  .upg-stars { color: var(--purple); font-size: 0.85rem; letter-spacing: 1px; margin-top: 0.25rem; }
+  .upg-stars .empty { color: var(--text-dim); }
+  .upg-vals { text-align: right; font-size: 0.78rem; color: var(--text-muted); }
+  .upg-vals b { color: var(--text); font-family: var(--font-display); }
+  .upg-btn-row { display: flex; align-items: center; justify-content: space-between; margin-top: 0.85rem; gap: 0.75rem; }
+  .upg-price { font-family: var(--font-display); font-size: 0.88rem; color: #FFD166; }
+  .upg-buy-btn {
+    font-family: var(--font-display); font-size: 0.78rem; padding: 0.4rem 0.9rem;
+    border-radius: 5px; border: none; cursor: pointer; background: var(--gradient-brand); color: #0A0C0F;
+    transition: filter 0.2s;
+  }
+  .upg-buy-btn:hover { filter: brightness(1.1); }
+  .upg-buy-btn:disabled { opacity: 0.3; cursor: not-allowed; filter:none; }
+  .upg-buy-btn.maxed { background: var(--bg-card); color: var(--text-dim); border: 1px solid var(--border); }
 
-    .footer-legal { display: flex; gap: 1.5rem; flex-wrap: wrap; }
-    .footer-legal a { font-size: 0.75rem; color: var(--text-dim); text-decoration: none; }
-    .footer-legal a:hover { color: var(--blue); opacity: 1; }
-    .footer-inner { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 1.5rem; }
+  /* ── Charging view ── */
+  .charge-ring-wrap { display: flex; flex-direction: column; align-items: center; padding: 1.5rem 0; }
+  .charge-pct { font-family: var(--font-display); font-size: 2.4rem; font-weight: 700; color: var(--blue); }
+  .charge-bar-big { width: 100%; height: 10px; background: var(--bg-subtle); border-radius: 5px; overflow: hidden; margin: 1rem 0 1.5rem; }
+  .charge-bar-big-fill { height: 100%; background: var(--gradient-brand); transition: width 0.3s; }
+  .charge-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center; }
 
-    @media (max-width: 768px) {
-      .game-layout { grid-template-columns: 1fr; }
-      .mobile-dpad { display: flex; }
-      .nav-links { display: none; }
-      .burger { display: flex; }
-      .footer-inner { grid-template-columns: 1fr; gap: 1rem; }
-    }
-  </style>
+  /* ── Progress view ── */
+  .prog-row { margin-bottom: 1.25rem; }
+  .prog-label { display: flex; justify-content: space-between; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.4rem; }
+  .prog-label b { color: var(--text); }
+  .prog-bar { height: 6px; background: var(--bg-subtle); border-radius: 3px; overflow: hidden; }
+  .prog-bar-fill { height: 100%; background: var(--gradient-brand); transition: width 0.4s; }
+
+  .checklist { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem; }
+  .check-item { display: flex; align-items: center; gap: 0.6rem; font-size: 0.82rem; color: var(--text-muted); }
+  .check-item.done { color: #00D68F; }
+  .check-dot { width: 16px; height: 16px; border-radius: 50%; border: 1px solid var(--border); display:flex;align-items:center;justify-content:center; font-size:0.65rem; flex-shrink:0; }
+  .check-item.done .check-dot { background: rgba(0,214,143,0.15); border-color: #00D68F; }
+
+  /* ── Bottom nav ── */
+  .bottom-nav {
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    border-top: 1px solid var(--border);
+    background: var(--bg-subtle);
+  }
+  .bnav-btn {
+    background: none; border: none; cursor: pointer;
+    padding: 0.8rem 0.25rem; display: flex; flex-direction: column; align-items: center; gap: 0.3rem;
+    color: var(--text-dim); transition: color 0.2s;
+  }
+  .bnav-btn .bnav-icon { font-size: 1.1rem; }
+  .bnav-btn .bnav-label { font-size: 0.62rem; letter-spacing: 0.02em; }
+  .bnav-btn.active { color: var(--blue); }
+
+  /* ── Modal (level complete / victory) ── */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 300;
+    background: rgba(0,0,0,0.75); backdrop-filter: blur(6px);
+    display: flex; align-items: center; justify-content: center; padding: 1.5rem;
+    opacity: 0; pointer-events: none; transition: opacity 0.25s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal-box {
+    background: var(--bg-card); border: 1px solid var(--border-accent); border-radius: 16px;
+    width: 100%; max-width: 420px; padding: 2rem; text-align: center;
+    transform: translateY(12px); transition: transform 0.25s;
+  }
+  .modal-overlay.open .modal-box { transform: translateY(0); }
+  .modal-box .emoji { font-size: 2.5rem; margin-bottom: 0.75rem; }
+  .modal-box h2 { font-family: var(--font-display); font-size: 1.4rem; color: var(--text); margin-bottom: 0.5rem; }
+  .modal-box p { font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.25rem; line-height: 1.6; }
+  .modal-stats { display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 1.5rem; }
+  .modal-stat-num { font-family: var(--font-display); font-size: 1.3rem; color: var(--blue); font-weight: 700; }
+  .modal-stat-label { font-size: 0.68rem; color: var(--text-dim); text-transform: uppercase; margin-top: 0.2rem; }
+
+  /* ── Toasts ── */
+  .toast-wrap { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); z-index: 250; display: flex; flex-direction: column; gap: 0.5rem; pointer-events: none; }
+  .toast {
+    background: var(--bg-card); border: 1px solid var(--border-accent); border-radius: 8px;
+    padding: 0.6rem 1.1rem; font-size: 0.82rem; color: var(--text);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    animation: toastIn 0.25s ease, toastOut 0.3s ease 2.2s forwards;
+  }
+  @keyframes toastIn { from { opacity:0; transform: translateY(-8px);} to {opacity:1; transform:translateY(0);} }
+  @keyframes toastOut { to { opacity:0; transform: translateY(-8px);} }
+
+  /* Mobile nav (site-wide) */
+  .burger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; background: none; border: none; }
+  .burger span { display: block; width: 22px; height: 2px; background: var(--text-muted); border-radius: 2px; transition: all 0.3s; }
+  .burger.open span:nth-child(1) { transform: rotate(45deg) translate(5px,5px); }
+  .burger.open span:nth-child(2) { opacity: 0; }
+  .burger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px,-5px); }
+  .mobile-menu { display: none; position: fixed; top: 64px; left: 0; right: 0; background: rgba(10,12,15,0.98); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 1.5rem 2rem; z-index: 99; flex-direction: column; }
+  .mobile-menu.open { display: flex; }
+  .mobile-menu a { font-size: 1rem; color: var(--text-muted); text-decoration: none; padding: 0.9rem 0; border-bottom: 1px solid var(--border); transition: color 0.2s; }
+  .mobile-menu a:last-child { border-bottom: none; }
+  .mobile-menu a.active { color: var(--blue); }
+
+  .footer-legal { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+  .footer-legal a { font-size: 0.75rem; color: var(--text-dim); text-decoration: none; }
+  .footer-legal a:hover { color: var(--blue); opacity: 1; }
+  .footer-inner { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 1.5rem; }
+
+  @media (max-width: 640px) {
+    .nav-links { display: none; }
+    .burger { display: flex; }
+    .topbar-item { padding: 0.6rem 0.4rem; }
+    .topbar-val { font-size: 0.85rem; }
+    .footer-inner { grid-template-columns: 1fr; gap: 1rem; }
+  }
+</style>
 </head>
 <body>
 
 <header class="nav">
   <div class="nav-inner">
     <a href="index.html" class="nav-logo">
-      <img src="assets/logo.jpeg" alt="COREPLUS" style="width:26px;height:26px;border-radius:0;object-fit:cover;mix-blend-mode:lighten;">
+      <img src="assets/logo.jpeg" alt="COREPLUS" style="width:26px;height:26px;object-fit:cover;mix-blend-mode:lighten;">
       COREPLUS
     </a>
     <ul class="nav-links">
@@ -136,73 +255,116 @@
 <nav class="mobile-menu" id="mobileMenu">
   <a href="index.html">Обзор</a><a href="events.html">Ивенты</a><a href="courses.html">Курсы</a>
   <a href="cases.html">Кейсы</a><a href="stats.html">Статистика</a><a href="simulator.html">Симулятор</a>
-  <a href="builder.html">Сборка</a><a href="delivery.html" class="active">Доставка</a>
-  <a href="news.html">Новости</a>
+  <a href="builder.html">Сборка</a><a href="delivery.html" class="active">Доставка</a><a href="news.html">Новости</a>
 </nav>
 
 <section class="page-hero">
   <div class="container">
-    <div class="section-label">Интерактив</div>
-    <h1>Мини-игра: доставка дроном</h1>
-    <p>Управляй дроном-курьером. Забирай посылки со склада и доставляй адресатам до истечения времени. WASD / стрелки или кнопки на экране.</p>
+    <div class="section-label">Интерактив · Тайм-менеджмент</div>
+    <h1>Drone Delivery</h1>
+    <p>Развивай автономный дрон-курьер: принимай заказы, следи за зарядом, вкладывайся в апгрейды и открывай новые районы — от Пригорода до Мегаполиса.</p>
   </div>
 </section>
 
 <div class="container">
-  <div class="mobile-dpad" id="mobileDpad">
-    <div class="dpad">
-      <div class="dpad-btn empty"></div><div class="dpad-btn" id="du">↑</div><div class="dpad-btn empty"></div>
-      <div class="dpad-btn" id="dl">←</div><div class="dpad-btn empty"></div><div class="dpad-btn" id="dr">→</div>
-      <div class="dpad-btn empty"></div><div class="dpad-btn" id="dd">↓</div><div class="dpad-btn empty"></div>
-    </div>
-  </div>
+  <div class="app-wrap">
 
-  <div class="game-layout">
-    <div class="game-wrap">
-      <canvas id="deliveryCanvas"></canvas>
-      <div class="game-start-screen" id="gameScreen">
-        <div style="font-size:2.5rem">📦</div>
-        <h2>Дрон-курьер</h2>
-        <p>Лети на склад 🏭, забирай посылку и доставляй к адресату 🏠. Успей до истечения времени!</p>
-        <button class="btn btn-primary" onclick="startDelivery()">Начать смену</button>
+    <!-- ══ TOP BAR ══ -->
+    <div class="topbar">
+      <div class="topbar-item">
+        <div class="topbar-label">💰 Деньги</div>
+        <div class="topbar-val money" id="tMoney">0</div>
+      </div>
+      <div class="topbar-item">
+        <div class="topbar-label">⚡ Энергия</div>
+        <div class="topbar-val" id="tEnergy">100/100</div>
+        <div class="energy-bar-mini"><div class="energy-bar-mini-fill" id="tEnergyBar" style="width:100%"></div></div>
+      </div>
+      <div class="topbar-item">
+        <div class="topbar-label">📍 Район</div>
+        <div class="topbar-val" id="tZone">1/5</div>
+      </div>
+      <div class="topbar-item">
+        <div class="topbar-label">⭐ Репутация</div>
+        <div class="topbar-val rep" id="tRep">50</div>
       </div>
     </div>
 
-    <div class="side-panel">
-      <div class="info-card">
-        <div class="info-title">Смена</div>
-        <div class="info-row"><span class="info-row-label">Время</span><span class="info-row-val" id="dTime">2:00</span></div>
-        <div class="info-row"><span class="info-row-label">Заработано</span><span class="info-row-val" id="dMoney">0 ₽</span></div>
-        <div class="info-row"><span class="info-row-label">Доставок</span><span class="info-row-val" id="dDeliveries">0</span></div>
-        <div class="info-row"><span class="info-row-label">Батарея</span><span class="info-row-val" id="dBattery">100%</span></div>
-        <div class="info-row"><span class="info-row-label">Груз</span><span class="info-row-val" id="dCargo">Пусто</span></div>
-      </div>
+    <!-- ══ VIEW: ГЛАВНАЯ ══ -->
+    <div class="view active" id="view-main">
+      <div id="orderArea"></div>
+    </div>
 
-      <div class="info-card">
-        <div class="info-title">Активные заказы</div>
-        <div id="ordersList">
-          <div style="font-size:0.82rem;color:var(--text-dim)">Заказы появятся после старта</div>
+    <!-- ══ VIEW: ЗАКАЗЫ (info) ══ -->
+    <div class="view" id="view-orders">
+      <h3 style="margin-bottom:0.75rem;">Текущий район</h3>
+      <p style="font-size:0.85rem; margin-bottom:1.25rem;" id="zoneDesc"></p>
+      <div class="order-meta-row">
+        <div class="order-meta"><div class="order-meta-val" id="zDist">—</div><div class="order-meta-label">Дистанция, км</div></div>
+        <div class="order-meta"><div class="order-meta-val" id="zIncome">—</div><div class="order-meta-label">Доход, ₽</div></div>
+        <div class="order-meta"><div class="order-meta-val" id="zGoal">—</div><div class="order-meta-label">Цель района</div></div>
+      </div>
+      <p style="font-size:0.8rem; color:var(--text-dim); margin-top:1rem;">Новый заказ появляется автоматически после доставки или отмены текущего. Один активный дрон — один заказ за раз.</p>
+    </div>
+
+    <!-- ══ VIEW: УЛУЧШЕНИЯ ══ -->
+    <div class="view" id="view-upgrades">
+      <h3 style="margin-bottom:1rem;">Улучшения дрона</h3>
+      <div id="upgradesList"></div>
+    </div>
+
+    <!-- ══ VIEW: ЗАРЯДКА ══ -->
+    <div class="view" id="view-charge">
+      <div class="charge-ring-wrap">
+        <div class="charge-pct" id="cPct">100%</div>
+        <div class="charge-bar-big"><div class="charge-bar-big-fill" id="cBar" style="width:100%"></div></div>
+        <div class="charge-actions">
+          <button class="btn btn-outline" id="btnChargeWait">Зарядить (60 сек)</button>
+          <button class="btn btn-primary" id="btnChargeFast">⚡ Мгновенно — 20 ₽</button>
         </div>
-      </div>
-
-      <div class="info-card">
-        <div class="info-title">Управление</div>
-        <div style="font-size:0.8rem;color:var(--text-muted);line-height:1.8;">
-          <div>⬆⬇⬅➡ / WASD — движение</div>
-          <div>Подлети к 🏭 — взять груз</div>
-          <div>Подлети к 🏠 — сдать груз</div>
-          <div>⚡ — зарядная станция</div>
-          <div>R — рестарт</div>
-        </div>
+        <div id="chargeStatus" style="margin-top:1rem; font-size:0.82rem; color:var(--text-dim);"></div>
       </div>
     </div>
+
+    <!-- ══ VIEW: ПРОГРЕСС ══ -->
+    <div class="view" id="view-progress">
+      <h3 style="margin-bottom:1.25rem;">Прогресс</h3>
+
+      <div class="prog-row">
+        <div class="prog-label"><span>Район: <b id="pZoneName">Пригород</b></span><span id="pZoneNum">1/5</span></div>
+        <div class="prog-bar"><div class="prog-bar-fill" id="pZoneBar" style="width:0%"></div></div>
+      </div>
+      <div class="prog-row">
+        <div class="prog-label"><span>Репутация</span><span id="pRepNum">50/100</span></div>
+        <div class="prog-bar"><div class="prog-bar-fill" id="pRepBar" style="width:50%"></div></div>
+      </div>
+
+      <div class="order-meta-row">
+        <div class="order-meta"><div class="order-meta-val" id="pDeliveries">0</div><div class="order-meta-label">Доставок</div></div>
+        <div class="order-meta"><div class="order-meta-val" id="pStreak">0</div><div class="order-meta-label">Серия без сбоев</div></div>
+        <div class="order-meta"><div class="order-meta-val" id="pTotal">0</div><div class="order-meta-label">Всего заработано</div></div>
+      </div>
+
+      <h3 style="margin:1.5rem 0 0.5rem; font-size:0.95rem;">Условия открытия «Свободной доставки»</h3>
+      <div class="checklist" id="freeplayChecklist"></div>
+    </div>
+
+    <!-- ══ BOTTOM NAV ══ -->
+    <div class="bottom-nav">
+      <button class="bnav-btn active" data-view="main"><span class="bnav-icon">🏠</span><span class="bnav-label">Главная</span></button>
+      <button class="bnav-btn" data-view="orders"><span class="bnav-icon">📦</span><span class="bnav-label">Заказы</span></button>
+      <button class="bnav-btn" data-view="upgrades"><span class="bnav-icon">🔧</span><span class="bnav-label">Улучшения</span></button>
+      <button class="bnav-btn" data-view="charge"><span class="bnav-icon">⚡</span><span class="bnav-label">Зарядка</span></button>
+      <button class="bnav-btn" data-view="progress"><span class="bnav-icon">🏆</span><span class="bnav-label">Прогресс</span></button>
+    </div>
+
   </div>
 </div>
 
 <footer class="footer">
   <div class="footer-inner">
     <div class="nav-logo" style="font-size:0.9rem;">
-      <img src="assets/logo.jpeg" alt="COREPLUS" style="width:22px;height:22px;border-radius:0;object-fit:cover;mix-blend-mode:lighten;">
+      <img src="assets/logo.jpeg" alt="COREPLUS" style="width:22px;height:22px;object-fit:cover;mix-blend-mode:lighten;">
       COREPLUS
     </div>
     <div class="footer-legal">
@@ -214,376 +376,558 @@
   </div>
 </footer>
 
+<!-- ══ MODAL ══ -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box" id="modalBox"></div>
+</div>
+
+<!-- ══ TOASTS ══ -->
+<div class="toast-wrap" id="toastWrap"></div>
+
 <script>
-// Burger
+// ═══════════════════════════════════════════════════
+// Burger nav
+// ═══════════════════════════════════════════════════
 const burger = document.getElementById('burger');
-const mm = document.getElementById('mobileMenu');
-burger.addEventListener('click', () => { burger.classList.toggle('open'); mm.classList.toggle('open'); });
+const mobileMenu = document.getElementById('mobileMenu');
+burger.addEventListener('click', () => { burger.classList.toggle('open'); mobileMenu.classList.toggle('open'); });
+mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => { burger.classList.remove('open'); mobileMenu.classList.remove('open'); }));
 
-// Mobile buttons
-['du','dd','dl','dr'].forEach((id, i) => {
-  const keys_map = { du:'ArrowUp', dd:'ArrowDown', dl:'ArrowLeft', dr:'ArrowRight' };
-  const el = document.getElementById(id);
-  const k = keys_map[id];
-  el.addEventListener('touchstart', e => { e.preventDefault(); keys[k]=true; el.classList.add('pressed'); }, {passive:false});
-  el.addEventListener('touchend',   e => { e.preventDefault(); keys[k]=false; el.classList.remove('pressed'); }, {passive:false});
-  el.addEventListener('mousedown', () => { keys[k]=true; el.classList.add('pressed'); });
-  el.addEventListener('mouseup',   () => { keys[k]=false; el.classList.remove('pressed'); });
-  el.addEventListener('mouseleave',() => { keys[k]=false; el.classList.remove('pressed'); });
-});
+// ═══════════════════════════════════════════════════
+// DRONE DELIVERY — economy engine (per spec v1.0)
+// ═══════════════════════════════════════════════════
 
-// ── Canvas ──
-const canvas = document.getElementById('deliveryCanvas');
-const ctx = canvas.getContext('2d');
-let W, H;
+// ── Upgrade tables (5 levels each). Prices/values for Battery & Motors
+// taken directly from the spec. Propellers & Cargo Bay only had stat
+// progressions in the spec with no explicit prices — priced them in
+// the same range/curve as Battery & Motors for balance.
+const BATTERY_TABLE = [
+  {price:100,  energy:120},
+  {price:250,  energy:150},
+  {price:500,  energy:180},
+  {price:900,  energy:220},
+  {price:1500, energy:250},
+];
+const MOTOR_TABLE = [
+  {price:150,  speed:35},
+  {price:350,  speed:45},
+  {price:700,  speed:55},
+  {price:1300, speed:68},
+  {price:2200, speed:80},
+];
+const PROP_TABLE = [ // eff = % of base energy consumption (lower = better)
+  {price:120,  eff:95},
+  {price:280,  eff:90},
+  {price:550,  eff:80},
+  {price:1000, eff:70},
+  {price:1700, eff:60},
+];
+const CARGO_TABLE = [ // kg — spec listed 1(base)→2→4→6→10; added an interim 8kg tier for parity
+  {price:150,  cap:2},
+  {price:350,  cap:4},
+  {price:650,  cap:6},
+  {price:1200, cap:8},
+  {price:2000, cap:10},
+];
 
-function resizeCanvas() {
-  W = canvas.parentElement.clientWidth;
-  H = Math.max(300, Math.min(W * 0.65, 460));
-  canvas.width = W; canvas.height = H;
+const BASE_STATS = { speed:30, maxEnergy:100, cargoCap:1, efficiency:100 };
+
+const ZONES = [
+  {name:'Пригород',          distMin:1,  distMax:3,  incomeMin:20,  incomeMax:60,  weightMax:2,  goal:1000},
+  {name:'Город',              distMin:2,  distMax:6,  incomeMin:40,  incomeMax:100, weightMax:4,  goal:3000},
+  {name:'Деловой район',      distMin:4,  distMax:8,  incomeMin:80,  incomeMax:180, weightMax:6,  goal:7000},
+  {name:'Промышленная зона',  distMin:6,  distMax:12, incomeMin:150, incomeMax:300, weightMax:8,  goal:15000},
+  {name:'Мегаполис',          distMin:10, distMax:20, incomeMin:250, incomeMax:600, weightMax:10, goal:30000},
+];
+
+const ACCEPT_WINDOW = 25; // seconds to launch an order before it's auto-cancelled
+const AMORTIZATION_MIN = 2, AMORTIZATION_MAX = 10;
+const FAST_CHARGE_COST = 20;
+const FULL_CHARGE_SECONDS = 60;
+
+// ── Game state (in-memory; resets on page reload) ──
+let game = {
+  money: 50,
+  energy: 100,
+  reputation: 50,
+  zoneIndex: 0,
+  earnedInZone: 0,
+  totalEarned: 0,
+  deliveries: 0,
+  streak: 0,
+  batteryLvl: 0, motorLvl: 0, propLvl: 0, cargoLvl: 0,
+  freeplay: false,
+};
+// Derived stats — recalculated whenever an upgrade is bought
+let stats = { ...BASE_STATS };
+
+let currentOrder = null;
+let acceptTimer = null;
+let flight = null;        // {order, startTs, durationMs}
+let flightRAF = null;
+let charging = null;      // {startTs, durationMs, targetEnergy, startEnergy} | 'idle'
+
+function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+function rand(min, max) { return Math.random() * (max - min) + min; }
+function randInt(min, max) { return Math.round(rand(min, max)); }
+function fmtMoney(n) { return Math.round(n).toLocaleString('ru'); }
+
+function recalcStats() {
+  stats.maxEnergy   = game.batteryLvl === 0 ? BASE_STATS.maxEnergy   : BATTERY_TABLE[game.batteryLvl-1].energy;
+  stats.speed        = game.motorLvl   === 0 ? BASE_STATS.speed       : MOTOR_TABLE[game.motorLvl-1].speed;
+  stats.efficiency    = game.propLvl    === 0 ? BASE_STATS.efficiency  : PROP_TABLE[game.propLvl-1].eff;
+  stats.cargoCap      = game.cargoLvl   === 0 ? BASE_STATS.cargoCap    : CARGO_TABLE[game.cargoLvl-1].cap;
+  game.energy = clamp(game.energy, 0, stats.maxEnergy);
 }
-resizeCanvas();
-window.addEventListener('resize', () => { resizeCanvas(); if (gameState !== 'idle') initGame(); });
+recalcStats();
 
-// ── Game State ──
-let gameState = 'idle';
-let keys = {};
-let drone2, warehouse, customers, chargers, orders;
-let money, deliveries, timeLeft, animId2, lastT;
-let popups = [];
-
-const TILE = 60;
-const DRONE_SPD = 160;
-const BATT_DRAIN = 4;
-
-function initGame() {
-  drone2 = { x: W/2, y: H/2, vx:0, vy:0, battery:100, cargo:null, r:14 };
-  warehouse = { x: 60, y: 60, w:50, h:40, label:'🏭' };
-  customers = [
-    { x: W-70, y: 60,  w:44, h:40, label:'🏠', id:1, name:'Иванов' },
-    { x: W-70, y: H-70, w:44, h:40, label:'🏠', id:2, name:'Петров' },
-    { x: 60,   y: H-70, w:44, h:40, label:'🏠', id:3, name:'Сидоров' },
-    { x: W/2,  y: 55,   w:44, h:40, label:'🏠', id:4, name:'Козлов' },
-  ];
-  chargers = [
-    { x: W/2-20, y: H/2, w:32, h:22, label:'⚡' },
-  ];
-  money = 0; deliveries = 0; timeLeft = 120;
-  orders = [];
-  popups = [];
-  spawnOrder();
-  updateSidePanel();
+// ── Toasts ──
+function toast(msg) {
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = msg;
+  document.getElementById('toastWrap').appendChild(el);
+  setTimeout(() => el.remove(), 2600);
 }
 
-const rewards = [250, 400, 600, 350, 500];
-const weights = ['1.2 кг', '0.8 кг', '2.1 кг', '0.5 кг', '1.8 кг'];
-const goods   = ['Медикаменты','Еда','Электроника','Документы','Запчасти'];
+// ── Order generation ──
+function generateOrder() {
+  const zone = ZONES[game.zoneIndex];
+  const distance = +rand(zone.distMin, zone.distMax).toFixed(1);
+  const weight = +rand(0.5, zone.weightMax).toFixed(1);
+  let reward = randInt(zone.incomeMin, zone.incomeMax);
+  const vip = game.reputation >= 70 && Math.random() < 0.15;
+  if (vip) reward = Math.round(reward * rand(1.10, 1.20));
+  const timeLimit = Math.round(distance * rand(5, 9));
 
-function spawnOrder() {
-  if (orders.length >= 3) return;
-  const cust = customers[Math.floor(Math.random() * customers.length)];
-  orders.push({
+  currentOrder = {
     id: Date.now(),
-    customer: cust,
-    reward: rewards[Math.floor(Math.random()*rewards.length)],
-    weight: weights[Math.floor(Math.random()*weights.length)],
-    good: goods[Math.floor(Math.random()*goods.length)],
-    timeLimit: 45 + Math.floor(Math.random()*30),
-    elapsed: 0,
-  });
-  renderOrders();
+    distance, weight, reward, vip, timeLimit,
+    acceptLeft: ACCEPT_WINDOW,
+  };
+  startAcceptCountdown();
+  renderOrder();
 }
 
-function renderOrders() {
-  const el = document.getElementById('ordersList');
-  if (!orders.length) { el.innerHTML = '<div style="font-size:0.82rem;color:var(--text-dim)">Нет заказов</div>'; return; }
-  el.innerHTML = orders.map(o => `
-    <div class="order-card ${drone2?.cargo?.id===o.id?'active':''}">
-      <div class="order-title">${o.good} → ${o.customer.name}</div>
-      <div class="order-meta">${o.weight} · ⏱ ${Math.ceil(o.timeLimit - o.elapsed)}с</div>
-      <div class="order-reward">+${o.reward} ₽</div>
+function startAcceptCountdown() {
+  clearInterval(acceptTimer);
+  acceptTimer = setInterval(() => {
+    if (!currentOrder || flight) { clearInterval(acceptTimer); return; }
+    currentOrder.acceptLeft -= 1;
+    if (currentOrder.acceptLeft <= 0) {
+      clearInterval(acceptTimer);
+      cancelOrder(true);
+      return;
+    }
+    renderOrder();
+  }, 1000);
+}
+
+function cancelOrder(expired) {
+  if (!currentOrder) return;
+  game.reputation = clamp(game.reputation - 10, 0, 100);
+  game.streak = 0;
+  toast(expired ? '⏱ Заказ просрочен и отменён · −10 репутации' : '❌ Заказ отменён · −10 репутации');
+  currentOrder = null;
+  updateTopbar();
+  generateOrder();
+}
+
+// ── Energy / flight time calculations ──
+function calcEnergyCost(order) {
+  const raw = order.distance * (1 + order.weight * 0.5);
+  return Math.round(raw * (stats.efficiency / 100));
+}
+function calcFlightSeconds(order) {
+  const s = (order.distance / stats.speed) * 180; // compressed game-time scale
+  return clamp(Math.round(s), 4, 90);
+}
+
+// ── Rendering: order card ──
+function renderOrder() {
+  const area = document.getElementById('orderArea');
+  if (flight) { renderFlight(area); return; }
+  if (!currentOrder) { area.innerHTML = '<div class="loading-state" style="text-align:center;color:var(--text-dim);padding:2rem 0;">Готовим заказ…</div>'; return; }
+
+  const o = currentOrder;
+  const energyCost = calcEnergyCost(o);
+  const flightSec = calcFlightSeconds(o);
+  const lockedByCargo = o.weight > stats.cargoCap;
+  const lockedByEnergy = energyCost > game.energy;
+  const acceptPct = (o.acceptLeft / ACCEPT_WINDOW) * 100;
+
+  area.innerHTML = `
+    <div class="route-card">
+      ${o.vip ? '<div class="vip-badge">⭐ VIP заказ</div>' : ''}
+      <div class="order-meta-row">
+        <div class="order-meta"><div class="order-meta-val">${o.distance} км</div><div class="order-meta-label">Дистанция</div></div>
+        <div class="order-meta"><div class="order-meta-val">${o.weight} кг</div><div class="order-meta-label">Вес груза</div></div>
+        <div class="order-meta"><div class="order-meta-val">${o.reward} ₽</div><div class="order-meta-label">Награда</div></div>
+        <div class="order-meta"><div class="order-meta-val">${o.timeLimit}с</div><div class="order-meta-label">Лимит времени</div></div>
+      </div>
+
+      <div class="route-track">
+        <div class="route-line"></div>
+        <div class="route-fill" style="width:0%"></div>
+        <div class="route-point warehouse">🏭</div>
+        <div class="route-drone">🚁</div>
+        <div class="route-point dest">🏠</div>
+      </div>
+
+      <div class="order-meta-row" style="margin-top:0;">
+        <div class="order-meta"><div class="order-meta-val">⚡ ${energyCost}</div><div class="order-meta-label">Расход энергии</div></div>
+        <div class="order-meta"><div class="order-meta-val">~${flightSec}с</div><div class="order-meta-label">Время полёта</div></div>
+      </div>
+
+      ${lockedByCargo ? `<div class="lock-msg"><span>🔒 Нужен грузоотсек от ${o.weight} кг (сейчас ${stats.cargoCap} кг)</span><button class="btn btn-outline" onclick="switchView('upgrades')" style="padding:0.35rem 0.8rem;font-size:0.75rem;">Улучшить</button></div>` : ''}
+      ${(!lockedByCargo && lockedByEnergy) ? `<div class="lock-msg"><span>🔋 Недостаточно энергии (нужно ${energyCost}, есть ${Math.round(game.energy)})</span><button class="btn btn-outline" onclick="switchView('charge')" style="padding:0.35rem 0.8rem;font-size:0.75rem;">Зарядить</button></div>` : ''}
+
+      <button class="btn btn-primary launch-btn" id="btnLaunch" ${lockedByCargo || lockedByEnergy ? 'disabled' : ''}>🚀 Запустить доставку</button>
+
+      <div class="accept-timer">Заказ ждёт ${o.acceptLeft}с, иначе отменится</div>
+      <div class="accept-timer-bar"><div class="accept-timer-fill" style="width:${acceptPct}%"></div></div>
     </div>
-  `).join('');
+  `;
+
+  const btn = document.getElementById('btnLaunch');
+  if (btn && !btn.disabled) btn.addEventListener('click', launchOrder);
 }
 
-function startDelivery() {
-  document.getElementById('gameScreen').style.display = 'none';
-  document.body.style.overflow = 'hidden';
-  initGame();
-  gameState = 'playing';
-  lastT = performance.now();
-  cancelAnimationFrame(animId2);
-  loop2(lastT);
-}
+function renderFlight(area) {
+  const { order, startTs, durationMs } = flight;
+  const elapsed = Date.now() - startTs;
+  const pct = clamp((elapsed / durationMs) * 100, 0, 100);
+  const remainingSec = Math.max(0, Math.ceil((durationMs - elapsed) / 1000));
 
-const MOVE_KEYS = ['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'];
+  area.innerHTML = `
+    <div class="route-card">
+      <div class="order-meta-row">
+        <div class="order-meta"><div class="order-meta-val">${order.distance} км</div><div class="order-meta-label">Дистанция</div></div>
+        <div class="order-meta"><div class="order-meta-val">${order.weight} кг</div><div class="order-meta-label">Вес груза</div></div>
+        <div class="order-meta"><div class="order-meta-val">${order.reward} ₽</div><div class="order-meta-label">Награда</div></div>
+      </div>
 
-window.addEventListener('keydown', e => {
-  // Track both e.key (arrows) and e.code (layout-independent WASD)
-  keys[e.key] = true;
-  keys[e.code] = true;
-  if (MOVE_KEYS.includes(e.key) && gameState !== 'idle') e.preventDefault();
-  if ((e.key==='r'||e.key==='R'||e.code==='KeyR') && gameState !== 'idle') startDelivery();
-}, { passive: false });
+      <div class="route-track">
+        <div class="route-line"></div>
+        <div class="route-fill" style="width:${pct}%"></div>
+        <div class="route-point warehouse">🏭</div>
+        <div class="route-drone" style="left:calc(24px + ${pct}% * (100% - 48px) / 100)">🚁</div>
+        <div class="route-point dest">🏠</div>
+      </div>
 
-window.addEventListener('keyup', e => {
-  keys[e.key] = false;
-  keys[e.code] = false;
-});
-
-function loop2(ts) {
-  const dt = Math.min((ts - lastT)/1000, 0.05);
-  lastT = ts;
-  if (gameState === 'playing') { update2(dt); }
-  draw2();
-  animId2 = requestAnimationFrame(loop2);
-}
-
-function update2(dt) {
-  // Drone movement
-  let ax=0, ay=0;
-  if (keys['ArrowLeft']||keys['KeyA'])  ax=-1;
-  if (keys['ArrowRight']||keys['KeyD']) ax= 1;
-  if (keys['ArrowUp']||keys['KeyW'])    ay=-1;
-  if (keys['ArrowDown']||keys['KeyS'])  ay= 1;
-
-  const spd = DRONE_SPD * (drone2.cargo ? 0.75 : 1);
-  drone2.vx = (drone2.vx + ax * spd * dt * 8) * 0.82;
-  drone2.vy = (drone2.vy + ay * spd * dt * 8) * 0.82;
-  drone2.x = Math.max(drone2.r, Math.min(W-drone2.r, drone2.x + drone2.vx * dt));
-  drone2.y = Math.max(drone2.r, Math.min(H-drone2.r, drone2.y + drone2.vy * dt));
-
-  // Battery
-  const moving = Math.abs(drone2.vx)+Math.abs(drone2.vy)>5;
-  drone2.battery -= dt*(moving ? BATT_DRAIN : 1.2);
-  if (drone2.battery <= 0) { drone2.battery=0; endGame('Батарея разряжена!'); return; }
-
-  // Timer
-  timeLeft -= dt;
-  if (timeLeft <= 0) { timeLeft=0; endGame('Время вышло!'); return; }
-
-  // Order timers
-  orders.forEach(o => {
-    o.elapsed += dt;
-    if (o.elapsed > o.timeLimit) {
-      if (drone2.cargo?.id === o.id) drone2.cargo = null;
-      orders = orders.filter(x => x.id !== o.id);
-      addPopup('❌ Заказ просрочен!', '#FF6B6B');
-      renderOrders();
-    }
-  });
-
-  // Charger collision
-  for (const c of chargers) {
-    if (overlap(drone2, c)) {
-      drone2.battery = Math.min(100, drone2.battery + dt * 40);
-      addPopup('⚡ Зарядка...', '#FFB400');
-    }
-  }
-
-  // Warehouse pickup
-  if (!drone2.cargo && overlap(drone2, warehouse)) {
-    const available = orders.filter(o => !drone2.cargo);
-    if (available.length > 0) {
-      drone2.cargo = available[0];
-      addPopup('📦 Груз взят!', '#00A8FF');
-      renderOrders();
-    }
-  }
-
-  // Customer delivery
-  if (drone2.cargo) {
-    const cust = customers.find(c => c.id === drone2.cargo.customer.id);
-    if (cust && overlap(drone2, cust)) {
-      money += drone2.cargo.reward;
-      deliveries++;
-      addPopup(`+${drone2.cargo.reward} ₽ 🎉`, '#00D68F');
-      orders = orders.filter(o => o.id !== drone2.cargo.id);
-      drone2.cargo = null;
-      renderOrders();
-      setTimeout(spawnOrder, 1500);
-    }
-  }
-
-  // Spawn orders periodically
-  if (Math.random() < dt * 0.3 && orders.length < 3) spawnOrder();
-
-  // Popups
-  popups = popups.filter(p => { p.life -= dt; return p.life > 0; });
-  popups.forEach(p => { p.y -= dt * 40; });
-
-  updateSidePanel();
-}
-
-function overlap(d, b) {
-  return d.x + d.r > b.x && d.x - d.r < b.x + b.w &&
-         d.y + d.r > b.y && d.y - d.r < b.y + b.h;
-}
-
-function addPopup(text, color) {
-  popups.push({ text, color, x: drone2.x, y: drone2.y - 20, life: 1.5 });
-}
-
-function endGame(reason) {
-  gameState = 'idle';
-  document.body.style.overflow = '';
-  const screen = document.getElementById('gameScreen');
-  screen.style.display = 'flex';
-  screen.innerHTML = `
-    <div style="font-size:2.5rem">${money >= 2000 ? '🏆' : '📦'}</div>
-    <h2>${reason}</h2>
-    <p>Заработано: <strong style="color:var(--blue)">${money.toLocaleString('ru')} ₽</strong><br>
-    Доставок: <strong style="color:var(--blue)">${deliveries}</strong></p>
-    <button class="btn btn-primary" onclick="startDelivery()">Ещё смена</button>
+      <div class="flight-status">
+        <div class="flight-status-label">В полёте…</div>
+        <div class="flight-status-time">${remainingSec}с</div>
+      </div>
+    </div>
   `;
 }
 
-function updateSidePanel() {
-  const mins = Math.floor(timeLeft/60);
-  const secs = Math.floor(timeLeft%60);
-  document.getElementById('dTime').textContent = `${mins}:${String(secs).padStart(2,'0')}`;
-  document.getElementById('dMoney').textContent = money.toLocaleString('ru') + ' ₽';
-  document.getElementById('dDeliveries').textContent = deliveries;
-  document.getElementById('dBattery').textContent = Math.round(drone2?.battery||0) + '%';
-  document.getElementById('dCargo').textContent = drone2?.cargo ? drone2.cargo.good : 'Пусто';
+function launchOrder() {
+  if (!currentOrder || flight) return;
+  const o = currentOrder;
+  const energyCost = calcEnergyCost(o);
+  if (energyCost > game.energy || o.weight > stats.cargoCap) return;
+
+  clearInterval(acceptTimer);
+  game.energy = clamp(game.energy - energyCost, 0, stats.maxEnergy);
+  updateTopbar();
+
+  const durationMs = calcFlightSeconds(o) * 1000;
+  flight = { order: o, startTs: Date.now(), durationMs, timeLimitMs: o.timeLimit * 1000 };
+  currentOrder = null;
+  animateFlight();
 }
 
-function draw2() {
-  ctx.fillStyle = '#0A0C0F';
-  ctx.fillRect(0,0,W,H);
+function animateFlight() {
+  if (!flight) return;
+  renderOrder();
+  const elapsed = Date.now() - flight.startTs;
+  if (elapsed >= flight.durationMs) {
+    resolveDelivery();
+    return;
+  }
+  flightRAF = requestAnimationFrame(animateFlight);
+}
 
-  // Grid
-  ctx.strokeStyle = 'rgba(0,168,255,0.04)';
-  ctx.lineWidth = 1;
-  for (let x=0;x<W;x+=50){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
-  for (let y=0;y<H;y+=50){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+function resolveDelivery() {
+  const { order, durationMs, timeLimitMs } = flight;
+  const late = durationMs > timeLimitMs;
+  const amortization = randInt(AMORTIZATION_MIN, AMORTIZATION_MAX);
+  const rewardFinal = late ? Math.round(order.reward * 0.5) : order.reward;
 
-  if (gameState==='idle'&&!drone2) return;
+  game.money = Math.max(0, game.money + rewardFinal - amortization);
+  game.earnedInZone += rewardFinal;
+  game.totalEarned += rewardFinal;
+  game.deliveries += 1;
+  game.reputation = clamp(game.reputation + 2, 0, 100);
+  game.streak = late ? 0 : game.streak + 1;
 
-  // Draw route line if carrying cargo
-  if (drone2?.cargo) {
-    const cust = customers.find(c => c.id === drone2.cargo.customer.id);
-    if (cust) {
-      ctx.strokeStyle = 'rgba(0,214,143,0.2)';
-      ctx.lineWidth = 1.5;
-      ctx.setLineDash([6,6]);
-      ctx.beginPath();
-      ctx.moveTo(drone2.x, drone2.y);
-      ctx.lineTo(cust.x + cust.w/2, cust.y + cust.h/2);
-      ctx.stroke();
-      ctx.setLineDash([]);
+  toast(late
+    ? `⏱ Доставлено с опозданием · +${rewardFinal} ₽ (−50%)`
+    : `✅ Доставлено! +${rewardFinal} ₽${order.vip ? ' · VIP' : ''}`);
+
+  flight = null;
+  updateTopbar();
+  checkZoneGoal();
+  checkFreeplayUnlock();
+  if (!zoneModalShown) generateOrder();
+}
+
+// ── Zone progression ──
+let zoneModalShown = false;
+function checkZoneGoal() {
+  const zone = ZONES[game.zoneIndex];
+  if (game.earnedInZone >= zone.goal) {
+    if (game.zoneIndex < ZONES.length - 1) {
+      zoneModalShown = true;
+      showLevelCompleteModal();
     }
   }
+}
 
-  // Chargers
-  for (const c of chargers) {
-    ctx.fillStyle = 'rgba(255,180,0,0.1)';
-    ctx.strokeStyle = 'rgba(255,180,0,0.4)';
-    ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.roundRect(c.x, c.y, c.w, c.h, 6); ctx.fill(); ctx.stroke();
-    ctx.font = '16px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText(c.label, c.x+c.w/2, c.y+c.h/2);
-  }
-
-  // Warehouse
-  const wh = warehouse;
-  const whActive = !drone2?.cargo && orders.length > 0;
-  ctx.fillStyle = whActive ? 'rgba(0,168,255,0.12)' : 'rgba(0,168,255,0.05)';
-  ctx.strokeStyle = whActive ? 'rgba(0,168,255,0.6)' : 'rgba(0,168,255,0.2)';
-  ctx.lineWidth = whActive ? 2 : 1;
-  if (whActive) { ctx.shadowBlur=12; ctx.shadowColor='rgba(0,168,255,0.4)'; }
-  ctx.beginPath(); ctx.roundRect(wh.x, wh.y, wh.w, wh.h, 8); ctx.fill(); ctx.stroke();
-  ctx.shadowBlur=0;
-  ctx.font='22px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.fillText(wh.label, wh.x+wh.w/2, wh.y+wh.h/2);
-  ctx.font='9px Inter'; ctx.fillStyle='rgba(0,168,255,0.7)';
-  ctx.fillText('СКЛАД', wh.x+wh.w/2, wh.y+wh.h+10);
-
-  // Customers
-  for (const c of customers) {
-    const isTarget = drone2?.cargo?.customer?.id === c.id;
-    const hasOrder = orders.some(o => o.customer.id === c.id);
-    ctx.fillStyle = isTarget ? 'rgba(0,214,143,0.15)' : hasOrder ? 'rgba(0,168,255,0.08)' : 'rgba(255,255,255,0.03)';
-    ctx.strokeStyle = isTarget ? 'rgba(0,214,143,0.8)' : hasOrder ? 'rgba(0,168,255,0.3)' : 'rgba(255,255,255,0.1)';
-    ctx.lineWidth = isTarget ? 2 : 1;
-    if (isTarget) { ctx.shadowBlur=12; ctx.shadowColor='rgba(0,214,143,0.5)'; }
-    ctx.beginPath(); ctx.roundRect(c.x, c.y, c.w, c.h, 6); ctx.fill(); ctx.stroke();
-    ctx.shadowBlur=0;
-    ctx.font='18px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText(c.label, c.x+c.w/2, c.y+c.h/2);
-    ctx.font='8px Inter';
-    ctx.fillStyle = isTarget ? 'rgba(0,214,143,0.8)' : 'rgba(255,255,255,0.2)';
-    ctx.fillText(c.name, c.x+c.w/2, c.y+c.h+10);
-  }
-
-  if (!drone2) return;
-
-  // Drone shadow
-  ctx.fillStyle='rgba(0,0,0,0.3)';
-  ctx.beginPath(); ctx.ellipse(drone2.x, drone2.y+12, 14, 5, 0, 0, Math.PI*2); ctx.fill();
-
-  // Drone
-  ctx.save();
-  ctx.translate(drone2.x, drone2.y);
-  const tilt = drone2.vx*0.015;
-  ctx.rotate(tilt);
-
-  // Glow
-  ctx.shadowBlur=16; ctx.shadowColor='rgba(0,168,255,0.4)';
-
-  // Arms
-  ctx.strokeStyle='#1A3A55'; ctx.lineWidth=3;
-  [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([sx,sy])=>{
-    ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(sx*14,sy*10); ctx.stroke();
+function showLevelCompleteModal() {
+  const zone = ZONES[game.zoneIndex];
+  const box = document.getElementById('modalBox');
+  box.innerHTML = `
+    <div class="emoji">🏁</div>
+    <h2>Район «${zone.name}» пройден!</h2>
+    <p>Цель в ${fmtMoney(zone.goal)} ₽ достигнута. Открывается новый район с более дальними и дорогими заказами.</p>
+    <div class="modal-stats">
+      <div><div class="modal-stat-num">${fmtMoney(game.earnedInZone)}</div><div class="modal-stat-label">Заработано</div></div>
+      <div><div class="modal-stat-num">${game.deliveries}</div><div class="modal-stat-label">Доставок всего</div></div>
+    </div>
+    <button class="btn btn-primary" id="btnNextZone" style="width:100%;justify-content:center;">Следующий район →</button>
+  `;
+  document.getElementById('modalOverlay').classList.add('open');
+  document.getElementById('btnNextZone').addEventListener('click', () => {
+    game.zoneIndex += 1;
+    game.earnedInZone = 0;
+    zoneModalShown = false;
+    document.getElementById('modalOverlay').classList.remove('open');
+    updateTopbar();
+    renderProgress();
+    generateOrder();
   });
+}
 
-  // Body
-  ctx.fillStyle='#0D2233'; ctx.strokeStyle='#00A8FF'; ctx.lineWidth=1.5;
-  ctx.beginPath(); ctx.roundRect(-10,-6,20,12,3); ctx.fill(); ctx.stroke();
-
-  // Cargo indicator
-  if (drone2.cargo) {
-    ctx.shadowBlur=0;
-    ctx.fillStyle='rgba(0,214,143,0.9)';
-    ctx.beginPath(); ctx.roundRect(-5,6,10,8,2); ctx.fill();
-    ctx.fillStyle='#fff'; ctx.font='7px monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText('PKG', 0, 10);
-  }
-
-  ctx.shadowBlur=0;
-  // Rotors
-  ctx.strokeStyle='rgba(0,168,255,0.7)'; ctx.lineWidth=1.5;
-  [[-14,-10],[14,-10],[-14,10],[14,10]].forEach(([rx,ry])=>{
-    ctx.beginPath(); ctx.ellipse(rx,ry,10,3,Date.now()*0.01,0,Math.PI*2); ctx.stroke();
-  });
-
-  ctx.restore();
-
-  // Battery bar on drone
-  if (drone2.battery < 30) {
-    const bw = 28, bx = drone2.x - bw/2, by = drone2.y - 28;
-    ctx.fillStyle='rgba(255,107,107,0.3)'; ctx.fillRect(bx,by,bw,4);
-    ctx.fillStyle='#FF6B6B'; ctx.fillRect(bx,by,bw*(drone2.battery/100),4);
-  }
-
-  // Popups
-  for (const p of popups) {
-    ctx.globalAlpha = Math.min(p.life, 1);
-    ctx.fillStyle = p.color;
-    ctx.font = 'bold 13px Inter, sans-serif';
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText(p.text, p.x, p.y);
-  }
-  ctx.globalAlpha = 1;
-
-  // Timer warning
-  if (timeLeft < 20) {
-    ctx.fillStyle = `rgba(255,107,107,${0.3+Math.sin(Date.now()*0.008)*0.2})`;
-    ctx.fillRect(0,0,W,H);
+// ── Freeplay unlock ──
+function checkFreeplayUnlock() {
+  if (game.freeplay) return;
+  const conditions = [
+    game.zoneIndex === ZONES.length - 1 && game.earnedInZone >= ZONES[ZONES.length-1].goal,
+    game.batteryLvl === 5,
+    game.motorLvl === 5,
+    game.propLvl === 5,
+    game.cargoLvl === 5,
+    game.reputation >= 80,
+    game.money >= 30000,
+    game.streak >= 10,
+  ];
+  if (conditions.every(Boolean)) {
+    game.freeplay = true;
+    showVictoryModal();
   }
 }
 
-draw2();
+function showVictoryModal() {
+  const box = document.getElementById('modalBox');
+  box.innerHTML = `
+    <div class="emoji">🏆</div>
+    <h2>Свободная доставка открыта!</h2>
+    <p>Дрон полностью прокачан, все условия выполнены. Теперь заказы генерируются бесконечно с постепенно растущей сложностью — соревнуйся за максимальную прибыль.</p>
+    <button class="btn btn-primary" id="btnCloseVictory" style="width:100%;justify-content:center;">Продолжить полёт</button>
+  `;
+  document.getElementById('modalOverlay').classList.add('open');
+  document.getElementById('btnCloseVictory').addEventListener('click', () => {
+    document.getElementById('modalOverlay').classList.remove('open');
+  });
+}
+
+// ── Charging ──
+function renderCharge() {
+  const pct = Math.round((game.energy / stats.maxEnergy) * 100);
+  document.getElementById('cPct').textContent = pct + '%';
+  document.getElementById('cBar').style.width = pct + '%';
+  const status = document.getElementById('chargeStatus');
+  if (charging) {
+    const elapsed = Date.now() - charging.startTs;
+    const left = Math.max(0, Math.ceil((charging.durationMs - elapsed) / 1000));
+    status.textContent = `Зарядка… ${left}с осталось`;
+  } else if (pct >= 100) {
+    status.textContent = 'Батарея полностью заряжена';
+  } else {
+    status.textContent = '';
+  }
+}
+
+function startWaitCharge() {
+  if (charging || game.energy >= stats.maxEnergy) return;
+  charging = { startTs: Date.now(), durationMs: FULL_CHARGE_SECONDS * 1000, startEnergy: game.energy };
+  tickCharge();
+}
+
+function tickCharge() {
+  if (!charging) return;
+  const elapsed = Date.now() - charging.startTs;
+  const t = clamp(elapsed / charging.durationMs, 0, 1);
+  game.energy = clamp(charging.startEnergy + (stats.maxEnergy - charging.startEnergy) * t, 0, stats.maxEnergy);
+  updateTopbar();
+  renderCharge();
+  if (currentView === 'main') renderOrder();
+  if (t >= 1) {
+    charging = null;
+    toast('🔋 Зарядка завершена');
+    renderCharge();
+    return;
+  }
+  requestAnimationFrame(tickCharge);
+}
+
+function fastCharge() {
+  if (game.money < FAST_CHARGE_COST) { toast('Недостаточно денег для мгновенной зарядки'); return; }
+  if (game.energy >= stats.maxEnergy) return;
+  game.money -= FAST_CHARGE_COST;
+  game.energy = stats.maxEnergy;
+  charging = null;
+  toast('⚡ Мгновенная зарядка!');
+  updateTopbar();
+  renderCharge();
+  if (currentView === 'main') renderOrder();
+}
+
+document.getElementById('btnChargeWait').addEventListener('click', startWaitCharge);
+document.getElementById('btnChargeFast').addEventListener('click', fastCharge);
+
+// ── Upgrades ──
+const UPGRADE_DEFS = [
+  { key:'batteryLvl', name:'🔋 Аккумулятор', table:BATTERY_TABLE, unit:'ед. энергии', field:'energy', base:BASE_STATS.maxEnergy },
+  { key:'motorLvl',    name:'⚙️ Двигатели',    table:MOTOR_TABLE,   unit:'км/ч',        field:'speed',  base:BASE_STATS.speed },
+  { key:'propLvl',     name:'🌀 Пропеллеры',   table:PROP_TABLE,    unit:'% расхода',   field:'eff',    base:BASE_STATS.efficiency },
+  { key:'cargoLvl',    name:'📦 Грузовой отсек', table:CARGO_TABLE, unit:'кг',          field:'cap',    base:BASE_STATS.cargoCap },
+];
+
+function renderUpgrades() {
+  const wrap = document.getElementById('upgradesList');
+  wrap.innerHTML = UPGRADE_DEFS.map(def => {
+    const lvl = game[def.key];
+    const maxed = lvl >= 5;
+    const currentVal = lvl === 0 ? def.base : def.table[lvl-1][def.field];
+    const nextVal = maxed ? null : def.table[lvl][def.field];
+    const nextPrice = maxed ? null : def.table[lvl].price;
+    const stars = Array.from({length:5}, (_,i) => i < lvl ? '★' : '<span class="empty">★</span>').join('');
+    const canAfford = !maxed && game.money >= nextPrice;
+
+    return `
+      <div class="upg-card">
+        <div class="upg-top">
+          <div>
+            <div class="upg-name">${def.name}</div>
+            <div class="upg-stars">${stars}</div>
+          </div>
+          <div class="upg-vals">
+            Сейчас: <b>${currentVal}</b> ${def.unit}<br>
+            ${maxed ? '' : `Дальше: <b>${nextVal}</b> ${def.unit}`}
+          </div>
+        </div>
+        <div class="upg-btn-row">
+          <span class="upg-price">${maxed ? 'MAX уровень' : nextPrice.toLocaleString('ru') + ' ₽'}</span>
+          <button class="upg-buy-btn ${maxed?'maxed':''}" data-key="${def.key}" ${maxed || !canAfford ? 'disabled' : ''}>
+            ${maxed ? 'Максимум' : 'УЛУЧШИТЬ'}
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  wrap.querySelectorAll('.upg-buy-btn').forEach(btn => {
+    if (btn.disabled) return;
+    btn.addEventListener('click', () => buyUpgrade(btn.dataset.key));
+  });
+}
+
+function buyUpgrade(key) {
+  const def = UPGRADE_DEFS.find(d => d.key === key);
+  const lvl = game[key];
+  if (lvl >= 5) return;
+  const price = def.table[lvl].price;
+  if (game.money < price) return;
+  game.money -= price;
+  game[key] += 1;
+  recalcStats();
+  toast(`${def.name} улучшен до уровня ${game[key]}!`);
+  updateTopbar();
+  renderUpgrades();
+  if (currentView === 'main') renderOrder();
+  checkFreeplayUnlock();
+}
+
+// ── Progress view ──
+function renderProgress() {
+  const zone = ZONES[game.zoneIndex];
+  document.getElementById('pZoneName').textContent = zone.name;
+  document.getElementById('pZoneNum').textContent = `${game.zoneIndex+1}/5`;
+  const zonePct = clamp((game.earnedInZone / zone.goal) * 100, 0, 100);
+  document.getElementById('pZoneBar').style.width = zonePct + '%';
+
+  document.getElementById('pRepNum').textContent = `${Math.round(game.reputation)}/100`;
+  document.getElementById('pRepBar').style.width = game.reputation + '%';
+
+  document.getElementById('pDeliveries').textContent = game.deliveries;
+  document.getElementById('pStreak').textContent = game.streak;
+  document.getElementById('pTotal').textContent = fmtMoney(game.totalEarned) + ' ₽';
+
+  const checks = [
+    { label: 'Открыт 5-й район (Мегаполис)', done: game.zoneIndex === 4 },
+    { label: 'Все 4 апгрейда на максимуме', done: [game.batteryLvl,game.motorLvl,game.propLvl,game.cargoLvl].every(v=>v===5) },
+    { label: 'Репутация не ниже 80', done: game.reputation >= 80 },
+    { label: 'Накоплено не менее 30 000 ₽', done: game.money >= 30000 },
+    { label: 'Серия из 10 доставок без сбоев', done: game.streak >= 10 },
+  ];
+  document.getElementById('freeplayChecklist').innerHTML = checks.map(c => `
+    <div class="check-item ${c.done ? 'done' : ''}"><span class="check-dot">${c.done?'✓':''}</span>${c.label}</div>
+  `).join('') + (game.freeplay ? '<div class="check-item done" style="margin-top:0.5rem;"><span class="check-dot">🏆</span><b>Свободная доставка открыта!</b></div>' : '');
+}
+
+// ── Orders view (zone info) ──
+function renderOrdersView() {
+  const zone = ZONES[game.zoneIndex];
+  document.getElementById('zoneDesc').textContent = `${zone.name} — заказы генерируются в этих пределах:`;
+  document.getElementById('zDist').textContent = `${zone.distMin}–${zone.distMax}`;
+  document.getElementById('zIncome').textContent = `${zone.incomeMin}–${zone.incomeMax}`;
+  document.getElementById('zGoal').textContent = fmtMoney(zone.goal);
+}
+
+// ── Top bar ──
+function updateTopbar() {
+  document.getElementById('tMoney').textContent = fmtMoney(game.money);
+  document.getElementById('tEnergy').textContent = `${Math.round(game.energy)}/${stats.maxEnergy}`;
+  document.getElementById('tEnergyBar').style.width = (game.energy/stats.maxEnergy*100) + '%';
+  document.getElementById('tZone').textContent = `${game.zoneIndex+1}/5`;
+  document.getElementById('tRep').textContent = Math.round(game.reputation);
+}
+
+// ── View switching ──
+let currentView = 'main';
+function switchView(v) {
+  currentView = v;
+  document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+  document.getElementById('view-' + v).classList.add('active');
+  document.querySelectorAll('.bnav-btn').forEach(b => b.classList.toggle('active', b.dataset.view === v));
+
+  if (v === 'main') renderOrder();
+  if (v === 'orders') renderOrdersView();
+  if (v === 'upgrades') renderUpgrades();
+  if (v === 'charge') renderCharge();
+  if (v === 'progress') renderProgress();
+}
+document.querySelectorAll('.bnav-btn').forEach(btn => btn.addEventListener('click', () => switchView(btn.dataset.view)));
+
+// ── Init ──
+updateTopbar();
+generateOrder();
+setInterval(() => { if (currentView === 'charge') renderCharge(); }, 1000);
 </script>
+
 </body>
 </html>

@@ -67,12 +67,6 @@
       color: var(--text-dim);
       line-height: 1.5;
     }
-    .part-price {
-      font-family: var(--font-display);
-      font-size: 0.8rem;
-      color: var(--blue);
-      margin-top: 0.3rem;
-    }
 
     /* Canvas */
     .canvas-wrap {
@@ -246,7 +240,8 @@
       <li><a href="index.html">Обзор</a></li>
       <li><a href="events.html">Ивенты</a></li>
       <li><a href="courses.html">Курсы</a></li>
-      <li><a href="cases.html">Кейсы</a></li>
+      <li><a href="cases.html">Кейсы</a><a href="expertise.html">Экспертиза</a></li>
+      <li><a href="expertise.html">Экспертиза</a></li>
       <li><a href="stats.html">Статистика</a></li>
       <li><a href="simulator.html">Симулятор</a></li>
       <li><a href="builder.html" class="active">Сборка</a></li>
@@ -280,77 +275,65 @@
 
       <div class="parts-section">
         <div class="parts-title">Рама</div>
-        <div class="part-item" data-type="frame" data-id="f1" data-name="DJI F450" data-weight="282" data-price="4200" data-flight="8" data-payload="800" data-stability="75" onclick="selectPart(this)">
+        <div class="part-item" data-type="frame" data-id="f1" data-name="DJI F450" data-weight="282" data-flight="8" data-payload="800" data-stability="75" onclick="selectPart(this)">
           <div class="part-name">DJI F450</div>
           <div class="part-specs">282 г · нагрузка 800 г · 4 мотора</div>
-          <div class="part-price">4 200 ₽</div>
         </div>
-        <div class="part-item" data-type="frame" data-id="f2" data-name="Tarot 650 Sport" data-weight="520" data-price="8900" data-flight="10" data-payload="1800" data-stability="85" onclick="selectPart(this)">
+        <div class="part-item" data-type="frame" data-id="f2" data-name="Tarot 650 Sport" data-weight="520" data-flight="10" data-payload="1800" data-stability="85" onclick="selectPart(this)">
           <div class="part-name">Tarot 650 Sport</div>
           <div class="part-specs">520 г · нагрузка 1.8 кг · 4 мотора</div>
-          <div class="part-price">8 900 ₽</div>
         </div>
-        <div class="part-item" data-type="frame" data-id="f3" data-name="X8 Octo Pro" data-weight="680" data-price="14500" data-flight="12" data-payload="3500" data-stability="95" onclick="selectPart(this)">
+        <div class="part-item" data-type="frame" data-id="f3" data-name="X8 Octo Pro" data-weight="680" data-flight="12" data-payload="3500" data-stability="95" onclick="selectPart(this)">
           <div class="part-name">X8 Octo Pro</div>
           <div class="part-specs">680 г · нагрузка 3.5 кг · 8 моторов</div>
-          <div class="part-price">14 500 ₽</div>
         </div>
       </div>
 
       <div class="parts-section">
         <div class="parts-title">Моторы</div>
-        <div class="part-item" data-type="motors" data-id="m1" data-name="SunnySky X2212" data-weight="56" data-price="2800" data-flight="2" data-payload="0" data-stability="5" onclick="selectPart(this)">
+        <div class="part-item" data-type="motors" data-id="m1" data-name="SunnySky X2212" data-weight="56" data-flight="2" data-payload="0" data-stability="5" onclick="selectPart(this)">
           <div class="part-name">SunnySky X2212</div>
           <div class="part-specs">56 г × 4 · 980KV · 4S</div>
-          <div class="part-price">2 800 ₽</div>
         </div>
-        <div class="part-item" data-type="motors" data-id="m2" data-name="T-Motor F60 Pro" data-weight="33" data-price="6400" data-flight="4" data-payload="5" data-stability="8" onclick="selectPart(this)">
+        <div class="part-item" data-type="motors" data-id="m2" data-name="T-Motor F60 Pro" data-weight="33" data-flight="4" data-payload="5" data-stability="8" onclick="selectPart(this)">
           <div class="part-name">T-Motor F60 Pro</div>
           <div class="part-specs">33 г × 4 · 2550KV · 4S гоночный</div>
-          <div class="part-price">6 400 ₽</div>
         </div>
-        <div class="part-item" data-type="motors" data-id="m3" data-name="T-Motor U8 Lite" data-weight="196" data-price="18000" data-flight="6" data-payload="8" data-stability="10" onclick="selectPart(this)">
+        <div class="part-item" data-type="motors" data-id="m3" data-name="T-Motor U8 Lite" data-weight="196" data-flight="6" data-payload="8" data-stability="10" onclick="selectPart(this)">
           <div class="part-name">T-Motor U8 Lite</div>
           <div class="part-specs">196 г × 4 · 100KV · промышленный</div>
-          <div class="part-price">18 000 ₽</div>
         </div>
       </div>
 
       <div class="parts-section">
         <div class="parts-title">Батарея</div>
-        <div class="part-item" data-type="battery" data-id="b1" data-name="3S 2200mAh" data-weight="185" data-price="1800" data-flight="3" data-payload="0" data-stability="0" onclick="selectPart(this)">
+        <div class="part-item" data-type="battery" data-id="b1" data-name="3S 2200mAh" data-weight="185" data-flight="3" data-payload="0" data-stability="0" onclick="selectPart(this)">
           <div class="part-name">Lipo 3S 2200mAh</div>
           <div class="part-specs">185 г · 11.1V · ~12 мин полёта</div>
-          <div class="part-price">1 800 ₽</div>
         </div>
-        <div class="part-item" data-type="battery" data-id="b2" data-name="4S 5000mAh" data-weight="440" data-price="4200" data-flight="7" data-payload="0" data-stability="0" onclick="selectPart(this)">
+        <div class="part-item" data-type="battery" data-id="b2" data-name="4S 5000mAh" data-weight="440" data-flight="7" data-payload="0" data-stability="0" onclick="selectPart(this)">
           <div class="part-name">Lipo 4S 5000mAh</div>
           <div class="part-specs">440 г · 14.8V · ~25 мин полёта</div>
-          <div class="part-price">4 200 ₽</div>
         </div>
-        <div class="part-item" data-type="battery" data-id="b3" data-name="6S 10000mAh" data-weight="890" data-price="9800" data-flight="14" data-payload="0" data-stability="0" onclick="selectPart(this)">
+        <div class="part-item" data-type="battery" data-id="b3" data-name="6S 10000mAh" data-weight="890" data-flight="14" data-payload="0" data-stability="0" onclick="selectPart(this)">
           <div class="part-name">Lipo 6S 10000mAh</div>
           <div class="part-specs">890 г · 22.2V · ~40 мин полёта</div>
-          <div class="part-price">9 800 ₽</div>
         </div>
       </div>
 
       <div class="parts-section">
         <div class="parts-title">Камера</div>
-        <div class="part-item" data-type="camera" data-id="c1" data-name="Без камеры" data-weight="0" data-price="0" data-flight="0" data-payload="0" data-stability="0" onclick="selectPart(this)">
+        <div class="part-item" data-type="camera" data-id="c1" data-name="Без камеры" data-weight="0" data-flight="0" data-payload="0" data-stability="0" onclick="selectPart(this)">
           <div class="part-name">Без камеры</div>
           <div class="part-specs">Только полёт</div>
-          <div class="part-price">0 ₽</div>
         </div>
-        <div class="part-item" data-type="camera" data-id="c2" data-name="GoPro Hero 12" data-weight="153" data-price="32000" data-flight="-1" data-payload="0" data-stability="0" onclick="selectPart(this)">
+        <div class="part-item" data-type="camera" data-id="c2" data-name="GoPro Hero 12" data-weight="153" data-flight="-1" data-payload="0" data-stability="0" onclick="selectPart(this)">
           <div class="part-name">GoPro Hero 12</div>
           <div class="part-specs">153 г · 5.3K · стабилизация</div>
-          <div class="part-price">32 000 ₽</div>
         </div>
-        <div class="part-item" data-type="camera" data-id="c3" data-name="Sony ZV-E10" data-weight="343" data-price="45000" data-flight="-2" data-payload="0" data-stability="0" onclick="selectPart(this)">
+        <div class="part-item" data-type="camera" data-id="c3" data-name="Sony ZV-E10" data-weight="343" data-flight="-2" data-payload="0" data-stability="0" onclick="selectPart(this)">
           <div class="part-name">Sony ZV-E10</div>
           <div class="part-specs">343 г · 4K · сменная оптика</div>
-          <div class="part-price">45 000 ₽</div>
         </div>
       </div>
 
@@ -388,8 +371,7 @@
         <div class="build-stat"><span class="build-stat-label">Итого вес</span><span class="build-stat-val" id="totalWeight">— г</span></div>
         <div class="build-stat"><span class="build-stat-label">Время полёта</span><span class="build-stat-val" id="totalFlight">— мин</span></div>
         <div class="build-stat"><span class="build-stat-label">Макс. нагрузка</span><span class="build-stat-val" id="totalPayload">— г</span></div>
-        <div class="build-stat"><span class="build-stat-label">Стоимость</span><span class="build-stat-val" id="totalPrice">0 ₽</span></div>
-      </div>
+              </div>
 
       <div class="stat-card">
         <div class="stat-card-title">Производительность</div>
@@ -456,10 +438,13 @@ const slots = {
 };
 
 // ── Draw ──
+let inspectAngle = 0;
+
 function drawDrone() {
   const W = canvas.width, H = canvas.height;
   const cx = W / 2, cy = H / 2 + 20;
   animFrame += 0.03;
+  if (mode === 'view') inspectAngle += 0.018;
 
   ctx.fillStyle = '#0A0C0F';
   ctx.fillRect(0, 0, W, H);
@@ -470,8 +455,24 @@ function drawDrone() {
   for (let x = 0; x < W; x += 40) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
   for (let y = 0; y < H; y += 40) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
 
+  if (mode === 'view') {
+    ctx.fillStyle = 'rgba(157,92,255,0.7)';
+    ctx.font = '10px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('🔄 РЕЖИМ ОСМОТРА — 360°', cx, 20);
+  }
+
   // Hover float
   const float = Math.sin(animFrame) * 4;
+
+  // Turntable-style pseudo-3D rotation during inspect mode
+  ctx.save();
+  if (mode === 'view') {
+    const squash = Math.cos(inspectAngle) * 0.55 + 0.45;
+    ctx.translate(cx, cy);
+    ctx.scale(Math.max(squash, 0.12), 1);
+    ctx.translate(-cx, -cy);
+  }
 
   // Draw arms based on frame
   const numArms = build.frame?.id === 'f3' ? 8 : 4;
@@ -552,6 +553,14 @@ function drawDrone() {
   ctx.fillStyle = lightColor;
   ctx.beginPath(); ctx.arc(cx, cy + float, 5, 0, Math.PI*2); ctx.fill();
 
+  ctx.restore(); // end turntable transform — slots below stay stable/clickable
+
+  // Spec readout labels next to installed parts (visualization detail)
+  if (build.frame)  drawSpecTag(cx + armLen + 34, cy + float, `${build.frame.weight}г · ${build.frame.stability}% стаб.`);
+  if (build.motors) drawSpecTag(cx - armLen - 34, cy + float, `${build.motors.weight}г × ${numArms}`);
+  if (build.battery) drawSpecTag(cx, cy + float + 62, `${build.battery.flight} мин ресурс`);
+  if (build.camera && build.camera.id !== 'c1') drawSpecTag(cx, cy + float - 46, `${build.camera.weight}г`);
+
   // Slot indicators (clickable zones)
   drawSlotIndicator(cx, cy + float - 55, 'camera', 'Камера');
   drawSlotIndicator(cx - armLen - 20, cy + float, 'motors', 'Моторы');
@@ -559,6 +568,20 @@ function drawDrone() {
   drawSlotIndicator(cx + armLen + 20, cy + float, 'frame', 'Рама');
 
   requestAnimationFrame(drawDrone);
+}
+
+function drawSpecTag(x, y, text) {
+  ctx.save();
+  ctx.font = '8px monospace';
+  const w = ctx.measureText(text).width + 10;
+  ctx.fillStyle = 'rgba(157,92,255,0.12)';
+  ctx.strokeStyle = 'rgba(157,92,255,0.35)';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.roundRect(x - w/2, y - 8, w, 14, 4); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = 'rgba(157,92,255,0.9)';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(text, x, y - 1);
+  ctx.restore();
 }
 
 function drawSlotIndicator(x, y, type, label) {
@@ -624,7 +647,6 @@ function installPart(type, el) {
     id: el.dataset.id,
     name: el.dataset.name,
     weight: +el.dataset.weight,
-    price: +el.dataset.price,
     flight: +el.dataset.flight,
     payload: +el.dataset.payload,
     stability: +el.dataset.stability,
@@ -655,7 +677,7 @@ function setMode(m, btn) {
 }
 
 function updateUI() {
-  let weight = 0, price = 0, flight = 0, payload = 0, stability = 0;
+  let weight = 0, flight = 0, payload = 0, stability = 0;
   const types = ['frame','motors','battery','camera'];
 
   types.forEach(type => {
@@ -668,7 +690,6 @@ function updateUI() {
       sv.textContent = p.name;
       sr.style.display = '';
       weight += p.weight;
-      price  += p.price;
       flight += p.flight;
       payload += p.payload;
       stability += p.stability;
@@ -682,7 +703,6 @@ function updateUI() {
   document.getElementById('totalWeight').textContent  = weight ? weight + ' г' : '— г';
   document.getElementById('totalFlight').textContent  = flight > 0 ? flight + ' мин' : '— мин';
   document.getElementById('totalPayload').textContent = payload ? payload + ' г' : '— г';
-  document.getElementById('totalPrice').textContent   = price ? price.toLocaleString('ru') + ' ₽' : '0 ₽';
 
   // Perf bars
   const flightPct    = Math.min(100, Math.round(flight / 40 * 100));

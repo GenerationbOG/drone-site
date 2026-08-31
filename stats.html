@@ -182,7 +182,8 @@
       <li><a href="index.html">Обзор</a></li>
       <li><a href="events.html">Ивенты</a></li>
       <li><a href="courses.html">Курсы</a></li>
-      <li><a href="cases.html">Кейсы</a></li>
+      <li><a href="cases.html">Кейсы</a><a href="expertise.html">Экспертиза</a></li>
+      <li><a href="expertise.html">Экспертиза</a></li>
       <li><a href="stats.html" class="active">Статистика</a></li>
       <li><a href="simulator.html">Симулятор</a></li>
       <li><a href="builder.html">Сборка</a></li>
@@ -315,49 +316,49 @@
         </tr>
       </thead>
       <tbody>
-        <tr>
+        <tr data-sector-idx="0" style="cursor:pointer;transition:opacity 0.25s;">
           <td>1</td>
           <td>Оборона и безопасность</td>
           <td>12.4</td>
           <td><div class="td-bar-wrap"><div class="td-bar" style="width:100%"></div>33%</div></td>
           <td style="color:#00D68F">↑ 18%</td>
         </tr>
-        <tr>
+        <tr data-sector-idx="1" style="cursor:pointer;transition:opacity 0.25s;">
           <td>2</td>
           <td>Аэрофотосъёмка и картография</td>
           <td>7.6</td>
           <td><div class="td-bar-wrap"><div class="td-bar" style="width:62%"></div>20%</div></td>
           <td style="color:#00D68F">↑ 24%</td>
         </tr>
-        <tr>
+        <tr data-sector-idx="2" style="cursor:pointer;transition:opacity 0.25s;">
           <td>3</td>
           <td>Сельское хозяйство</td>
           <td>5.7</td>
           <td><div class="td-bar-wrap"><div class="td-bar" style="width:46%"></div>15%</div></td>
           <td style="color:#00D68F">↑ 31%</td>
         </tr>
-        <tr>
+        <tr data-sector-idx="3" style="cursor:pointer;transition:opacity 0.25s;">
           <td>4</td>
           <td>Инспекция инфраструктуры</td>
           <td>4.2</td>
           <td><div class="td-bar-wrap"><div class="td-bar" style="width:34%"></div>11%</div></td>
           <td style="color:#00D68F">↑ 27%</td>
         </tr>
-        <tr>
+        <tr data-sector-idx="4" style="cursor:pointer;transition:opacity 0.25s;">
           <td>5</td>
           <td>Доставка и логистика</td>
           <td>3.0</td>
           <td><div class="td-bar-wrap"><div class="td-bar" style="width:24%"></div>8%</div></td>
           <td style="color:#00D68F">↑ 45%</td>
         </tr>
-        <tr>
+        <tr data-sector-idx="5" style="cursor:pointer;transition:opacity 0.25s;">
           <td>6</td>
           <td>Строительство</td>
           <td>2.3</td>
           <td><div class="td-bar-wrap"><div class="td-bar" style="width:19%"></div>6%</div></td>
           <td style="color:#00D68F">↑ 19%</td>
         </tr>
-        <tr>
+        <tr data-sector-idx="6" style="cursor:pointer;transition:opacity 0.25s;">
           <td>7</td>
           <td>Прочее</td>
           <td>2.8</td>
@@ -466,22 +467,48 @@ function setMarketView(view, btn) {
   marketChart.update();
 }
 
-// ── Sectors doughnut ──
-new Chart(document.getElementById('sectorsChart'), {
+// ── Sectors doughnut — click a sector (slice, legend, or table row) to
+// highlight it and DIM the others (opacity only — never strikethrough) ──
+const SECTOR_COLORS = [
+  'rgba(0,168,255,0.85)',
+  'rgba(0,168,255,0.65)',
+  'rgba(0,168,255,0.48)',
+  'rgba(0,214,143,0.75)',
+  'rgba(255,180,0,0.75)',
+  'rgba(255,107,107,0.6)',
+  'rgba(255,255,255,0.15)',
+];
+let selectedSectorIdx = null;
+
+function dimRgba(str, factor) {
+  const m = str.match(/rgba\(([^)]+)\)/);
+  const [r,g,b,a] = m[1].split(',').map(s=>parseFloat(s));
+  return `rgba(${r},${g},${b},${(a*factor).toFixed(3)})`;
+}
+function currentSectorColors() {
+  if (selectedSectorIdx === null) return SECTOR_COLORS.slice();
+  return SECTOR_COLORS.map((c,i) => i===selectedSectorIdx ? c : dimRgba(c, 0.22));
+}
+
+function applySectorSelection(idx) {
+  selectedSectorIdx = (selectedSectorIdx === idx) ? null : idx;
+  sectorsChart.data.datasets[0].backgroundColor = currentSectorColors();
+  sectorsChart.update();
+
+  // Sync the "Топ отраслей" table below — dim non-selected rows, no strikethrough
+  document.querySelectorAll('tr[data-sector-idx]').forEach(row => {
+    const rIdx = +row.dataset.sectorIdx;
+    row.style.opacity = (selectedSectorIdx === null || rIdx === selectedSectorIdx) ? '1' : '0.35';
+  });
+}
+
+const sectorsChart = new Chart(document.getElementById('sectorsChart'), {
   type: 'doughnut',
   data: {
     labels: ['Оборона','Съёмка и карты','АПК','Инспекция','Доставка','Строительство','Прочее'],
     datasets: [{
       data: [33, 20, 15, 11, 8, 6, 7],
-      backgroundColor: [
-        'rgba(0,168,255,0.85)',
-        'rgba(0,168,255,0.65)',
-        'rgba(0,168,255,0.48)',
-        'rgba(0,214,143,0.75)',
-        'rgba(255,180,0,0.75)',
-        'rgba(255,107,107,0.6)',
-        'rgba(255,255,255,0.15)',
-      ],
+      backgroundColor: SECTOR_COLORS.slice(),
       borderColor: '#111418',
       borderWidth: 2,
       hoverOffset: 8,
@@ -490,8 +517,25 @@ new Chart(document.getElementById('sectorsChart'), {
   options: {
     responsive: true,
     cutout: '65%',
+    onClick: (evt, elements) => { if (elements.length) applySectorSelection(elements[0].index); },
     plugins: {
-      legend: { position: 'right', labels: { boxWidth: 10, padding: 12, color: '#6B7580', font: { size: 11 } } },
+      legend: {
+        position: 'right',
+        labels: {
+          boxWidth: 10, padding: 12, color: '#6B7580', font: { size: 11 },
+          generateLabels(chart) {
+            return chart.data.labels.map((label, i) => ({
+              text: label,
+              fillStyle: chart.data.datasets[0].backgroundColor[i],
+              strokeStyle: chart.data.datasets[0].backgroundColor[i],
+              lineWidth: 0,
+              index: i,
+              fontColor: (selectedSectorIdx === null || selectedSectorIdx === i) ? '#E8ECF0' : '#3A4450',
+            }));
+          }
+        },
+        onClick: (evt, legendItem) => applySectorSelection(legendItem.index),
+      },
       tooltip: {
         backgroundColor: '#111418',
         borderColor: 'rgba(0,168,255,0.2)',
@@ -500,6 +544,11 @@ new Chart(document.getElementById('sectorsChart'), {
       }
     }
   }
+});
+
+// Table rows also clickable → same selection
+document.querySelectorAll('tr[data-sector-idx]').forEach(row => {
+  row.addEventListener('click', () => applySectorSelection(+row.dataset.sectorIdx));
 });
 
 // ── Regions bar ──

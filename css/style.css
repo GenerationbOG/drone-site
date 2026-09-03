@@ -303,7 +303,7 @@ a:hover { opacity: 0.8; }
    padding-top below creates visual breathing room without an actual gap. */
 .nav-dropdown-menu {
   display: none;
-  position: absolute; top: 100%; right: -0.5rem;
+  position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
   padding-top: 14px;
   min-width: 240px;
   z-index: 150;

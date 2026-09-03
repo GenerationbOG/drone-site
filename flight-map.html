@@ -84,6 +84,30 @@
 
     .map-loading { text-align: center; padding: 3rem 0; color: var(--text-dim); font-size: 0.88rem; }
 
+    /* ── Region list (grouped by category) below the map ── */
+    .map-category-list { margin-top: 2.5rem; }
+    .map-category { margin-top: 2rem; }
+    .map-category:first-child { margin-top: 0; }
+    .map-category-title {
+      font-family: var(--font-display); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--text-dim); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.75rem;
+    }
+    .map-category-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .map-category-count { color: var(--purple); }
+    .tile-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0.5rem; }
+    .region-tile {
+      background: var(--bg-card); border: 1px solid var(--border); border-left: 3px solid transparent;
+      border-radius: 6px; padding: 0.65rem 0.8rem;
+      font-size: 0.78rem; color: var(--text-muted); cursor: pointer;
+      transition: border-color 0.15s, background 0.15s, transform 0.1s;
+    }
+    .region-tile:hover { transform: translateY(-1px); background: var(--bg-subtle); }
+    .region-tile.green { border-left-color: #00D68F; }
+    .region-tile.yellow { border-left-color: #FFB400; }
+    .region-tile.red { border-left-color: #FF4455; }
+    .region-tile.gray { border-left-color: #5A6472; cursor: default; }
+    .region-tile.dimmed { opacity: 0.25; }
+
     /* ── Off-map disputed territories note ── */
     .offmap-note {
       background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 10px;
@@ -216,6 +240,8 @@
     <div class="map-loading">Загружаем карту…</div>
   </div>
 
+  <div class="map-category-list" id="categoryList"></div>
+
   <div class="offmap-note">
     <div class="offmap-title">Спорные территории — не показаны на карте</div>
     <div class="offmap-list" id="offmapList"></div>
@@ -262,6 +288,7 @@ document.addEventListener('click', (e) => {
 // administered/claimed by the Russian Federation, including Crimea).
 // ══════════════════════════════════════════
 let regionData = null;
+let categoryData = null;
 let currentFilter = 'all';
 let currentSearch = '';
 
@@ -274,12 +301,18 @@ const OFFMAP_DISPUTED = [
 
 async function loadMap() {
   try {
-    const [svgRes, dataRes] = await Promise.all([
+    const [svgRes, dataRes, catRes] = await Promise.all([
       fetch('assets/russia-map.svg', { cache: 'no-store' }),
       fetch('flight-map-regions.json', { cache: 'no-store' }),
+      fetch('flight-map-data.json', { cache: 'no-store' }),
     ]);
+    if (!svgRes.ok) throw new Error('SVG fetch failed: ' + svgRes.status + ' ' + svgRes.url);
+    if (!dataRes.ok) throw new Error('Region data fetch failed: ' + dataRes.status + ' ' + dataRes.url);
+    if (!catRes.ok) throw new Error('Category data fetch failed: ' + catRes.status + ' ' + catRes.url);
+
     const svgText = await svgRes.text();
     regionData = await dataRes.json();
+    categoryData = await catRes.json();
 
     const wrap = document.getElementById('mapWrap');
     wrap.innerHTML = svgText;
@@ -296,31 +329,31 @@ async function loadMap() {
       path.dataset.desc = info.desc;
       path.dataset.color = info.color;
       path.classList.add('color-' + info.color);
-
-      if (!info.disputed) {
-        path.addEventListener('click', () => showDetail(path));
-        path.addEventListener('mouseenter', () => showDetail(path));
-      } else {
-        path.addEventListener('click', () => showDetail(path));
-      }
+      path.addEventListener('click', () => showDetail(info.name, info.color, info.status, info.desc));
+      path.addEventListener('mouseenter', () => { if (!info.disputed) showDetail(info.name, info.color, info.status, info.desc); });
     });
 
     renderCounts();
+    renderCategoryList();
     renderOffmapList();
   } catch (e) {
-    document.getElementById('mapWrap').innerHTML = '<p style="color:var(--text-dim);text-align:center;padding:2rem 0;">Не удалось загрузить карту.</p>';
+    document.getElementById('mapWrap').innerHTML =
+      `<p style="color:var(--text-dim);text-align:center;padding:2rem 0;">Не удалось загрузить карту.<br>
+       <span style="font-size:0.72rem;opacity:0.7;">${e.message}</span><br>
+       <span style="font-size:0.72rem;opacity:0.7;">Проверь, что файлы assets/russia-map.svg, flight-map-regions.json и flight-map-data.json загружены на сервер и открыты через http(s), а не напрямую file://.</span></p>`;
     console.error(e);
   }
 }
 
-function showDetail(path) {
-  document.querySelectorAll('.russia-region.highlighted').forEach(p => p.classList.remove('highlighted'));
-  path.classList.add('highlighted');
+function showDetail(name, color, status, desc) {
+  document.querySelectorAll('.russia-region.highlighted, .region-tile.selected').forEach(p => p.classList.remove('highlighted', 'selected'));
+  document.querySelectorAll(`.russia-region[data-name="${CSS.escape(name)}"]`).forEach(p => p.classList.add('highlighted'));
+  document.querySelectorAll(`.region-tile[data-name="${CSS.escape(name)}"]`).forEach(t => t.classList.add('selected'));
   document.getElementById('detailBar').classList.add('show');
-  document.getElementById('detailDot').className = 'detail-dot ' + path.dataset.color;
-  document.getElementById('detailName').textContent = path.dataset.name;
-  document.getElementById('detailStatus').textContent = path.dataset.status;
-  document.getElementById('detailDesc').textContent = path.dataset.desc;
+  document.getElementById('detailDot').className = 'detail-dot ' + color;
+  document.getElementById('detailName').textContent = name;
+  document.getElementById('detailStatus').textContent = status;
+  document.getElementById('detailDesc').textContent = desc;
 }
 
 document.getElementById('detailClose').addEventListener('click', () => {
@@ -347,15 +380,49 @@ function renderOffmapList() {
   `).join('');
 }
 
+function renderCategoryList() {
+  const el = document.getElementById('categoryList');
+  el.innerHTML = categoryData.categories.map(cat => `
+    <div class="map-category">
+      <div class="map-category-title">${cat.name} <span class="map-category-count">${cat.items.length}</span></div>
+      <div class="tile-grid">
+        ${cat.items.map(item => `
+          <div class="region-tile ${item.color}" data-name="${item.name}" data-color="${item.color}" data-status="${item.status}" data-desc="${item.desc}">
+            ${item.name}
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+
+  el.querySelectorAll('.region-tile').forEach(tile => {
+    tile.addEventListener('click', () => {
+      showDetail(tile.dataset.name, tile.dataset.color, tile.dataset.status, tile.dataset.desc);
+    });
+  });
+}
+
 function applyFilters() {
+  // SVG map paths
   document.querySelectorAll('path.russia-region').forEach(path => {
     const info = regionData[path.dataset.code];
-    if (!info) return;
-    if (info.disputed) { path.classList.remove('dimmed'); return; } // disputed regions always shown neutrally, unaffected by filters
-
+    if (!info || info.disputed) return; // disputed regions always shown neutrally
     const matchesFilter = currentFilter === 'all' || info.color === currentFilter;
     const matchesSearch = !currentSearch || info.name.toLowerCase().includes(currentSearch);
     path.classList.toggle('dimmed', !(matchesFilter && matchesSearch));
+  });
+
+  // Region list tiles below the map
+  document.querySelectorAll('.region-tile').forEach(tile => {
+    const matchesFilter = currentFilter === 'all' || tile.dataset.color === currentFilter;
+    const matchesSearch = !currentSearch || tile.dataset.name.toLowerCase().includes(currentSearch);
+    tile.classList.toggle('dimmed', !(matchesFilter && matchesSearch));
+  });
+
+  // Hide category headers with zero visible tiles
+  document.querySelectorAll('.map-category').forEach(cat => {
+    const anyVisible = [...cat.querySelectorAll('.region-tile')].some(t => !t.classList.contains('dimmed'));
+    cat.style.display = anyVisible ? '' : 'none';
   });
 }
 

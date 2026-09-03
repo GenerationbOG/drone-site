@@ -130,17 +130,7 @@
   .alt-btn { width: 60px; height: 46px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; color: var(--text-muted); font-size: 0.7rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; user-select: none; transition: background 0.1s; -webkit-tap-highlight-color: transparent; }
   .alt-btn:active, .alt-btn.pressed { background: var(--blue-dim); border-color: var(--border-accent); color: var(--blue); }
 
-  .burger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; background: none; border: none; }
-  .burger span { display: block; width: 22px; height: 2px; background: var(--text-muted); border-radius: 2px; transition: all 0.3s; }
-  .burger.open span:nth-child(1) { transform: rotate(45deg) translate(5px,5px); }
-  .burger.open span:nth-child(2) { opacity: 0; }
-  .burger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px,-5px); }
-  .mobile-menu { display: none; position: fixed; top: 64px; left: 0; right: 0; background: rgba(10,12,15,0.98); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 1.5rem 2rem; z-index: 99; flex-direction: column; }
-  .mobile-menu.open { display: flex; }
-  .mobile-menu a { font-size: 1rem; color: var(--text-muted); text-decoration: none; padding: 0.9rem 0; border-bottom: 1px solid var(--border); transition: color 0.2s; }
-  .mobile-menu a:last-child { border-bottom: none; }
-  .mobile-menu a.active { color: var(--blue); }
-
+                    
   .footer-legal { display: flex; gap: 1.5rem; flex-wrap: wrap; }
   .footer-legal a { font-size: 0.75rem; color: var(--text-dim); text-decoration: none; }
   .footer-legal a:hover { color: var(--blue); opacity: 1; }
@@ -151,10 +141,7 @@
     .mobile-controls { display: flex; }
     .footer-inner { grid-template-columns: 1fr 1fr; }
   }
-  @media (max-width: 640px) {
-    .nav-links { display: none; }
-    .burger { display: flex; }
-    .footer-inner { grid-template-columns: 1fr; gap: 1rem; }
+  @media (max-width: 640px) {        .footer-inner { grid-template-columns: 1fr; gap: 1rem; }
     .hud-telemetry { font-size: 0.6rem; }
     .hud-minimap { width: 80px; height: 65px; }
   }
@@ -491,6 +478,12 @@ const MISSIONS = {
       { id:'rth', label:'', hint:'' },
     ],
   },
+  fpv: {
+    icon:'🏎️', name:'FPV-гонка', desc:'Аркадная гонка от первого лица сквозь кольца-ворота.',
+    brief:'Разгоняйся и пролетай через кольца-ворота на скорости — вид от первого лица, как в настоящем FPV. Держи курс по центру ворот, уклоняйся от стен тоннеля. Столкновение сбивает скорость и очки, но не останавливает заезд — гонка идёт на время.',
+    objectives: [],
+    fpv: true,
+  },
 };
 
 const shownHints = new Set();
@@ -595,7 +588,9 @@ function startBriefing(key) {
 
 function backToMenu() {
   state = 'menu';
+  fpvActive = false;
   cancelAnimationFrame(animId);
+  document.body.style.overflow = '';
   document.getElementById('briefingBox').style.display = 'none';
   document.getElementById('debriefBox').style.display = 'none';
   document.getElementById('missionMenu').style.display = 'flex';
@@ -605,13 +600,19 @@ function backToMenu() {
 
 function startFlight() {
   document.getElementById('briefingBox').style.display = 'none';
+  document.body.style.overflow = 'hidden';
+  lastTime = performance.now();
+  cancelAnimationFrame(animId);
+
+  if (MISSIONS[missionKey].fpv) {
+    startFPV();
+    return;
+  }
+
   setupWorld();
   state = 'flying';
   ['hudChecklist','hudTelemetry','hudRthBtn','hudCameraMode'].forEach(id => document.getElementById(id).style.display='block');
   mini.style.display = 'block';
-  document.body.style.overflow = 'hidden';
-  lastTime = performance.now();
-  cancelAnimationFrame(animId);
   loop(lastTime);
 }
 
@@ -621,10 +622,10 @@ window.addEventListener('keydown', e => {
   if (MOVE_KEYS.includes(e.key) && state==='flying') e.preventDefault();
   keys[e.key] = true; keys[e.code] = true;
   if (e.key===' ') togglePause();
-  if ((e.key==='r'||e.key==='R') && state==='flying') triggerRTH();
-  if ((e.key==='f'||e.key==='F') && state==='flying') takePhoto();
-  if (e.key==='1' && state==='flying') { cameraMode='top'; }
-  if (e.key==='2' && state==='flying') { cameraMode='follow'; }
+  if ((e.key==='r'||e.key==='R') && state==='flying' && !fpvActive) triggerRTH();
+  if ((e.key==='f'||e.key==='F') && state==='flying' && !fpvActive) takePhoto();
+  if (e.key==='1' && state==='flying' && !fpvActive) { cameraMode='top'; }
+  if (e.key==='2' && state==='flying' && !fpvActive) { cameraMode='follow'; }
   if (e.key==='Escape') backToMenu();
 }, {passive:false});
 window.addEventListener('keyup', e => { keys[e.key]=false; keys[e.code]=false; });
@@ -647,7 +648,10 @@ document.getElementById('hudRthBtn').addEventListener('click', triggerRTH);
 
 function togglePause() {
   if (state==='flying') { state='paused'; }
-  else if (state==='paused') { state='flying'; lastTime=performance.now(); cancelAnimationFrame(animId); loop(lastTime); }
+  else if (state==='paused') {
+    state='flying'; lastTime=performance.now(); cancelAnimationFrame(animId);
+    if (fpvActive) loopFPV(lastTime); else loop(lastTime);
+  }
 }
 
 function triggerRTH() {
@@ -1109,6 +1113,256 @@ function renderLeaderboard() {
 }
 
 // ═══════════════ Main loop ═══════════════
+// ═══════════════════════════════════════════════════
+// FPV RACING MODE — pseudo-3D tunnel racer (rings of gates rushing at camera)
+// ═══════════════════════════════════════════════════
+let fpvActive = false;
+let fpv = null; // { pz, px, py, vx, vy, speed, rings[], score, gates, streak, timeLeft, flash, shakeT }
+let fpvAnimId = null;
+
+const FPV_RING_DZ = 46;          // world-units between rings
+const FPV_TUNNEL_R = 1.0;        // outer wall, normalized
+const FPV_FOCAL = 260;           // perspective focal length
+const FPV_TRACK_PX = 210;        // px radius of the tunnel at scale=1
+const FPV_RUN_SECONDS = 75;
+
+function startFPV() {
+  fpvActive = true;
+  state = 'flying';
+  document.getElementById('hudChecklist').style.display = 'block';
+  document.getElementById('hudTelemetry').style.display = 'block';
+  document.getElementById('hudRthBtn').style.display = 'none';
+  document.getElementById('hudCameraMode').style.display = 'none';
+  mini.style.display = 'none';
+
+  fpv = {
+    pz: 0, px: 0, py: 0, vx: 0, vy: 0,
+    speed: 85, maxSpeed: 230, boostT: 0,
+    rings: [], nextRingZ: FPV_RING_DZ, checkedUpTo: 0,
+    score: 0, gates: 0, streak: 0, best: 0,
+    timeLeft: FPV_RUN_SECONDS,
+    flash: 0, shake: 0,
+  };
+  for (let i = 0; i < 16; i++) spawnFPVRing();
+
+  lastTime = performance.now();
+  cancelAnimationFrame(fpvAnimId);
+  loopFPV(lastTime);
+}
+
+function spawnFPVRing() {
+  const prev = fpv.rings[fpv.rings.length - 1];
+  const px0 = prev ? prev.gateX : 0, py0 = prev ? prev.gateY : 0;
+  const gx = clamp(px0 + rand(-0.32, 0.32), -0.55, 0.55);
+  const gy = clamp(py0 + rand(-0.28, 0.28), -0.5, 0.5);
+  const r = rand(0.30, 0.44) - Math.min(0.12, fpv.pz / 30000); // gates tighten slightly over distance
+  fpv.rings.push({ z: fpv.nextRingZ, gateX: gx, gateY: gy, gateR: Math.max(0.20, r), checked: false });
+  fpv.nextRingZ += FPV_RING_DZ;
+}
+
+function updateFPV(dt) {
+  if (state !== 'flying') return;
+
+  // Steering input (reuses the same global `keys` map as the rest of the simulator)
+  let ax = 0, ay = 0;
+  if (keys['ArrowLeft'] || keys['KeyA'])  ax -= 1;
+  if (keys['ArrowRight'] || keys['KeyD']) ax += 1;
+  if (keys['ArrowUp'] || keys['KeyW'])    ay += 1;
+  if (keys['ArrowDown'] || keys['KeyS'])  ay -= 1;
+  if (keys['q'] || keys['Q']) ay += 1;
+  if (keys['e'] || keys['E']) ay -= 1;
+
+  const accel = 6.5;
+  fpv.vx = clamp(fpv.vx + ax * accel * dt, -3, 3);
+  fpv.vy = clamp(fpv.vy + ay * accel * dt, -3, 3);
+  fpv.vx *= 0.90; fpv.vy *= 0.90;
+  fpv.px = clamp(fpv.px + fpv.vx * dt, -0.92, 0.92);
+  fpv.py = clamp(fpv.py + fpv.vy * dt, -0.85, 0.85);
+
+  // Gradual speed ramp — arcade racer gets faster the longer you survive
+  fpv.speed = Math.min(fpv.maxSpeed, fpv.speed + 4 * dt);
+  fpv.pz += fpv.speed * dt;
+
+  // Spawn new rings as needed, evaluate gate passage
+  while (fpv.nextRingZ - fpv.pz < FPV_RING_DZ * 14) spawnFPVRing();
+  for (const ring of fpv.rings) {
+    if (ring.checked) continue;
+    if (fpv.pz >= ring.z) {
+      ring.checked = true;
+      const d = Math.hypot(fpv.px - ring.gateX, fpv.py - ring.gateY);
+      if (d <= ring.gateR) {
+        fpv.streak++;
+        fpv.gates++;
+        fpv.score += 10 * Math.min(fpv.streak, 8);
+        fpv.best = Math.max(fpv.best, fpv.streak);
+      } else {
+        fpv.streak = 0;
+        fpv.score = Math.max(0, fpv.score - 15);
+        fpv.speed = Math.max(70, fpv.speed * 0.55);
+        fpv.flash = 1;
+        fpv.shake = 0.35;
+      }
+    }
+  }
+  // Drop old rings behind the camera
+  fpv.rings = fpv.rings.filter(r => r.z > fpv.pz - FPV_RING_DZ * 2);
+
+  fpv.flash = Math.max(0, fpv.flash - dt * 2.2);
+  fpv.shake = Math.max(0, fpv.shake - dt * 1.5);
+
+  fpv.timeLeft -= dt;
+  if (fpv.timeLeft <= 0) { fpv.timeLeft = 0; endFPV(); return; }
+
+  updateFPVHud();
+}
+
+function drawFPV() {
+  const W = canvas.width, H = canvas.height;
+  const shakeX = (Math.random()-0.5) * fpv.shake * 14;
+  const shakeY = (Math.random()-0.5) * fpv.shake * 14;
+
+  ctx.save();
+  ctx.translate(shakeX, shakeY);
+
+  // Background
+  const grad = ctx.createRadialGradient(W/2,H/2,20, W/2,H/2, Math.max(W,H)*0.7);
+  grad.addColorStop(0, '#0D1A24'); grad.addColorStop(1, '#0A0C0F');
+  ctx.fillStyle = grad; ctx.fillRect(0,0,W,H);
+
+  const cx = W/2, cy = H/2;
+  const visible = fpv.rings.filter(r => r.z - fpv.pz > 0.5).sort((a,b) => b.z - a.z);
+
+  for (const ring of visible) {
+    const dist = ring.z - fpv.pz;
+    const scale = FPV_FOCAL / (dist + FPV_FOCAL) * (FPV_FOCAL / 40);
+    const sc = Math.min(scale, 3.2);
+    if (sc < 0.02) continue;
+
+    const wallX = cx - fpv.px * sc * FPV_TRACK_PX;
+    const wallY = cy + fpv.py * sc * FPV_TRACK_PX;
+    const wallR = sc * FPV_TRACK_PX * FPV_TUNNEL_R;
+
+    const fade = clamp(1 - dist / (FPV_RING_DZ*14), 0.05, 1);
+    ctx.strokeStyle = `rgba(0,168,255,${0.10 + fade*0.10})`;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(wallX, wallY, wallR, 0, Math.PI*2); ctx.stroke();
+
+    const gateScreenX = cx + (ring.gateX - fpv.px) * sc * FPV_TRACK_PX;
+    const gateScreenY = cy - (ring.gateY - fpv.py) * sc * FPV_TRACK_PX;
+    const gateR = sc * FPV_TRACK_PX * ring.gateR;
+
+    const isNext = !ring.checked;
+    const col = ring.checked ? 'rgba(90,100,114,0.5)' : `rgba(157,92,255,${0.35+fade*0.5})`;
+    ctx.strokeStyle = col;
+    ctx.lineWidth = isNext ? 4 : 2;
+    ctx.shadowBlur = isNext ? 14 : 0;
+    ctx.shadowColor = 'rgba(157,92,255,0.8)';
+    ctx.beginPath(); ctx.arc(gateScreenX, gateScreenY, Math.max(gateR,2), 0, Math.PI*2); ctx.stroke();
+    ctx.shadowBlur = 0;
+  }
+
+  // Speed lines radiating from center for a sense of velocity
+  const speedT = fpv.speed / fpv.maxSpeed;
+  ctx.strokeStyle = `rgba(0,168,255,${0.08 + speedT*0.10})`;
+  ctx.lineWidth = 1;
+  for (let i=0;i<10;i++) {
+    const a = (i/10)*Math.PI*2 + fpv.pz*0.002;
+    const r1 = 40, r2 = 40 + speedT*90;
+    ctx.beginPath();
+    ctx.moveTo(cx+Math.cos(a)*r1, cy+Math.sin(a)*r1);
+    ctx.lineTo(cx+Math.cos(a)*r2, cy+Math.sin(a)*r2);
+    ctx.stroke();
+  }
+
+  // Crosshair (banks slightly with steering input)
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(fpv.vx * 0.12);
+  ctx.strokeStyle = 'rgba(0,214,143,0.8)'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(-16,0); ctx.lineTo(-6,0); ctx.moveTo(6,0); ctx.lineTo(16,0);
+  ctx.moveTo(0,-16); ctx.lineTo(0,-6); ctx.moveTo(0,6); ctx.lineTo(0,16);
+  ctx.stroke();
+  ctx.restore();
+
+  // Crash flash overlay
+  if (fpv.flash > 0) {
+    ctx.fillStyle = `rgba(255,68,85,${fpv.flash*0.28})`;
+    ctx.fillRect(0,0,W,H);
+  }
+
+  ctx.restore();
+
+  if (state === 'paused') {
+    ctx.fillStyle='rgba(10,12,15,0.7)'; ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#E8ECF0'; ctx.font='bold 22px Space Grotesk, sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('⏸ Пауза', W/2, H/2-14);
+    ctx.font='13px Inter, sans-serif'; ctx.fillStyle='#6B7580';
+    ctx.fillText('Space — продолжить · Esc — в меню', W/2, H/2+14);
+  }
+}
+
+function updateFPVHud() {
+  document.getElementById('hudChecklist').innerHTML = `
+    <div class="hud-checklist-title">FPV-гонка</div>
+    <div class="hud-obj active">Очки: ${fpv.score}</div>
+    <div class="hud-obj">Ворот пройдено: ${fpv.gates}</div>
+    <div class="hud-obj">Серия: ${fpv.streak} (рекорд ${fpv.best})</div>
+  `;
+  document.getElementById('hudTelemetry').innerHTML = `
+    <div>SPD ${Math.round(fpv.speed)}</div>
+    <div>DIST ${Math.round(fpv.pz)}м</div>
+    <div class="${fpv.timeLeft<10?'warn':''}">ВРЕМЯ ${Math.ceil(fpv.timeLeft)}с</div>
+  `;
+  document.getElementById('pBattVal').textContent = Math.round(fpv.speed) + ' u/s';
+  document.getElementById('pBattBar').style.width = (fpv.speed/fpv.maxSpeed*100) + '%';
+  document.getElementById('pSpeedVal').textContent = Math.round(fpv.speed) + ' м/с';
+  document.getElementById('pSpeedBar').style.width = (fpv.speed/fpv.maxSpeed*100) + '%';
+  document.getElementById('pAltVal').textContent = fpv.gates;
+  document.getElementById('pAltBar').style.width = Math.min(fpv.gates*2,100) + '%';
+}
+
+function loopFPV(ts) {
+  const dt = Math.min((ts-lastTime)/1000, 0.05);
+  lastTime = ts;
+  updateFPV(dt);
+  drawFPV();
+  if (state === 'flying' || state === 'paused') fpvAnimId = requestAnimationFrame(loopFPV);
+}
+
+function endFPV() {
+  state = 'debrief';
+  fpvActive = false;
+  document.body.style.overflow = '';
+  cancelAnimationFrame(fpvAnimId);
+  ['hudChecklist','hudTelemetry','hudRthBtn','hudCameraMode'].forEach(id => document.getElementById(id).style.display='none');
+  mini.style.display = 'none';
+
+  const scoreForBoard = fpv.score;
+  saveScore('fpv', scoreForBoard, null);
+
+  const box = document.getElementById('debriefBox');
+  box.style.display = 'flex';
+  box.innerHTML = `
+    <div style="font-size:2rem;">🏁</div>
+    <h2 style="font-family:var(--font-display);font-size:1.3rem;">Заезд завершён</h2>
+    <div class="debrief-stats">
+      <div class="debrief-stat"><div class="debrief-stat-val">${fpv.score}</div><div class="debrief-stat-label">Очки</div></div>
+      <div class="debrief-stat"><div class="debrief-stat-val">${fpv.gates}</div><div class="debrief-stat-label">Ворот пройдено</div></div>
+      <div class="debrief-stat"><div class="debrief-stat-val">${fpv.best}</div><div class="debrief-stat-label">Лучшая серия</div></div>
+      <div class="debrief-stat"><div class="debrief-stat-val">${Math.round(fpv.pz)}м</div><div class="debrief-stat-label">Дистанция</div></div>
+      <div class="debrief-stat"><div class="debrief-stat-val">${Math.round(fpv.maxSpeed)}</div><div class="debrief-stat-label">Макс. скорость</div></div>
+      <div class="debrief-stat"><div class="debrief-stat-val">${FPV_RUN_SECONDS}с</div><div class="debrief-stat-label">Время заезда</div></div>
+    </div>
+    <div style="display:flex; gap:0.75rem;">
+      <button class="btn btn-outline" id="btnRetry">↻ Повторить</button>
+      <button class="btn btn-primary" id="btnToMenu">Меню миссий</button>
+    </div>
+  `;
+  document.getElementById('btnRetry').addEventListener('click', () => startBriefing('fpv'));
+  document.getElementById('btnToMenu').addEventListener('click', backToMenu);
+  renderLeaderboard();
+}
+
 function loop(ts) {
   const dt = Math.min((ts-lastTime)/1000, 0.05);
   lastTime = ts;

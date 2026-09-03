@@ -170,7 +170,9 @@ a:hover { opacity: 0.8; }
   color: var(--text);
 }
 
-.nav-links a.active::after {
+/* Scoped to top-level flat links only — NOT dropdown menu items,
+   which use color (purple) alone to indicate the active page. */
+.nav-links > li > a.active::after {
   content: '';
   position: absolute;
   bottom: -4px;

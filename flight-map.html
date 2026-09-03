@@ -6,62 +6,119 @@
   <title>Карта полётов — COREPLUS</title>
   <link rel="stylesheet" href="css/style.css" />
   <style>
-    .stub-hero {
-      min-height: 62vh; display: flex; align-items: center; justify-content: center;
-      text-align: center; padding: 4rem 1.5rem;
-    }
-    .stub-icon {
-      width: 76px; height: 76px; border-radius: 18px;
-      background: var(--purple-dim); border: 1px solid var(--border-accent-purple);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 2.2rem; margin: 0 auto 1.75rem;
-    }
-    .stub-badge {
-      display: inline-flex; align-items: center; gap: 0.4rem;
-      font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase;
-      color: #FFB400; background: rgba(255,180,0,0.1);
-      border: 1px solid rgba(255,180,0,0.25);
-      padding: 0.3rem 0.85rem; border-radius: 4px; margin-bottom: 1.5rem;
-    }
-    .stub-title { font-size: clamp(1.8rem, 4vw, 2.6rem); margin-bottom: 1rem; }
-    .stub-desc { max-width: 560px; margin: 0 auto 2.5rem; font-size: 1rem; line-height: 1.75; color: var(--text-muted); }
-    .stub-features {
-      max-width: 480px; margin: 0 auto; text-align: left;
-      background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
-      padding: 1.75rem 2rem;
-    }
-    .stub-features-title {
-      font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase;
-      color: var(--text-dim); margin-bottom: 1rem;
-    }
-    .stub-features ul { list-style: none; display: flex; flex-direction: column; gap: 0.65rem; }
-    .stub-features li {
-      font-size: 0.9rem; color: var(--text-muted); padding-left: 1.4rem; position: relative;
-    }
-    .stub-features li::before {
-      content: '○'; position: absolute; left: 0; color: var(--purple); font-size: 0.8rem;
-    }
-    .stub-actions { display: flex; gap: 1rem; justify-content: center; margin-top: 2rem; flex-wrap: wrap; }
+    .page-hero { padding: 3rem 0 2rem; border-bottom: 1px solid var(--border); }
+    .page-hero p { max-width: 600px; margin-top: 0.5rem; }
+    .page-hero-note { font-size: 0.78rem; color: var(--text-dim); margin-top: 0.75rem; }
 
-    .burger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; background: none; border: none; }
-    .burger span { display: block; width: 22px; height: 2px; background: var(--text-muted); border-radius: 2px; transition: all 0.3s; }
-    .burger.open span:nth-child(1) { transform: rotate(45deg) translate(5px,5px); }
-    .burger.open span:nth-child(2) { opacity: 0; }
-    .burger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px,-5px); }
-    .mobile-menu { display: none; position: fixed; top: 64px; left: 0; right: 0; background: rgba(10,12,15,0.98); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 1.5rem 2rem; z-index: 99; flex-direction: column; max-height: calc(100vh - 64px); overflow-y: auto; }
-    .mobile-menu.open { display: flex; }
-    .mobile-menu a { font-size: 1rem; color: var(--text-muted); text-decoration: none; padding: 0.9rem 0; border-bottom: 1px solid var(--border); transition: color 0.2s; }
-    .mobile-menu a.active { color: var(--purple); }
+    /* ── Legend ── */
+    .legend-row { display: flex; gap: 0.75rem; flex-wrap: wrap; margin: 2rem 0 1.5rem; }
+    .legend-chip {
+      display: flex; align-items: center; gap: 0.6rem;
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px;
+      padding: 0.75rem 1rem; flex: 1; min-width: 220px;
+    }
+    .legend-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+    .legend-dot.green { background: #00D68F; box-shadow: 0 0 8px rgba(0,214,143,0.5); }
+    .legend-dot.yellow { background: #FFB400; box-shadow: 0 0 8px rgba(255,180,0,0.5); }
+    .legend-dot.red { background: #FF4455; box-shadow: 0 0 8px rgba(255,68,85,0.5); }
+    .legend-text-label { font-size: 0.85rem; color: var(--text); font-weight: 500; }
+    .legend-text-desc { font-size: 0.72rem; color: var(--text-dim); margin-top: 0.1rem; }
+
+    /* ── Controls ── */
+    .map-controls {
+      display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;
+      padding: 1.25rem 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+      margin-bottom: 0.5rem;
+    }
+    .map-search {
+      flex: 1; min-width: 200px;
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px;
+      padding: 0.55rem 0.9rem; color: var(--text); font-size: 0.85rem; font-family: var(--font-body);
+    }
+    .map-search::placeholder { color: var(--text-dim); }
+    .map-search:focus { outline: none; border-color: var(--border-accent-purple); }
+    .filter-btn {
+      font-size: 0.8rem; padding: 0.5rem 0.9rem; border-radius: 6px;
+      border: 1px solid var(--border); background: transparent; color: var(--text-muted);
+      cursor: pointer; transition: all 0.2s; white-space: nowrap;
+    }
+    .filter-btn:hover, .filter-btn.active { border-color: var(--border-accent-purple); color: var(--purple); background: var(--purple-dim); }
+    .map-counts { font-size: 0.78rem; color: var(--text-dim); margin-left: auto; }
+
+    /* ── Detail bar (shows on tile click, works well on mobile) ── */
+    .detail-bar {
+      display: none;
+      background: var(--bg-card); border: 1px solid var(--border-accent-purple); border-radius: 10px;
+      padding: 1.1rem 1.4rem; margin: 1.25rem 0; align-items: flex-start; gap: 0.9rem;
+      position: sticky; top: 76px; z-index: 10;
+    }
+    .detail-bar.show { display: flex; }
+    .detail-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; margin-top: 0.3rem; }
+    .detail-dot.green { background: #00D68F; }
+    .detail-dot.yellow { background: #FFB400; }
+    .detail-dot.red { background: #FF4455; }
+    .detail-name { font-family: var(--font-display); font-size: 1rem; color: var(--text); margin-bottom: 0.2rem; }
+    .detail-status { font-size: 0.78rem; color: var(--purple); margin-bottom: 0.4rem; }
+    .detail-desc { font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; }
+    .detail-close {
+      margin-left: auto; background: none; border: none; color: var(--text-dim); cursor: pointer;
+      font-size: 1rem; padding: 0.2rem; flex-shrink: 0;
+    }
+
+    /* ── Categories & tiles ── */
+    .map-category { margin-top: 2.25rem; }
+    .map-category-title {
+      font-family: var(--font-display); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--text-dim); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.75rem;
+    }
+    .map-category-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .map-category-count { color: var(--purple); }
+
+    .tile-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0.5rem; }
+
+    .region-tile {
+      position: relative;
+      background: var(--bg-card); border: 1px solid var(--border); border-left: 3px solid transparent;
+      border-radius: 6px; padding: 0.65rem 0.8rem;
+      font-size: 0.78rem; color: var(--text-muted); cursor: pointer;
+      transition: border-color 0.15s, background 0.15s, transform 0.1s;
+    }
+    .region-tile:hover { transform: translateY(-1px); background: var(--bg-subtle); }
+    .region-tile.green { border-left-color: #00D68F; }
+    .region-tile.yellow { border-left-color: #FFB400; }
+    .region-tile.red { border-left-color: #FF4455; }
+    .region-tile.selected { border-color: var(--border-accent-purple); background: var(--purple-dim); }
+    .region-tile.hidden { display: none; }
+
+    /* Custom hover tooltip (desktop) */
+    .region-tile .tile-tooltip {
+      position: absolute; left: 50%; bottom: calc(100% + 8px); transform: translateX(-50%) translateY(4px);
+      width: 220px; background: var(--bg-card); border: 1px solid var(--border-accent-purple);
+      border-radius: 8px; padding: 0.75rem 0.9rem; z-index: 30;
+      box-shadow: 0 10px 28px rgba(0,0,0,0.5);
+      opacity: 0; pointer-events: none; transition: opacity 0.15s, transform 0.15s;
+    }
+    .region-tile:hover .tile-tooltip { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .tile-tooltip-status { font-size: 0.72rem; color: var(--purple); margin-bottom: 0.3rem; font-weight: 600; }
+    .tile-tooltip-desc { font-size: 0.75rem; color: var(--text-muted); line-height: 1.5; }
+
+    @media (hover: none) {
+      .region-tile .tile-tooltip { display: none; } /* touch devices rely on the detail bar instead */
+    }
 
     .footer-legal { display: flex; gap: 1.5rem; flex-wrap: wrap; }
     .footer-legal a { font-size: 0.75rem; color: var(--text-dim); text-decoration: none; }
     .footer-legal a:hover { color: var(--blue); opacity: 1; }
     .footer-inner { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 1.5rem; }
 
-    @media (max-width: 900px) { .footer-inner { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 900px) {
+      .tile-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+      .footer-inner { grid-template-columns: 1fr 1fr; }
+    }
     @media (max-width: 640px) {
       .nav-links { display: none; }
       .burger { display: flex; }
+      .map-counts { margin-left: 0; width: 100%; }
       .footer-inner { grid-template-columns: 1fr; gap: 1rem; }
     }
   </style>
@@ -74,7 +131,7 @@
       <img src="assets/logo.jpeg" alt="COREPLUS" style="width:26px;height:26px;object-fit:cover;mix-blend-mode:lighten;">
       COREPLUS
     </a>
-        <ul class="nav-links">
+    <ul class="nav-links">
       <li><a href="index.html">Обзор</a></li>
       <li><a href="events.html">Ивенты</a></li>
       <li><a href="expertise.html">Экспертиза</a></li>
@@ -105,7 +162,7 @@
         </div>
       </li>
     </ul>
-    <button class="burger" id="burger"><span></span><span></span><span></span></button>
+    <button class="burger" id="burger" aria-label="Меню"><span></span><span></span><span></span></button>
   </div>
 </header>
 <nav class="mobile-menu" id="mobileMenu">
@@ -132,29 +189,41 @@
   <a href="pilot-license.html">Права на управление</a>
 </nav>
 
-<section class="stub-hero">
-  <div>
-    <div class="stub-icon">🗺️</div>
-    <div class="stub-badge">🚧 В разработке</div>
-    <h1 class="stub-title">Карта полётов</h1>
-    <p class="stub-desc">Интерактивная карта мира и России с условиями полётов по регионам.</p>
-
-    <div class="stub-features">
-      <div class="stub-features-title">Что будет в разделе</div>
-      <ul>
-          <li>Карта мира с зонами регулирования</li>
-          <li>Отдельная карта РФ по регионам</li>
-          <li>Условия полётов при клике на зону</li>
-          <li>Ограничения и запретные зоны</li>
-      </ul>
-    </div>
-
-    <div class="stub-actions">
-      <a href="index.html" class="btn btn-outline">← На главную</a>
-      <a href="mailto:info@coreplus-tech.ru" class="btn btn-primary">Сообщить о готовности</a>
-    </div>
+<section class="page-hero">
+  <div class="container">
+    <div class="section-label">Сервисы</div>
+    <h1>Карта полётов</h1>
+    <p>Условия полётов БПЛА по регионам России — зоны ограничений Росавиации и региональные запреты в одном месте.</p>
+    <p class="page-hero-note">Регионы сгруппированы по типу субъекта. Наведи курсор (или коснись на телефоне) на регион, чтобы увидеть условия полётов.</p>
   </div>
 </section>
+
+<div class="container">
+
+  <div class="legend-row" id="legendRow"></div>
+
+  <div class="map-controls">
+    <input class="map-search" id="mapSearch" type="text" placeholder="Найти регион…">
+    <button class="filter-btn active" data-filter="all">Все</button>
+    <button class="filter-btn" data-filter="green">Без ограничений</button>
+    <button class="filter-btn" data-filter="yellow">Ограничено</button>
+    <button class="filter-btn" data-filter="red">Запрещено</button>
+    <div class="map-counts" id="mapCounts"></div>
+  </div>
+
+  <div class="detail-bar" id="detailBar">
+    <div class="detail-dot" id="detailDot"></div>
+    <div>
+      <div class="detail-name" id="detailName"></div>
+      <div class="detail-status" id="detailStatus"></div>
+      <div class="detail-desc" id="detailDesc"></div>
+    </div>
+    <button class="detail-close" id="detailClose">✕</button>
+  </div>
+
+  <div id="mapContent"></div>
+
+</div>
 
 <footer class="footer">
   <div class="footer-inner">
@@ -177,7 +246,6 @@ const mobileMenu = document.getElementById('mobileMenu');
 burger.addEventListener('click', () => { burger.classList.toggle('open'); mobileMenu.classList.toggle('open'); });
 mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => { burger.classList.remove('open'); mobileMenu.classList.remove('open'); }));
 
-// Generic nav dropdown handling (works for any number of .nav-dropdown items)
 document.querySelectorAll('.nav-dropdown-toggle').forEach(btn => {
   btn.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -189,6 +257,124 @@ document.querySelectorAll('.nav-dropdown-toggle').forEach(btn => {
 document.addEventListener('click', (e) => {
   document.querySelectorAll('.nav-dropdown.open').forEach(dd => { if (!dd.contains(e.target)) dd.classList.remove('open'); });
 });
+
+// ══════════════════════════════════════════
+// FLIGHT MAP
+// ══════════════════════════════════════════
+let mapData = null;
+let currentFilter = 'all';
+let currentSearch = '';
+
+async function loadMapData() {
+  try {
+    const res = await fetch('flight-map-data.json', { cache: 'no-store' });
+    mapData = await res.json();
+    renderLegend();
+    renderMap();
+  } catch (e) {
+    document.getElementById('mapContent').innerHTML = '<p style="color:var(--text-dim);padding:2rem 0;">Не удалось загрузить данные карты.</p>';
+  }
+}
+
+function renderLegend() {
+  const order = ['green','yellow','red'];
+  const bySymbol = Object.values(mapData.legend);
+  // Merge duplicate labels sharing the same color into one legend chip (green has one symbol; yellow/red have two each)
+  const byColor = {};
+  order.forEach(c => byColor[c] = []);
+  Object.entries(mapData.legend).forEach(([sym, v]) => byColor[v.color].push(v));
+
+  const titles = { green: 'Без ограничений', yellow: 'Полёты ограничены', red: 'Полёты запрещены' };
+  const html = order.map(color => {
+    const descs = [...new Set(byColor[color].map(v => v.desc))].join(' ');
+    return `
+      <div class="legend-chip">
+        <div class="legend-dot ${color}"></div>
+        <div>
+          <div class="legend-text-label">${titles[color]}</div>
+          <div class="legend-text-desc">${descs}</div>
+        </div>
+      </div>`;
+  }).join('');
+  document.getElementById('legendRow').innerHTML = html;
+}
+
+function renderMap() {
+  const content = document.getElementById('mapContent');
+
+  const catsHtml = mapData.categories.map(cat => {
+    const tiles = cat.items.map(item => {
+      const matchesFilter = currentFilter === 'all' || item.color === currentFilter;
+      const matchesSearch = !currentSearch || item.name.toLowerCase().includes(currentSearch);
+      const visible = matchesFilter && matchesSearch;
+      return `
+        <div class="region-tile ${item.color} ${visible ? '' : 'hidden'}" data-name="${item.name}" data-color="${item.color}" data-status="${item.status}" data-desc="${item.desc}">
+          ${item.name}
+          <div class="tile-tooltip">
+            <div class="tile-tooltip-status">${item.status}</div>
+            <div class="tile-tooltip-desc">${item.desc}</div>
+          </div>
+        </div>`;
+    }).join('');
+
+    const anyVisible = cat.items.some(item => {
+      const matchesFilter = currentFilter === 'all' || item.color === currentFilter;
+      const matchesSearch = !currentSearch || item.name.toLowerCase().includes(currentSearch);
+      return matchesFilter && matchesSearch;
+    });
+
+    return `
+      <div class="map-category" style="${anyVisible ? '' : 'display:none;'}">
+        <div class="map-category-title">${cat.name} <span class="map-category-count">${cat.items.length}</span></div>
+        <div class="tile-grid">${tiles}</div>
+      </div>`;
+  }).join('');
+
+  content.innerHTML = catsHtml;
+
+  const counts = { green: 0, yellow: 0, red: 0 };
+  mapData.categories.forEach(cat => cat.items.forEach(i => counts[i.color]++));
+  document.getElementById('mapCounts').textContent =
+    `Всего: ${counts.green + counts.yellow + counts.red} · Без ограничений: ${counts.green} · Ограничено: ${counts.yellow} · Запрещено: ${counts.red}`;
+
+  // Click handling — opens detail bar (works for both mouse and touch)
+  content.querySelectorAll('.region-tile').forEach(tile => {
+    tile.addEventListener('click', () => {
+      content.querySelectorAll('.region-tile.selected').forEach(t => t.classList.remove('selected'));
+      tile.classList.add('selected');
+      showDetail(tile.dataset.name, tile.dataset.color, tile.dataset.status, tile.dataset.desc);
+    });
+  });
+}
+
+function showDetail(name, color, status, desc) {
+  document.getElementById('detailBar').classList.add('show');
+  document.getElementById('detailDot').className = 'detail-dot ' + color;
+  document.getElementById('detailName').textContent = name;
+  document.getElementById('detailStatus').textContent = status;
+  document.getElementById('detailDesc').textContent = desc;
+}
+
+document.getElementById('detailClose').addEventListener('click', () => {
+  document.getElementById('detailBar').classList.remove('show');
+  document.querySelectorAll('.region-tile.selected').forEach(t => t.classList.remove('selected'));
+});
+
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = btn.dataset.filter;
+    renderMap();
+  });
+});
+
+document.getElementById('mapSearch').addEventListener('input', (e) => {
+  currentSearch = e.target.value.trim().toLowerCase();
+  renderMap();
+});
+
+loadMapData();
 </script>
 
 </body>

@@ -111,14 +111,12 @@
     /* ── Off-map disputed territories note ── */
     .offmap-note {
       background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 10px;
-      padding: 1.25rem 1.5rem; margin-top: 1.25rem;
+      padding: 1.1rem 1.5rem; margin-top: 1.25rem;
     }
-    .offmap-title { font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.9rem; }
-    .offmap-list { display: flex; flex-direction: column; gap: 0.6rem; }
-    .offmap-item { display: flex; align-items: flex-start; gap: 0.6rem; }
-    .offmap-dot { width: 10px; height: 10px; border-radius: 50%; background: #5A6472; flex-shrink: 0; margin-top: 0.3rem; }
-    .offmap-name { font-size: 0.85rem; color: var(--text); }
-    .offmap-desc { font-size: 0.76rem; color: var(--text-dim); margin-top: 0.1rem; line-height: 1.5; }
+    .offmap-list { display: flex; flex-wrap: wrap; gap: 0.6rem 1.5rem; }
+    .offmap-item { display: flex; align-items: center; gap: 0.55rem; }
+    .offmap-dot { width: 8px; height: 8px; border-radius: 50%; background: #5A6472; flex-shrink: 0; }
+    .offmap-name { font-size: 0.8rem; color: var(--text-dim); }
 
     .footer-legal { display: flex; gap: 1.5rem; flex-wrap: wrap; }
     .footer-legal a { font-size: 0.75rem; color: var(--text-dim); text-decoration: none; }
@@ -214,7 +212,6 @@
     <div class="legend-chip"><div class="legend-dot green"></div><div><div class="legend-text-label">Без ограничений</div><div class="legend-text-desc">Зона ограничений Росавиации и региональный запрет отсутствуют.</div></div></div>
     <div class="legend-chip"><div class="legend-dot yellow"></div><div><div class="legend-text-label">Полёты ограничены</div><div class="legend-text-desc">Региональный запрет действует, но полёты возможны — по разрешению или на определённых условиях.</div></div></div>
     <div class="legend-chip"><div class="legend-dot red"></div><div><div class="legend-text-label">Полёты запрещены</div><div class="legend-text-desc">Зона ограничений Росавиации и/или региональный запрет — полёты не выполняются.</div></div></div>
-    <div class="legend-chip"><div class="legend-dot gray"></div><div><div class="legend-text-label">Спорная территория</div><div class="legend-text-desc">Статус оспаривается на международном уровне — данные о полётных ограничениях не отображаются.</div></div></div>
   </div>
 
   <div class="map-controls">
@@ -243,7 +240,6 @@
   <div class="map-category-list" id="categoryList"></div>
 
   <div class="offmap-note">
-    <div class="offmap-title">Спорные территории — не показаны на карте</div>
     <div class="offmap-list" id="offmapList"></div>
   </div>
 
@@ -293,10 +289,10 @@ let currentFilter = 'all';
 let currentSearch = '';
 
 const OFFMAP_DISPUTED = [
-  { name: 'Донецкая Народная Республика', desc: 'Статус оспаривается на международном уровне. Достоверные контуры границ для карты не найдены — территория не отображается.' },
-  { name: 'Луганская Народная Республика', desc: 'Статус оспаривается на международном уровне. Достоверные контуры границ для карты не найдены — территория не отображается.' },
-  { name: 'Запорожская область', desc: 'Статус оспаривается на международном уровне. Достоверные контуры границ для карты не найдены — территория не отображается.' },
-  { name: 'Херсонская область', desc: 'Статус оспаривается на международном уровне. Достоверные контуры границ для карты не найдены — территория не отображается.' },
+  'Донецкая Народная Республика',
+  'Луганская Народная Республика',
+  'Запорожская область',
+  'Херсонская область',
 ];
 
 async function loadMap() {
@@ -329,8 +325,10 @@ async function loadMap() {
       path.dataset.desc = info.desc;
       path.dataset.color = info.color;
       path.classList.add('color-' + info.color);
-      path.addEventListener('click', () => showDetail(info.name, info.color, info.status, info.desc));
-      path.addEventListener('mouseenter', () => { if (!info.disputed) showDetail(info.name, info.color, info.status, info.desc); });
+      if (!info.disputed) {
+        path.addEventListener('click', () => showDetail(info.name, info.color, info.status, info.desc));
+        path.addEventListener('mouseenter', () => showDetail(info.name, info.color, info.status, info.desc));
+      }
     });
 
     renderCounts();
@@ -369,13 +367,10 @@ function renderCounts() {
 }
 
 function renderOffmapList() {
-  document.getElementById('offmapList').innerHTML = OFFMAP_DISPUTED.map(t => `
+  document.getElementById('offmapList').innerHTML = OFFMAP_DISPUTED.map(name => `
     <div class="offmap-item">
       <div class="offmap-dot"></div>
-      <div>
-        <div class="offmap-name">${t.name}</div>
-        <div class="offmap-desc">${t.desc}</div>
-      </div>
+      <div class="offmap-name">${name}</div>
     </div>
   `).join('');
 }

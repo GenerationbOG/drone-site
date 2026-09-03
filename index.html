@@ -381,31 +381,36 @@
       <img src="assets/logo.jpeg" alt="COREPLUS" style="width:26px;height:26px;border-radius:0;object-fit:cover;mix-blend-mode:lighten;">
       COREPLUS
     </a>
-    <ul class="nav-links">
+        <ul class="nav-links">
       <li><a href="index.html" class="active">Обзор</a></li>
       <li><a href="events.html">Ивенты</a></li>
-      <li><a href="courses.html">Курсы</a></li>
-      <li><a href="cases.html">Кейсы</a><a href="expertise.html">Экспертиза</a></li>
       <li><a href="expertise.html">Экспертиза</a></li>
-      <li><a href="stats.html">Статистика</a></li>
-      <li><a href="simulator.html">Симулятор</a></li>
-      <li><a href="builder.html">Сборка</a></li>
-      <li><a href="delivery.html">Доставка</a></li>
       <li><a href="news.html">Новости</a></li>
-      <li class="nav-dropdown" id="servicesDropdown">
-      <button class="nav-dropdown-toggle" id="servicesToggle">Сервисы <span class="chev">▾</span></button>
-      <div class="nav-dropdown-menu">
-      <a href="permit.html">Разрешение на полёт</a>
-      <a href="waybill.html">Электронная накладная</a>
-      <a href="print-schemes.html">Схемы для 3D-принтера</a>
-      <a href="guides.html">Гайды по сборке и разборке</a>
-      <a href="job-hunter.html">Job Hunter</a>
-      <a href="flight-map.html">Карта полётов</a>
-      <a href="leasing.html">Лизинг</a>
-      <a href="regulations.html">Регуляторика</a>
-      <a href="pilot-license.html">Права на управление</a>
-      </div>
-    </li>
+      <li class="nav-dropdown">
+        <button class="nav-dropdown-toggle">Обучение <span class="chev">▾</span></button>
+        <div class="nav-dropdown-menu">
+        <a href="courses.html">Курсы</a>
+        <a href="cases.html">Кейсы</a>
+        <a href="stats.html">Статистика</a>
+        <a href="simulator.html">Симулятор</a>
+        <a href="builder.html">Сборка</a>
+        <a href="delivery.html">Доставка</a>
+        </div>
+      </li>
+      <li class="nav-dropdown">
+        <button class="nav-dropdown-toggle">Сервисы <span class="chev">▾</span></button>
+        <div class="nav-dropdown-menu">
+        <a href="permit.html">Разрешение на полёт</a>
+        <a href="waybill.html">Электронная накладная</a>
+        <a href="print-schemes.html">Схемы для 3D-принтера</a>
+        <a href="guides.html">Гайды по сборке и разборке</a>
+        <a href="job-hunter.html">Job Hunter</a>
+        <a href="flight-map.html">Карта полётов</a>
+        <a href="leasing.html">Лизинг</a>
+        <a href="regulations.html">Регуляторика</a>
+        <a href="pilot-license.html">Права на управление</a>
+        </div>
+      </li>
     </ul>
     <button class="burger" id="burger" aria-label="Меню">
       <span></span><span></span><span></span>
@@ -417,13 +422,15 @@
 <nav class="mobile-menu" id="mobileMenu">
   <a href="index.html" class="active">Обзор</a>
   <a href="events.html">Ивенты</a>
+  <a href="expertise.html">Экспертиза</a>
+  <a href="news.html">Новости</a>
+  <div class="mobile-menu-section-label">Обучение</div>
   <a href="courses.html">Курсы</a>
   <a href="cases.html">Кейсы</a>
   <a href="stats.html">Статистика</a>
   <a href="simulator.html">Симулятор</a>
   <a href="builder.html">Сборка</a>
   <a href="delivery.html">Доставка</a>
-  <a href="news.html">Новости</a>
   <div class="mobile-menu-section-label">Сервисы</div>
   <a href="permit.html">Разрешение на полёт</a>
   <a href="waybill.html">Электронная накладная</a>
@@ -667,13 +674,6 @@
     });
   });
 
-  const svcDropdown = document.getElementById('servicesDropdown');
-  const svcToggle = document.getElementById('servicesToggle');
-  if (svcToggle) {
-    svcToggle.addEventListener('click', (e) => { e.stopPropagation(); svcDropdown.classList.toggle('open'); });
-    document.addEventListener('click', (e) => { if (!svcDropdown.contains(e.target)) svcDropdown.classList.remove('open'); });
-  }
-
   // ── Overview accordion (mobile only) ──
   document.querySelectorAll('.overview-card').forEach(card => {
     card.addEventListener('click', () => {
@@ -681,6 +681,19 @@
       card.classList.toggle('open');
     });
   });
+
+// Generic nav dropdown handling (works for any number of .nav-dropdown items)
+document.querySelectorAll('.nav-dropdown-toggle').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const dd = btn.closest('.nav-dropdown');
+    document.querySelectorAll('.nav-dropdown.open').forEach(o => { if (o !== dd) o.classList.remove('open'); });
+    dd.classList.toggle('open');
+  });
+});
+document.addEventListener('click', (e) => {
+  document.querySelectorAll('.nav-dropdown.open').forEach(dd => { if (!dd.contains(e.target)) dd.classList.remove('open'); });
+});
 </script>
 
 </body>

@@ -146,12 +146,19 @@ a:hover { opacity: 0.8; }
 
 .nav-links {
   display: flex;
+  align-items: center;
   gap: 2.5rem;
   list-style: none;
 }
 
+.nav-links li {
+  display: flex;
+  align-items: center;
+}
+
 .nav-links a {
   font-size: 0.85rem;
+  line-height: 1;
   color: var(--text-muted);
   letter-spacing: 0.04em;
   transition: color 0.2s;
@@ -277,28 +284,38 @@ a:hover { opacity: 0.8; }
 }
 
 /* --- Nav dropdown ("Сервисы") --- */
-.nav-dropdown { position: relative; }
+.nav-dropdown { position: relative; display: flex; align-items: center; }
 .nav-dropdown-toggle {
   background: none; border: none; cursor: pointer;
-  font-size: 0.85rem; color: var(--text-muted);
+  font-size: 0.85rem; line-height: 1; color: var(--text-muted);
   font-family: var(--font-body); letter-spacing: 0.04em;
   display: flex; align-items: center; gap: 0.3rem;
-  padding: 0; transition: color 0.2s;
+  padding: 0; margin: 0; transition: color 0.2s;
 }
 .nav-dropdown-toggle:hover, .nav-dropdown.open .nav-dropdown-toggle { color: var(--text); }
 .nav-dropdown-toggle .chev { font-size: 0.6rem; transition: transform 0.2s; color: var(--purple); }
 .nav-dropdown.open .nav-dropdown-toggle .chev { transform: rotate(180deg); }
 
+/* No gap between the toggle and the menu — a gap here is what makes the
+   menu vanish before the cursor reaches it while moving diagonally. The
+   padding-top below creates visual breathing room without an actual gap. */
 .nav-dropdown-menu {
   display: none;
-  position: absolute; top: calc(100% + 14px); right: -0.5rem;
-  background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px;
-  padding: 0.5rem; min-width: 240px; flex-direction: column; gap: 1px;
-  box-shadow: 0 12px 32px rgba(0,0,0,0.45);
+  position: absolute; top: 100%; right: -0.5rem;
+  padding-top: 14px;
+  min-width: 240px;
   z-index: 150;
 }
+.nav-dropdown-menu::before {
+  /* Inner visual panel — the box below is what actually looks like the dropdown */
+  content: '';
+  position: absolute; inset: 14px 0 0 0;
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.45);
+  z-index: -1;
+}
 .nav-dropdown:hover .nav-dropdown-menu,
-.nav-dropdown.open .nav-dropdown-menu { display: flex; }
+.nav-dropdown.open .nav-dropdown-menu { display: flex; flex-direction: column; gap: 1px; padding: 14px 0.5rem 0.5rem; }
 
 .nav-dropdown-menu a {
   padding: 0.6rem 0.75rem; font-size: 0.82rem;

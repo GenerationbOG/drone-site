@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Job Hunter — COREPLUS</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .stub-hero {
+      min-height: 62vh; display: flex; align-items: center; justify-content: center;
+      text-align: center; padding: 4rem 1.5rem;
+    }
+    .stub-icon {
+      width: 76px; height: 76px; border-radius: 18px;
+      background: var(--purple-dim); border: 1px solid var(--border-accent-purple);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.2rem; margin: 0 auto 1.75rem;
+    }
+    .stub-badge {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase;
+      color: #FFB400; background: rgba(255,180,0,0.1);
+      border: 1px solid rgba(255,180,0,0.25);
+      padding: 0.3rem 0.85rem; border-radius: 4px; margin-bottom: 1.5rem;
+    }
+    .stub-title { font-size: clamp(1.8rem, 4vw, 2.6rem); margin-bottom: 1rem; }
+    .stub-desc { max-width: 560px; margin: 0 auto 2.5rem; font-size: 1rem; line-height: 1.75; color: var(--text-muted); }
+    .stub-features {
+      max-width: 480px; margin: 0 auto; text-align: left;
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 1.75rem 2rem;
+    }
+    .stub-features-title {
+      font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--text-dim); margin-bottom: 1rem;
+    }
+    .stub-features ul { list-style: none; display: flex; flex-direction: column; gap: 0.65rem; }
+    .stub-features li {
+      font-size: 0.9rem; color: var(--text-muted); padding-left: 1.4rem; position: relative;
+    }
+    .stub-features li::before {
+      content: '○'; position: absolute; left: 0; color: var(--purple); font-size: 0.8rem;
+    }
+    .stub-actions { display: flex; gap: 1rem; justify-content: center; margin-top: 2rem; flex-wrap: wrap; }
+
+    .burger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; background: none; border: none; }
+    .burger span { display: block; width: 22px; height: 2px; background: var(--text-muted); border-radius: 2px; transition: all 0.3s; }
+    .burger.open span:nth-child(1) { transform: rotate(45deg) translate(5px,5px); }
+    .burger.open span:nth-child(2) { opacity: 0; }
+    .burger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px,-5px); }
+    .mobile-menu { display: none; position: fixed; top: 64px; left: 0; right: 0; background: rgba(10,12,15,0.98); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 1.5rem 2rem; z-index: 99; flex-direction: column; max-height: calc(100vh - 64px); overflow-y: auto; }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a { font-size: 1rem; color: var(--text-muted); text-decoration: none; padding: 0.9rem 0; border-bottom: 1px solid var(--border); transition: color 0.2s; }
+    .mobile-menu a.active { color: var(--purple); }
+
+    .footer-legal { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+    .footer-legal a { font-size: 0.75rem; color: var(--text-dim); text-decoration: none; }
+    .footer-legal a:hover { color: var(--blue); opacity: 1; }
+    .footer-inner { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 1.5rem; }
+
+    @media (max-width: 900px) { .footer-inner { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      .burger { display: flex; }
+      .footer-inner { grid-template-columns: 1fr; gap: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <img src="assets/logo.jpeg" alt="COREPLUS" style="width:26px;height:26px;object-fit:cover;mix-blend-mode:lighten;">
+      COREPLUS
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Обзор</a></li>
+      <li><a href="events.html">Ивенты</a></li>
+      <li><a href="courses.html">Курсы</a></li>
+      <li><a href="cases.html">Кейсы</a></li>
+      <li><a href="expertise.html">Экспертиза</a></li>
+      <li><a href="stats.html">Статистика</a></li>
+      <li><a href="simulator.html">Симулятор</a></li>
+      <li><a href="builder.html">Сборка</a></li>
+      <li><a href="delivery.html">Доставка</a></li>
+      <li><a href="news.html">Новости</a></li>
+      <li class="nav-dropdown" id="servicesDropdown">
+      <button class="nav-dropdown-toggle" id="servicesToggle">Сервисы <span class="chev">▾</span></button>
+      <div class="nav-dropdown-menu">
+      <a href="permit.html">Разрешение на полёт</a>
+      <a href="waybill.html">Электронная накладная на полёт</a>
+      <a href="print-schemes.html">Схемы для 3D-принтера</a>
+      <a href="guides.html">Гайды по сборке и разборке</a>
+      <a href="job-hunter.html" class="active">Job Hunter</a>
+      <a href="flight-map.html">Карта полётов</a>
+      <a href="leasing.html">Лизинг</a>
+      <a href="regulations.html">Регуляторика</a>
+      <a href="pilot-license.html">Права на управление</a>
+      </div>
+    </li>
+    </ul>
+    <button class="burger" id="burger"><span></span><span></span><span></span></button>
+  </div>
+</header>
+<nav class="mobile-menu" id="mobileMenu">
+  <a href="index.html">Обзор</a>
+  <a href="events.html">Ивенты</a>
+  <a href="courses.html">Курсы</a>
+  <a href="cases.html">Кейсы</a>
+  <a href="expertise.html">Экспертиза</a>
+  <a href="stats.html">Статистика</a>
+  <a href="simulator.html">Симулятор</a>
+  <a href="builder.html">Сборка</a>
+  <a href="delivery.html">Доставка</a>
+  <a href="news.html">Новости</a>
+  <div class="mobile-menu-section-label">Сервисы</div>
+  <a href="permit.html">Разрешение на полёт</a>
+  <a href="waybill.html">Электронная накладная на полёт</a>
+  <a href="print-schemes.html">Схемы для 3D-принтера</a>
+  <a href="guides.html">Гайды по сборке и разборке</a>
+  <a href="job-hunter.html" class="active">Job Hunter</a>
+  <a href="flight-map.html">Карта полётов</a>
+  <a href="leasing.html">Лизинг</a>
+  <a href="regulations.html">Регуляторика</a>
+  <a href="pilot-license.html">Права на управление</a>
+</nav>
+
+<section class="stub-hero">
+  <div>
+    <div class="stub-icon">💼</div>
+    <div class="stub-badge">🚧 В разработке</div>
+    <h1 class="stub-title">Job Hunter</h1>
+    <p class="stub-desc">Биржа вакансий и заказов для операторов БПЛА — от разовых съёмок до постоянной работы.</p>
+
+    <div class="stub-features">
+      <div class="stub-features-title">Что будет в разделе</div>
+      <ul>
+          <li>Вакансии операторов и инженеров</li>
+          <li>Проектные заказы (инспекция, съёмка, агро)</li>
+          <li>Отклики и портфолио</li>
+          <li>Рейтинг исполнителей</li>
+      </ul>
+    </div>
+
+    <div class="stub-actions">
+      <a href="index.html" class="btn btn-outline">← На главную</a>
+      <a href="mailto:info@coreplus-tech.ru" class="btn btn-primary">Сообщить о готовности</a>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="nav-logo" style="font-size:0.9rem;">
+      <img src="assets/logo.jpeg" alt="COREPLUS" style="width:22px;height:22px;object-fit:cover;mix-blend-mode:lighten;">
+      COREPLUS
+    </div>
+    <div class="footer-legal">
+      <a href="privacy-policy.html">Privacy Policy</a>
+      <a href="terms-of-service.html">Terms of Service</a>
+      <a href="mobile-messaging-terms.html">Mobile Messaging Terms</a>
+    </div>
+    <div class="footer-copy">© 2025 COREPLUS · Дроны в гражданской авиации</div>
+  </div>
+</footer>
+
+<script>
+const burger = document.getElementById('burger');
+const mobileMenu = document.getElementById('mobileMenu');
+burger.addEventListener('click', () => { burger.classList.toggle('open'); mobileMenu.classList.toggle('open'); });
+mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => { burger.classList.remove('open'); mobileMenu.classList.remove('open'); }));
+
+const svcDropdown = document.getElementById('servicesDropdown');
+const svcToggle = document.getElementById('servicesToggle');
+svcToggle.addEventListener('click', (e) => { e.stopPropagation(); svcDropdown.classList.toggle('open'); });
+document.addEventListener('click', (e) => { if (!svcDropdown.contains(e.target)) svcDropdown.classList.remove('open'); });
+</script>
+
+</body>
+</html>

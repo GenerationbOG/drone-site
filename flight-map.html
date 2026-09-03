@@ -21,6 +21,7 @@
     .legend-dot.green { background: #00D68F; box-shadow: 0 0 8px rgba(0,214,143,0.5); }
     .legend-dot.yellow { background: #FFB400; box-shadow: 0 0 8px rgba(255,180,0,0.5); }
     .legend-dot.red { background: #FF4455; box-shadow: 0 0 8px rgba(255,68,85,0.5); }
+    .legend-dot.gray { background: #5A6472; }
     .legend-text-label { font-size: 0.85rem; color: var(--text); font-weight: 500; }
     .legend-text-desc { font-size: 0.72rem; color: var(--text-dim); margin-top: 0.1rem; }
 
@@ -45,81 +46,66 @@
     .filter-btn:hover, .filter-btn.active { border-color: var(--border-accent-purple); color: var(--purple); background: var(--purple-dim); }
     .map-counts { font-size: 0.78rem; color: var(--text-dim); margin-left: auto; }
 
-    /* ── Detail bar (shows on tile click, works well on mobile) ── */
+    /* ── Detail bar ── */
     .detail-bar {
       display: none;
       background: var(--bg-card); border: 1px solid var(--border-accent-purple); border-radius: 10px;
       padding: 1.1rem 1.4rem; margin: 1.25rem 0; align-items: flex-start; gap: 0.9rem;
-      position: sticky; top: 76px; z-index: 10;
+      position: sticky; top: 76px; z-index: 20;
     }
     .detail-bar.show { display: flex; }
     .detail-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; margin-top: 0.3rem; }
     .detail-dot.green { background: #00D68F; }
     .detail-dot.yellow { background: #FFB400; }
     .detail-dot.red { background: #FF4455; }
+    .detail-dot.gray { background: #5A6472; }
     .detail-name { font-family: var(--font-display); font-size: 1rem; color: var(--text); margin-bottom: 0.2rem; }
     .detail-status { font-size: 0.78rem; color: var(--purple); margin-bottom: 0.4rem; }
     .detail-desc { font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; }
-    .detail-close {
-      margin-left: auto; background: none; border: none; color: var(--text-dim); cursor: pointer;
-      font-size: 1rem; padding: 0.2rem; flex-shrink: 0;
-    }
+    .detail-close { margin-left: auto; background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 1rem; padding: 0.2rem; flex-shrink: 0; }
 
-    /* ── Categories & tiles ── */
-    .map-category { margin-top: 2.25rem; }
-    .map-category-title {
-      font-family: var(--font-display); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase;
-      color: var(--text-dim); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.75rem;
+    /* ── SVG map ── */
+    .map-wrap {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 1.5rem; margin-top: 1.5rem; position: relative;
     }
-    .map-category-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
-    .map-category-count { color: var(--purple); }
-
-    .tile-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0.5rem; }
-
-    .region-tile {
-      position: relative;
-      background: var(--bg-card); border: 1px solid var(--border); border-left: 3px solid transparent;
-      border-radius: 6px; padding: 0.65rem 0.8rem;
-      font-size: 0.78rem; color: var(--text-muted); cursor: pointer;
-      transition: border-color 0.15s, background 0.15s, transform 0.1s;
+    .map-wrap svg { width: 100%; height: auto; display: block; }
+    .map-wrap svg path.russia-region {
+      stroke: #0A0C0F; stroke-width: 0.6; cursor: pointer;
+      transition: opacity 0.2s, filter 0.15s;
     }
-    .region-tile:hover { transform: translateY(-1px); background: var(--bg-subtle); }
-    .region-tile.green { border-left-color: #00D68F; }
-    .region-tile.yellow { border-left-color: #FFB400; }
-    .region-tile.red { border-left-color: #FF4455; }
-    .region-tile.selected { border-color: var(--border-accent-purple); background: var(--purple-dim); }
-    .region-tile.hidden { display: none; }
+    .map-wrap svg path.russia-region.color-green  { fill: #00D68F; }
+    .map-wrap svg path.russia-region.color-yellow { fill: #FFB400; }
+    .map-wrap svg path.russia-region.color-red    { fill: #FF4455; }
+    .map-wrap svg path.russia-region.color-gray   { fill: #3A4450; cursor: default; }
+    .map-wrap svg path.russia-region:hover:not(.color-gray) { filter: brightness(1.25); }
+    .map-wrap svg path.russia-region.dimmed { opacity: 0.15; }
+    .map-wrap svg path.russia-region.highlighted { filter: brightness(1.3) drop-shadow(0 0 4px rgba(157,92,255,0.8)); }
 
-    /* Custom hover tooltip (desktop) */
-    .region-tile .tile-tooltip {
-      position: absolute; left: 50%; bottom: calc(100% + 8px); transform: translateX(-50%) translateY(4px);
-      width: 220px; background: var(--bg-card); border: 1px solid var(--border-accent-purple);
-      border-radius: 8px; padding: 0.75rem 0.9rem; z-index: 30;
-      box-shadow: 0 10px 28px rgba(0,0,0,0.5);
-      opacity: 0; pointer-events: none; transition: opacity 0.15s, transform 0.15s;
-    }
-    .region-tile:hover .tile-tooltip { opacity: 1; transform: translateX(-50%) translateY(0); }
-    .tile-tooltip-status { font-size: 0.72rem; color: var(--purple); margin-bottom: 0.3rem; font-weight: 600; }
-    .tile-tooltip-desc { font-size: 0.75rem; color: var(--text-muted); line-height: 1.5; }
+    .map-loading { text-align: center; padding: 3rem 0; color: var(--text-dim); font-size: 0.88rem; }
 
-    @media (hover: none) {
-      .region-tile .tile-tooltip { display: none; } /* touch devices rely on the detail bar instead */
+    /* ── Off-map disputed territories note ── */
+    .offmap-note {
+      background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 10px;
+      padding: 1.25rem 1.5rem; margin-top: 1.25rem;
     }
+    .offmap-title { font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.9rem; }
+    .offmap-list { display: flex; flex-direction: column; gap: 0.6rem; }
+    .offmap-item { display: flex; align-items: flex-start; gap: 0.6rem; }
+    .offmap-dot { width: 10px; height: 10px; border-radius: 50%; background: #5A6472; flex-shrink: 0; margin-top: 0.3rem; }
+    .offmap-name { font-size: 0.85rem; color: var(--text); }
+    .offmap-desc { font-size: 0.76rem; color: var(--text-dim); margin-top: 0.1rem; line-height: 1.5; }
 
     .footer-legal { display: flex; gap: 1.5rem; flex-wrap: wrap; }
     .footer-legal a { font-size: 0.75rem; color: var(--text-dim); text-decoration: none; }
     .footer-legal a:hover { color: var(--blue); opacity: 1; }
     .footer-inner { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 1.5rem; }
 
-    @media (max-width: 900px) {
-      .tile-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
-      .footer-inner { grid-template-columns: 1fr 1fr; }
-    }
+    @media (max-width: 900px) { .footer-inner { grid-template-columns: 1fr 1fr; } }
     @media (max-width: 640px) {
-      .nav-links { display: none; }
-      .burger { display: flex; }
       .map-counts { margin-left: 0; width: 100%; }
       .footer-inner { grid-template-columns: 1fr; gap: 1rem; }
+      .map-wrap { padding: 0.75rem; }
     }
   </style>
 </head>
@@ -193,14 +179,19 @@
   <div class="container">
     <div class="section-label">Сервисы</div>
     <h1>Карта полётов</h1>
-    <p>Условия полётов БПЛА по регионам России — зоны ограничений Росавиации и региональные запреты в одном месте.</p>
-    <p class="page-hero-note">Регионы сгруппированы по типу субъекта. Наведи курсор (или коснись на телефоне) на регион, чтобы увидеть условия полётов.</p>
+    <p>Условия полётов БПЛА по субъектам России — зоны ограничений Росавиации и региональные запреты на географической карте.</p>
+    <p class="page-hero-note">Наведи курсор (или коснись на телефоне) на регион, чтобы увидеть условия полётов.</p>
   </div>
 </section>
 
 <div class="container">
 
-  <div class="legend-row" id="legendRow"></div>
+  <div class="legend-row" id="legendRow">
+    <div class="legend-chip"><div class="legend-dot green"></div><div><div class="legend-text-label">Без ограничений</div><div class="legend-text-desc">Зона ограничений Росавиации и региональный запрет отсутствуют.</div></div></div>
+    <div class="legend-chip"><div class="legend-dot yellow"></div><div><div class="legend-text-label">Полёты ограничены</div><div class="legend-text-desc">Региональный запрет действует, но полёты возможны — по разрешению или на определённых условиях.</div></div></div>
+    <div class="legend-chip"><div class="legend-dot red"></div><div><div class="legend-text-label">Полёты запрещены</div><div class="legend-text-desc">Зона ограничений Росавиации и/или региональный запрет — полёты не выполняются.</div></div></div>
+    <div class="legend-chip"><div class="legend-dot gray"></div><div><div class="legend-text-label">Спорная территория</div><div class="legend-text-desc">Статус оспаривается на международном уровне — данные о полётных ограничениях не отображаются.</div></div></div>
+  </div>
 
   <div class="map-controls">
     <input class="map-search" id="mapSearch" type="text" placeholder="Найти регион…">
@@ -221,7 +212,14 @@
     <button class="detail-close" id="detailClose">✕</button>
   </div>
 
-  <div id="mapContent"></div>
+  <div class="map-wrap" id="mapWrap">
+    <div class="map-loading">Загружаем карту…</div>
+  </div>
+
+  <div class="offmap-note">
+    <div class="offmap-title">Спорные территории — не показаны на карте</div>
+    <div class="offmap-list" id="offmapList"></div>
+  </div>
 
 </div>
 
@@ -259,122 +257,123 @@ document.addEventListener('click', (e) => {
 });
 
 // ══════════════════════════════════════════
-// FLIGHT MAP
+// FLIGHT MAP — real SVG geography (RU-XXX regions), coloured by status.
+// Source map: ArmGono/ru-svg-map (borders reflect positions currently
+// administered/claimed by the Russian Federation, including Crimea).
 // ══════════════════════════════════════════
-let mapData = null;
+let regionData = null;
 let currentFilter = 'all';
 let currentSearch = '';
 
-async function loadMapData() {
+const OFFMAP_DISPUTED = [
+  { name: 'Донецкая Народная Республика', desc: 'Статус оспаривается на международном уровне. Достоверные контуры границ для карты не найдены — территория не отображается.' },
+  { name: 'Луганская Народная Республика', desc: 'Статус оспаривается на международном уровне. Достоверные контуры границ для карты не найдены — территория не отображается.' },
+  { name: 'Запорожская область', desc: 'Статус оспаривается на международном уровне. Достоверные контуры границ для карты не найдены — территория не отображается.' },
+  { name: 'Херсонская область', desc: 'Статус оспаривается на международном уровне. Достоверные контуры границ для карты не найдены — территория не отображается.' },
+];
+
+async function loadMap() {
   try {
-    const res = await fetch('flight-map-data.json', { cache: 'no-store' });
-    mapData = await res.json();
-    renderLegend();
-    renderMap();
+    const [svgRes, dataRes] = await Promise.all([
+      fetch('assets/russia-map.svg', { cache: 'no-store' }),
+      fetch('flight-map-regions.json', { cache: 'no-store' }),
+    ]);
+    const svgText = await svgRes.text();
+    regionData = await dataRes.json();
+
+    const wrap = document.getElementById('mapWrap');
+    wrap.innerHTML = svgText;
+    const svg = wrap.querySelector('svg');
+    svg.removeAttribute('id');
+
+    svg.querySelectorAll('path.russia-region').forEach(path => {
+      const code = (path.id || '').replace('RU-', '');
+      const info = regionData[code];
+      if (!info) return;
+      path.dataset.code = code;
+      path.dataset.name = info.name;
+      path.dataset.status = info.status;
+      path.dataset.desc = info.desc;
+      path.dataset.color = info.color;
+      path.classList.add('color-' + info.color);
+
+      if (!info.disputed) {
+        path.addEventListener('click', () => showDetail(path));
+        path.addEventListener('mouseenter', () => showDetail(path));
+      } else {
+        path.addEventListener('click', () => showDetail(path));
+      }
+    });
+
+    renderCounts();
+    renderOffmapList();
   } catch (e) {
-    document.getElementById('mapContent').innerHTML = '<p style="color:var(--text-dim);padding:2rem 0;">Не удалось загрузить данные карты.</p>';
+    document.getElementById('mapWrap').innerHTML = '<p style="color:var(--text-dim);text-align:center;padding:2rem 0;">Не удалось загрузить карту.</p>';
+    console.error(e);
   }
 }
 
-function renderLegend() {
-  const order = ['green','yellow','red'];
-  const bySymbol = Object.values(mapData.legend);
-  // Merge duplicate labels sharing the same color into one legend chip (green has one symbol; yellow/red have two each)
-  const byColor = {};
-  order.forEach(c => byColor[c] = []);
-  Object.entries(mapData.legend).forEach(([sym, v]) => byColor[v.color].push(v));
-
-  const titles = { green: 'Без ограничений', yellow: 'Полёты ограничены', red: 'Полёты запрещены' };
-  const html = order.map(color => {
-    const descs = [...new Set(byColor[color].map(v => v.desc))].join(' ');
-    return `
-      <div class="legend-chip">
-        <div class="legend-dot ${color}"></div>
-        <div>
-          <div class="legend-text-label">${titles[color]}</div>
-          <div class="legend-text-desc">${descs}</div>
-        </div>
-      </div>`;
-  }).join('');
-  document.getElementById('legendRow').innerHTML = html;
-}
-
-function renderMap() {
-  const content = document.getElementById('mapContent');
-
-  const catsHtml = mapData.categories.map(cat => {
-    const tiles = cat.items.map(item => {
-      const matchesFilter = currentFilter === 'all' || item.color === currentFilter;
-      const matchesSearch = !currentSearch || item.name.toLowerCase().includes(currentSearch);
-      const visible = matchesFilter && matchesSearch;
-      return `
-        <div class="region-tile ${item.color} ${visible ? '' : 'hidden'}" data-name="${item.name}" data-color="${item.color}" data-status="${item.status}" data-desc="${item.desc}">
-          ${item.name}
-          <div class="tile-tooltip">
-            <div class="tile-tooltip-status">${item.status}</div>
-            <div class="tile-tooltip-desc">${item.desc}</div>
-          </div>
-        </div>`;
-    }).join('');
-
-    const anyVisible = cat.items.some(item => {
-      const matchesFilter = currentFilter === 'all' || item.color === currentFilter;
-      const matchesSearch = !currentSearch || item.name.toLowerCase().includes(currentSearch);
-      return matchesFilter && matchesSearch;
-    });
-
-    return `
-      <div class="map-category" style="${anyVisible ? '' : 'display:none;'}">
-        <div class="map-category-title">${cat.name} <span class="map-category-count">${cat.items.length}</span></div>
-        <div class="tile-grid">${tiles}</div>
-      </div>`;
-  }).join('');
-
-  content.innerHTML = catsHtml;
-
-  const counts = { green: 0, yellow: 0, red: 0 };
-  mapData.categories.forEach(cat => cat.items.forEach(i => counts[i.color]++));
-  document.getElementById('mapCounts').textContent =
-    `Всего: ${counts.green + counts.yellow + counts.red} · Без ограничений: ${counts.green} · Ограничено: ${counts.yellow} · Запрещено: ${counts.red}`;
-
-  // Click handling — opens detail bar (works for both mouse and touch)
-  content.querySelectorAll('.region-tile').forEach(tile => {
-    tile.addEventListener('click', () => {
-      content.querySelectorAll('.region-tile.selected').forEach(t => t.classList.remove('selected'));
-      tile.classList.add('selected');
-      showDetail(tile.dataset.name, tile.dataset.color, tile.dataset.status, tile.dataset.desc);
-    });
-  });
-}
-
-function showDetail(name, color, status, desc) {
+function showDetail(path) {
+  document.querySelectorAll('.russia-region.highlighted').forEach(p => p.classList.remove('highlighted'));
+  path.classList.add('highlighted');
   document.getElementById('detailBar').classList.add('show');
-  document.getElementById('detailDot').className = 'detail-dot ' + color;
-  document.getElementById('detailName').textContent = name;
-  document.getElementById('detailStatus').textContent = status;
-  document.getElementById('detailDesc').textContent = desc;
+  document.getElementById('detailDot').className = 'detail-dot ' + path.dataset.color;
+  document.getElementById('detailName').textContent = path.dataset.name;
+  document.getElementById('detailStatus').textContent = path.dataset.status;
+  document.getElementById('detailDesc').textContent = path.dataset.desc;
 }
 
 document.getElementById('detailClose').addEventListener('click', () => {
   document.getElementById('detailBar').classList.remove('show');
-  document.querySelectorAll('.region-tile.selected').forEach(t => t.classList.remove('selected'));
+  document.querySelectorAll('.russia-region.highlighted').forEach(p => p.classList.remove('highlighted'));
 });
+
+function renderCounts() {
+  const counts = { green: 0, yellow: 0, red: 0, gray: 0 };
+  Object.values(regionData).forEach(r => counts[r.color]++);
+  document.getElementById('mapCounts').textContent =
+    `Показано регионов: ${Object.keys(regionData).length} · Без ограничений: ${counts.green} · Ограничено: ${counts.yellow} · Запрещено: ${counts.red} · Спорных: ${counts.gray}`;
+}
+
+function renderOffmapList() {
+  document.getElementById('offmapList').innerHTML = OFFMAP_DISPUTED.map(t => `
+    <div class="offmap-item">
+      <div class="offmap-dot"></div>
+      <div>
+        <div class="offmap-name">${t.name}</div>
+        <div class="offmap-desc">${t.desc}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function applyFilters() {
+  document.querySelectorAll('path.russia-region').forEach(path => {
+    const info = regionData[path.dataset.code];
+    if (!info) return;
+    if (info.disputed) { path.classList.remove('dimmed'); return; } // disputed regions always shown neutrally, unaffected by filters
+
+    const matchesFilter = currentFilter === 'all' || info.color === currentFilter;
+    const matchesSearch = !currentSearch || info.name.toLowerCase().includes(currentSearch);
+    path.classList.toggle('dimmed', !(matchesFilter && matchesSearch));
+  });
+}
 
 document.querySelectorAll('.filter-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     currentFilter = btn.dataset.filter;
-    renderMap();
+    applyFilters();
   });
 });
 
 document.getElementById('mapSearch').addEventListener('input', (e) => {
   currentSearch = e.target.value.trim().toLowerCase();
-  renderMap();
+  applyFilters();
 });
 
-loadMapData();
+loadMap();
 </script>
 
 </body>

@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Личный кабинет — COREPLUS</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .account-wrap {
+      min-height: 70vh; display: flex; align-items: center; justify-content: center;
+      padding: 3rem 1.5rem;
+    }
+    .account-card {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px;
+      padding: 2.5rem; width: 100%; max-width: 420px; text-align: center;
+    }
+    .account-icon { font-size: 2rem; margin-bottom: 1rem; }
+    .account-card h1 { font-size: 1.4rem; margin-bottom: 0.6rem; }
+    .account-card p { font-size: 0.88rem; color: var(--text-muted); line-height: 1.65; margin-bottom: 1.5rem; }
+
+    .account-input {
+      width: 100%; background: var(--bg-subtle); border: 1px solid var(--border);
+      border-radius: 8px; padding: 0.75rem 1rem; color: var(--text); font-size: 0.9rem;
+      margin-bottom: 1rem; font-family: var(--font-body);
+    }
+    .account-input:focus { outline: none; border-color: var(--border-accent-purple); }
+    .account-input::placeholder { color: var(--text-dim); }
+
+    .account-status {
+      display: none; background: var(--bg-subtle); border: 1px solid var(--border);
+      border-radius: 8px; padding: 0.85rem 1rem; font-size: 0.85rem; color: var(--text-muted);
+      margin-bottom: 1rem; text-align: left;
+    }
+    .account-status.show { display: block; }
+    .account-status.error { border-color: rgba(255,68,85,0.4); color: #FF9B9B; }
+    .account-status.success { border-color: rgba(0,214,143,0.4); color: #7FE8C4; }
+
+    .profile-row { display: flex; justify-content: space-between; align-items: center; padding: 0.85rem 0; border-bottom: 1px solid var(--border); text-align: left; }
+    .profile-row:last-child { border-bottom: none; }
+    .profile-label { font-size: 0.78rem; color: var(--text-dim); }
+    .profile-value { font-size: 0.88rem; color: var(--text); font-weight: 500; }
+
+    .paid-badge { color: #00D68F; }
+    .unpaid-badge { color: #FFB400; }
+
+    .footer-legal { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+    .footer-legal a { font-size: 0.75rem; color: var(--text-dim); text-decoration: none; }
+    .footer-legal a:hover { color: var(--blue); opacity: 1; }
+    .footer-inner { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 1.5rem; }
+    @media (max-width: 900px) { .footer-inner { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      .burger { display: flex; }
+      .footer-inner { grid-template-columns: 1fr; gap: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <img src="assets/logo.jpeg" alt="COREPLUS" style="width:26px;height:26px;object-fit:cover;mix-blend-mode:lighten;">
+      COREPLUS
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html" data-i18n="nav.overview">Обзор</a></li>
+      <li><a href="events.html" data-i18n="nav.events">Ивенты</a></li>
+      <li><a href="expertise.html" data-i18n="nav.expertise">Экспертиза</a></li>
+      <li><a href="news.html" data-i18n="nav.news">Новости</a></li>
+      <li class="nav-dropdown">
+        <button class="nav-dropdown-toggle"><span data-i18n="nav.learning">Обучение</span> <span class="chev">▾</span></button>
+        <div class="nav-dropdown-menu">
+        <a href="courses.html" data-i18n="nav.courses">Курсы</a>
+        <a href="cases.html" data-i18n="nav.cases">Кейсы</a>
+        <a href="stats.html" data-i18n="nav.stats">Статистика</a>
+        <a href="simulator.html" data-i18n="nav.simulator">Симулятор</a>
+        <a href="builder.html" data-i18n="nav.builder">Сборка</a>
+        <a href="delivery.html" data-i18n="nav.delivery">Доставка</a>
+        </div>
+      </li>
+      <li class="nav-dropdown">
+        <button class="nav-dropdown-toggle"><span data-i18n="nav.services">Сервисы</span> <span class="chev">▾</span></button>
+        <div class="nav-dropdown-menu">
+        <a href="permit.html" data-i18n="nav.permit">Разрешение на полёт</a>
+        <a href="waybill.html" data-i18n="nav.waybill">Электронная накладная</a>
+        <a href="print-schemes.html" data-i18n="nav.printSchemes">Схемы для 3D-принтера</a>
+        <a href="guides.html" data-i18n="nav.guides">Гайды по сборке и разборке</a>
+        <a href="job-hunter.html" data-i18n="nav.jobHunter">Job Hunter</a>
+        <a href="flight-map.html" data-i18n="nav.flightMap">Карта полётов</a>
+        <a href="leasing.html" data-i18n="nav.leasing">Лизинг</a>
+        <a href="regulations.html" data-i18n="nav.regulations">Регуляторика</a>
+        <a href="pilot-license.html" data-i18n="nav.pilotLicense">Права на управление</a>
+        </div>
+      </li>
+      <li><a href="account.html" class="active" style="color:var(--purple);">👤 Кабинет</a></li>
+      <li class="nav-dropdown lang-dropdown">
+        <button class="nav-dropdown-toggle"><span class="lang-toggle-code">RU</span> <span class="chev">▾</span></button>
+        <div class="nav-dropdown-menu lang-menu">
+        <a href="#" class="lang-option" data-lang="ru"><span class="lang-code">RU</span></a>
+        <a href="#" class="lang-option" data-lang="en"><span class="lang-code">EN</span></a>
+        <a href="#" class="lang-option" data-lang="fr"><span class="lang-code">FR</span></a>
+        </div>
+      </li>
+    </ul>
+    <button class="burger" id="burger" aria-label="Меню"><span></span><span></span><span></span></button>
+  </div>
+</header>
+<nav class="mobile-menu" id="mobileMenu">
+  <a href="index.html">Обзор</a>
+  <a href="events.html">Ивенты</a>
+  <a href="expertise.html">Экспертиза</a>
+  <a href="news.html">Новости</a>
+  <div class="mobile-menu-section-label">Обучение</div>
+  <a href="courses.html">Курсы</a>
+  <a href="cases.html">Кейсы</a>
+  <a href="stats.html">Статистика</a>
+  <a href="simulator.html">Симулятор</a>
+  <a href="builder.html">Сборка</a>
+  <a href="delivery.html">Доставка</a>
+  <div class="mobile-menu-section-label">Сервисы</div>
+  <a href="permit.html">Разрешение на полёт</a>
+  <a href="waybill.html">Электронная накладная</a>
+  <a href="print-schemes.html">Схемы для 3D-принтера</a>
+  <a href="guides.html">Гайды по сборке и разборке</a>
+  <a href="job-hunter.html">Job Hunter</a>
+  <a href="flight-map.html">Карта полётов</a>
+  <a href="leasing.html">Лизинг</a>
+  <a href="regulations.html">Регуляторика</a>
+  <a href="pilot-license.html">Права на управление</a>
+  <a href="account.html" class="active">👤 Кабинет</a>
+  <div class="mobile-lang-switch">
+    <button data-lang="ru">RU</button>
+    <button data-lang="en">EN</button>
+    <button data-lang="fr">FR</button>
+  </div>
+</nav>
+
+<div class="account-wrap">
+  <div class="account-card" id="accountCard">
+    <!-- populated by JS -->
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="nav-logo" style="font-size:0.9rem;">
+      <img src="assets/logo.jpeg" alt="COREPLUS" style="width:22px;height:22px;object-fit:cover;mix-blend-mode:lighten;">
+      COREPLUS
+    </div>
+    <div class="footer-legal">
+      <a href="privacy-policy.html">Privacy Policy</a>
+      <a href="terms-of-service.html">Terms of Service</a>
+      <a href="mobile-messaging-terms.html">Mobile Messaging Terms</a>
+    </div>
+    <div class="footer-copy">© 2025 COREPLUS · Дроны в гражданской авиации</div>
+  </div>
+</footer>
+
+<script>
+const burger = document.getElementById('burger');
+const mobileMenu = document.getElementById('mobileMenu');
+burger.addEventListener('click', () => { burger.classList.toggle('open'); mobileMenu.classList.toggle('open'); });
+mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => { burger.classList.remove('open'); mobileMenu.classList.remove('open'); }));
+document.querySelectorAll('.nav-dropdown-toggle').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const dd = btn.closest('.nav-dropdown');
+    document.querySelectorAll('.nav-dropdown.open').forEach(o => { if (o !== dd) o.classList.remove('open'); });
+    dd.classList.toggle('open');
+  });
+});
+document.addEventListener('click', (e) => {
+  document.querySelectorAll('.nav-dropdown.open').forEach(dd => { if (!dd.contains(e.target)) dd.classList.remove('open'); });
+});
+
+// ══════════════════════════════════════════
+// ACCOUNT — passwordless auth + payment
+// ══════════════════════════════════════════
+// ⚠️ Once your Worker is deployed, put its URL here:
+const API_URL = ''; // e.g. 'https://account-api.coreplus-tech.ru'
+
+const card = document.getElementById('accountCard');
+
+function renderRequestForm(message, isError) {
+  card.innerHTML = `
+    <div class="account-icon">👤</div>
+    <h1>Личный кабинет</h1>
+    <p>Введи email — пришлём ссылку для входа. Пароль не нужен.</p>
+    ${message ? `<div class="account-status show ${isError ? 'error' : 'success'}">${message}</div>` : ''}
+    <input class="account-input" id="emailInput" type="email" placeholder="you@example.com">
+    <button class="btn btn-primary" id="btnSendLink" style="width:100%;justify-content:center;">Получить ссылку для входа</button>
+  `;
+  document.getElementById('btnSendLink').addEventListener('click', requestLink);
+}
+
+function renderSentState(email) {
+  card.innerHTML = `
+    <div class="account-icon">📬</div>
+    <h1>Проверь почту</h1>
+    <p>Мы отправили ссылку для входа на <strong style="color:var(--text)">${email}</strong>. Перейди по ней — ссылка активна 15 минут.</p>
+    <button class="btn btn-outline" id="btnBack" style="width:100%;justify-content:center;">← Ввести другой email</button>
+  `;
+  document.getElementById('btnBack').addEventListener('click', () => renderRequestForm());
+}
+
+function renderProfile(email, paid) {
+  card.innerHTML = `
+    <div class="account-icon">✅</div>
+    <h1>Добро пожаловать</h1>
+    <div style="text-align:left; margin-bottom:1.5rem;">
+      <div class="profile-row"><span class="profile-label">Email</span><span class="profile-value">${email}</span></div>
+      <div class="profile-row"><span class="profile-label">Доступ к курсу</span><span class="profile-value ${paid ? 'paid-badge' : 'unpaid-badge'}">${paid ? '✓ Полный доступ' : 'Только бесплатный блок'}</span></div>
+    </div>
+    ${paid
+      ? `<a href="courses.html" class="btn btn-primary" style="width:100%;justify-content:center;margin-bottom:0.75rem;">Перейти к курсу</a>`
+      : `<button class="btn btn-primary" id="btnPay" style="width:100%;justify-content:center;margin-bottom:0.75rem;">Оплатить полный доступ</button>`
+    }
+    <button class="btn btn-outline" id="btnLogout" style="width:100%;justify-content:center;">Выйти</button>
+  `;
+  if (!paid) document.getElementById('btnPay').addEventListener('click', startCheckout);
+  document.getElementById('btnLogout').addEventListener('click', logout);
+}
+
+async function requestLink() {
+  const email = document.getElementById('emailInput').value.trim();
+  if (!email || !email.includes('@')) { renderRequestForm('Введите корректный email', true); return; }
+  if (!API_URL) { renderRequestForm('API ещё не подключён (см. api-auth/README.md)', true); return; }
+
+  const btn = document.getElementById('btnSendLink');
+  btn.disabled = true; btn.textContent = 'Отправляем…';
+  try {
+    const res = await fetch(`${API_URL}/api/auth/request-link`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Ошибка отправки');
+    renderSentState(email);
+  } catch (e) {
+    renderRequestForm(e.message, true);
+  }
+}
+
+async function verifyToken(token) {
+  card.innerHTML = `<div class="account-icon">⏳</div><h1>Входим…</h1><p>Проверяем ссылку.</p>`;
+  try {
+    const res = await fetch(`${API_URL}/api/auth/verify?token=${encodeURIComponent(token)}`);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Ссылка недействительна');
+    localStorage.setItem('coreplus_session', data.sessionToken);
+    window.history.replaceState({}, '', 'account.html'); // clean the URL
+    renderProfile(data.email, data.paid);
+  } catch (e) {
+    renderRequestForm(e.message, true);
+  }
+}
+
+async function loadProfile() {
+  const session = localStorage.getItem('coreplus_session');
+  if (!session) { renderRequestForm(); return; }
+  try {
+    const res = await fetch(`${API_URL}/api/auth/me`, { headers: { 'Authorization': `Bearer ${session}` } });
+    if (!res.ok) { localStorage.removeItem('coreplus_session'); renderRequestForm(); return; }
+    const data = await res.json();
+    renderProfile(data.email, data.paid);
+  } catch (e) {
+    renderRequestForm();
+  }
+}
+
+async function startCheckout() {
+  const session = localStorage.getItem('coreplus_session');
+  const btn = document.getElementById('btnPay');
+  btn.disabled = true; btn.textContent = 'Готовим оплату…';
+  try {
+    const res = await fetch(`${API_URL}/api/payment/create-checkout`, {
+      method: 'POST', headers: { 'Authorization': `Bearer ${session}` },
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Не удалось создать платёж');
+    window.location.href = data.confirmationUrl;
+  } catch (e) {
+    btn.disabled = false; btn.textContent = 'Оплатить полный доступ';
+    alert(e.message);
+  }
+}
+
+async function logout() {
+  const session = localStorage.getItem('coreplus_session');
+  localStorage.removeItem('coreplus_session');
+  if (API_URL && session) {
+    fetch(`${API_URL}/api/auth/logout`, { method: 'POST', headers: { 'Authorization': `Bearer ${session}` } }).catch(() => {});
+  }
+  renderRequestForm();
+}
+
+// ── Init ──
+const urlToken = new URLSearchParams(window.location.search).get('token');
+if (urlToken) {
+  if (!API_URL) renderRequestForm('API ещё не подключён (см. api-auth/README.md)', true);
+  else verifyToken(urlToken);
+} else {
+  if (!API_URL) renderRequestForm();
+  else loadProfile();
+}
+</script>
+
+<script src="js/i18n.js" defer></script>
+</body>
+</html>

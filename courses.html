@@ -240,6 +240,15 @@
 
     .module-item:last-child { border-bottom: none; }
     .module-item:hover { background: var(--bg-subtle); }
+    .module-item.locked { opacity: 0.5; }
+    .module-item.locked .module-num { color: var(--text-dim); }
+    .module-item.locked:hover { background: none; cursor: default; }
+
+    .course-access-banner {
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+      background: var(--purple-dim); border-bottom: 1px solid var(--border-accent-purple);
+      padding: 0.85rem 1.5rem; font-size: 0.85rem; color: var(--text); flex-wrap: wrap;
+    }
 
     .module-num {
       font-family: var(--font-display);
@@ -398,12 +407,13 @@
         <a href="pilot-license.html" data-i18n="nav.pilotLicense">Права на управление</a>
         </div>
       </li>
+      <li><a href="account.html" style="color:var(--purple);">👤 Кабинет</a></li>
       <li class="nav-dropdown lang-dropdown">
         <button class="nav-dropdown-toggle"><span class="lang-toggle-code">RU</span> <span class="chev">▾</span></button>
         <div class="nav-dropdown-menu lang-menu">
-        <a href="#" class="lang-option" data-lang="ru"><span class="lang-code">RU</span>Русский</a>
-        <a href="#" class="lang-option" data-lang="en"><span class="lang-code">EN</span>English</a>
-        <a href="#" class="lang-option" data-lang="fr"><span class="lang-code">FR</span>Français</a>
+        <a href="#" class="lang-option" data-lang="ru"><span class="lang-code">RU</span></a>
+        <a href="#" class="lang-option" data-lang="en"><span class="lang-code">EN</span></a>
+        <a href="#" class="lang-option" data-lang="fr"><span class="lang-code">FR</span></a>
         </div>
       </li>
     </ul>
@@ -432,6 +442,7 @@
   <a href="leasing.html" data-i18n="nav.leasing">Лизинг</a>
   <a href="regulations.html" data-i18n="nav.regulations">Регуляторика</a>
   <a href="pilot-license.html" data-i18n="nav.pilotLicense">Права на управление</a>
+  <a href="account.html" style="color:var(--purple);">👤 Кабинет</a>
 <div class="mobile-lang-switch">
   <button data-lang="ru">RU</button>
   <button data-lang="en">EN</button>
@@ -650,49 +661,53 @@
           </div>
           <div class="tag">6 нед.</div>
         </div>
-        <ul class="module-list">
+        <div class="course-access-banner" id="courseAccessBanner">
+          <span>🔓 Модуль 1 — бесплатно. Остальные модули открываются после оплаты.</span>
+          <a href="account.html" class="btn btn-primary" style="padding:0.45rem 0.9rem;font-size:0.8rem;">Личный кабинет →</a>
+        </div>
+        <ul class="module-list" id="moduleList">
           <li class="module-item">
             <span class="module-num">01</span>
             <span class="module-title">Введение в БПЛА: типы, компоненты, принципы полёта</span>
             <span class="module-duration">3 ч</span>
           </li>
-          <li class="module-item">
-            <span class="module-num">02</span>
+          <li class="module-item locked">
+            <span class="module-num">🔒</span>
             <span class="module-title">Правовая база: регистрация, разрешения, зоны полётов</span>
             <span class="module-duration">4 ч</span>
           </li>
-          <li class="module-item">
-            <span class="module-num">03</span>
+          <li class="module-item locked">
+            <span class="module-num">🔒</span>
             <span class="module-title">Первые полёты: управление, ориентация, манёвры</span>
             <span class="module-duration">6 ч</span>
           </li>
-          <li class="module-item">
-            <span class="module-num">04</span>
+          <li class="module-item locked">
+            <span class="module-num">🔒</span>
             <span class="module-title">Безопасность полётов и нештатные ситуации</span>
             <span class="module-duration">3 ч</span>
           </li>
-          <li class="module-item">
-            <span class="module-num">05</span>
+          <li class="module-item locked">
+            <span class="module-num">🔒</span>
             <span class="module-title">Планирование миссий: автоматические маршруты</span>
             <span class="module-duration">5 ч</span>
           </li>
-          <li class="module-item">
-            <span class="module-num">06</span>
+          <li class="module-item locked">
+            <span class="module-num">🔒</span>
             <span class="module-title">Аэросъёмка: настройки камеры, перекрытия, RAW</span>
             <span class="module-duration">4 ч</span>
           </li>
-          <li class="module-item">
-            <span class="module-num">07</span>
+          <li class="module-item locked">
+            <span class="module-num">🔒</span>
             <span class="module-title">Фотограмметрия: ортофотопланы и 3D-модели</span>
             <span class="module-duration">6 ч</span>
           </li>
-          <li class="module-item">
-            <span class="module-num">08</span>
+          <li class="module-item locked">
+            <span class="module-num">🔒</span>
             <span class="module-title">Работа с заказчиком: брифинг, договор, сдача проекта</span>
             <span class="module-duration">3 ч</span>
           </li>
-          <li class="module-item">
-            <span class="module-num">09</span>
+          <li class="module-item locked">
+            <span class="module-num">🔒</span>
             <span class="module-title">Финальный проект: съёмка реального объекта</span>
             <span class="module-duration">6 ч</span>
           </li>
@@ -791,5 +806,34 @@ document.addEventListener('click', (e) => {
 });
 </script>
 <script src="js/i18n.js" defer></script>
+<script>
+// ══════════════════════════════════════════
+// Course access gate — unlock all modules if the visitor is logged in
+// and has paid (checked against the account-api Worker).
+// ══════════════════════════════════════════
+const ACCOUNT_API_URL = ''; // e.g. 'https://account-api.coreplus-tech.ru' — same value as in account.html
+
+async function checkCourseAccess() {
+  const session = localStorage.getItem('coreplus_session');
+  const banner = document.getElementById('courseAccessBanner');
+  if (!session || !ACCOUNT_API_URL) return; // stays locked / shows the banner as-is
+
+  try {
+    const res = await fetch(`${ACCOUNT_API_URL}/api/auth/me`, { headers: { 'Authorization': `Bearer ${session}` } });
+    if (!res.ok) return;
+    const data = await res.json();
+    if (data.paid) {
+      document.querySelectorAll('#moduleList .module-item.locked').forEach((el, i) => {
+        el.classList.remove('locked');
+        el.querySelector('.module-num').textContent = String(i + 2).padStart(2, '0');
+      });
+      if (banner) banner.innerHTML = `<span>✅ Полный доступ открыт — приятного обучения!</span>`;
+    } else if (banner) {
+      banner.innerHTML = `<span>👤 Вы вошли, но полный доступ ещё не оплачен.</span> <a href="account.html" class="btn btn-primary" style="padding:0.45rem 0.9rem;font-size:0.8rem;">Оплатить →</a>`;
+    }
+  } catch (e) { /* stay locked on any error */ }
+}
+checkCourseAccess();
+</script>
 </body>
 </html>

@@ -61,6 +61,12 @@
     document.querySelectorAll('.lang-toggle-code').forEach(el => {
       el.textContent = lang.toUpperCase();
     });
+    // Also refresh the visible code label inside each dropdown option
+    // (kept in sync even though options only ever show RU/EN/FR text)
+    document.querySelectorAll('.lang-option').forEach(opt => {
+      const code = opt.querySelector('.lang-code');
+      if (code) code.textContent = opt.dataset.lang.toUpperCase();
+    });
   }
 
   function setLang(lang) {

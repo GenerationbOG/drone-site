@@ -24,7 +24,8 @@
     "footer.privacy": "Конфиденциальность",
     "footer.terms": "Условия использования",
     "footer.mobileTerms": "Правила SMS-рассылок",
-    "footer.tagline": "Дроны в гражданской авиации"
+    "footer.tagline": "Дроны в гражданской авиации",
+    "nav.account": "👤 Кабинет"
   },
   "en": {
     "nav.overview": "Overview",
@@ -51,7 +52,8 @@
     "footer.privacy": "Privacy Policy",
     "footer.terms": "Terms of Service",
     "footer.mobileTerms": "Mobile Messaging Terms",
-    "footer.tagline": "Civil drone aviation"
+    "footer.tagline": "Civil drone aviation",
+    "nav.account": "👤 Account"
   },
   "fr": {
     "nav.overview": "Aperçu",
@@ -78,6 +80,7 @@
     "footer.privacy": "Confidentialité",
     "footer.terms": "Conditions d'utilisation",
     "footer.mobileTerms": "Messagerie mobile",
-    "footer.tagline": "Aviation civile de drones"
+    "footer.tagline": "Aviation civile de drones",
+    "nav.account": "👤 Compte"
   }
 }

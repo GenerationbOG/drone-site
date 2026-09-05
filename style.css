@@ -2,7 +2,7 @@
    DRONE AVIATION — Shared Styles
    ============================================= */
 
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Onest:wght@400;500&display=swap');
 
 /* --- Reset & Base --- */
 *, *::before, *::after {
@@ -30,8 +30,8 @@
   --text-muted: #6B7580;
   --text-dim:   #3A4450;
   --radius:     6px;
-  --font-display: 'Space Grotesk', sans-serif;
-  --font-body:    'Inter', sans-serif;
+  --font-display: 'Sora', sans-serif;
+  --font-body:    'Onest', sans-serif;
 }
 
 html { scroll-behavior: smooth; }
@@ -367,7 +367,7 @@ a:hover { opacity: 0.8; }
 
 /* --- Language switcher (same dropdown pattern as Обучение/Сервисы) --- */
 .lang-dropdown .nav-dropdown-toggle { min-width: 40px; }
-.lang-menu { min-width: 160px !important; }
+.lang-menu { min-width: 90px !important; }
 .lang-option {
   display: flex; align-items: center; gap: 0.6rem;
 }

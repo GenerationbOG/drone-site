@@ -54,8 +54,12 @@
       const val = t(key, lang);
       if (val != null) el.innerHTML = val;
     });
-    document.querySelectorAll('.lang-switch button').forEach(b => {
+    // Dropdown lang menu (desktop) + simple button row (mobile)
+    document.querySelectorAll('.lang-option, .mobile-lang-switch button').forEach(b => {
       b.classList.toggle('active', b.dataset.lang === lang);
+    });
+    document.querySelectorAll('.lang-toggle-code').forEach(el => {
+      el.textContent = lang.toUpperCase();
     });
   }
 
@@ -64,11 +68,16 @@
     currentLang = lang;
     localStorage.setItem('coreplus_lang', lang);
     applyLang(lang);
+    // Close the dropdown after picking a language
+    document.querySelectorAll('.nav-dropdown.open').forEach(dd => dd.classList.remove('open'));
   }
 
   function initSwitcher() {
-    document.querySelectorAll('.lang-switch button').forEach(btn => {
-      btn.addEventListener('click', () => setLang(btn.dataset.lang));
+    document.querySelectorAll('.lang-option, .mobile-lang-switch button').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        setLang(btn.dataset.lang);
+      });
     });
   }
 

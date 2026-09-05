@@ -365,20 +365,18 @@ a:hover { opacity: 0.8; }
   color: var(--purple); padding: 1rem 0 0.4rem;
 }
 
-/* --- Language switcher --- */
-.lang-switch {
-  display: flex; align-items: center; gap: 2px;
-  background: var(--bg-card); border: 1px solid var(--border);
-  border-radius: 6px; padding: 2px; margin-left: 0.75rem;
+/* --- Language switcher (same dropdown pattern as Обучение/Сервисы) --- */
+.lang-dropdown .nav-dropdown-toggle { min-width: 40px; }
+.lang-menu { min-width: 160px !important; }
+.lang-option {
+  display: flex; align-items: center; gap: 0.6rem;
 }
-.lang-switch button {
-  background: none; border: none; cursor: pointer;
-  font-family: var(--font-display); font-size: 0.7rem; font-weight: 500;
-  letter-spacing: 0.03em; color: var(--text-dim);
-  padding: 0.3rem 0.55rem; border-radius: 4px; transition: all 0.15s;
+.lang-option.active { color: var(--purple); }
+.lang-option .lang-code {
+  font-family: var(--font-display); font-size: 0.72rem; font-weight: 700;
+  color: var(--text-dim); width: 22px; flex-shrink: 0;
 }
-.lang-switch button:hover { color: var(--text-muted); }
-.lang-switch button.active { background: var(--purple-dim); color: var(--purple); }
+.lang-option.active .lang-code { color: var(--purple); }
 
 .mobile-lang-switch {
   display: flex; gap: 0.5rem; padding: 1rem 0 0.5rem; margin-top: 0.5rem;

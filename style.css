@@ -1,0 +1,392 @@
+/* =============================================
+   DRONE AVIATION — Shared Styles
+   ============================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500&display=swap');
+
+/* --- Reset & Base --- */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg:         #0A0C0F;
+  --bg-card:    #111418;
+  --bg-subtle:  #161A20;
+  --border:     rgba(255,255,255,0.08);
+  --border-accent: rgba(0,168,255,0.35);
+  --blue:       #00A8FF;
+  --blue-dim:   rgba(0,168,255,0.12);
+  --blue-mid:   rgba(0,168,255,0.22);
+  /* Second accent — echoes the neon logo's blue→purple gradient */
+  --purple:     #9D5CFF;
+  --purple-dim: rgba(157,92,255,0.12);
+  --purple-mid: rgba(157,92,255,0.22);
+  --border-accent-purple: rgba(157,92,255,0.35);
+  --gradient-brand: linear-gradient(135deg, var(--blue), var(--purple));
+  --text:       #E8ECF0;
+  --text-muted: #6B7580;
+  --text-dim:   #3A4450;
+  --radius:     6px;
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body:    'Inter', sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* --- Typography --- */
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+h1 { font-size: clamp(2.4rem, 5vw, 4rem); }
+h2 { font-size: clamp(1.75rem, 3vw, 2.5rem); }
+h3 { font-size: 1.25rem; font-weight: 500; }
+
+p { color: var(--text-muted); }
+
+a { color: var(--blue); text-decoration: none; }
+a:hover { opacity: 0.8; }
+
+/* --- Layout Utilities --- */
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.section {
+  padding: 6rem 0;
+  border-top: 1px solid var(--border);
+}
+
+.section-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--blue);
+  margin-bottom: 1.5rem;
+}
+
+.section-label::before {
+  content: '';
+  display: block;
+  width: 18px;
+  height: 1px;
+  background: var(--gradient-brand);
+}
+
+/* --- Navigation --- */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(10,12,15,0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.nav-logo {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text);
+  letter-spacing: 0.02em;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  transition: opacity 0.2s;
+}
+
+.nav-logo:hover {
+  opacity: 0.85;
+}
+
+.nav-logo-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--gradient-brand);
+  box-shadow: 0 0 8px var(--purple);
+  animation: pulse 2.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.85); }
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 2.5rem;
+  list-style: none;
+}
+
+.nav-links li {
+  display: flex;
+  align-items: center;
+}
+
+.nav-links a {
+  font-size: 0.85rem;
+  line-height: 1;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  transition: color 0.2s;
+  position: relative;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+  color: var(--text);
+}
+
+/* Scoped to top-level flat links only — NOT dropdown menu items,
+   which use color (purple) alone to indicate the active page. */
+.nav-links > li > a.active::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0; right: 0;
+  height: 1px;
+  background: var(--gradient-brand);
+}
+
+/* --- Buttons --- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.4rem;
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 500;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: var(--gradient-brand);
+  color: #0A0C0F;
+}
+.btn-primary:hover {
+  filter: brightness(1.12);
+  opacity: 1;
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.btn-outline:hover {
+  border-color: var(--border-accent-purple);
+  color: var(--purple);
+  opacity: 1;
+}
+
+/* --- Cards --- */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.75rem;
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.card:hover {
+  border-color: var(--border-accent);
+  transform: translateY(-2px);
+}
+
+/* --- Tags / Badges --- */
+.tag {
+  display: inline-block;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.7rem;
+  border-radius: 3px;
+  background: var(--purple-dim);
+  color: var(--purple);
+  border: 1px solid var(--border-accent-purple);
+}
+
+/* --- Divider line --- */
+.divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 3rem 0;
+}
+
+/* --- Footer --- */
+.footer {
+  border-top: 1px solid var(--border);
+  padding: 2.5rem 0;
+  margin-top: 4rem;
+}
+
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.footer-copy {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+  .nav-links { gap: 1.25rem; }
+  .nav-links a { font-size: 0.78rem; }
+  .section { padding: 4rem 0; }
+  h1 { font-size: 2.1rem; }
+}
+
+@media (max-width: 560px) {
+  .nav-links { display: none; }
+  .container { padding: 0 1.25rem; }
+}
+
+/* --- Nav dropdown ("Сервисы") --- */
+.nav-dropdown { position: relative; display: flex; align-items: center; }
+.nav-dropdown-toggle {
+  background: none; border: none; cursor: pointer;
+  font-size: 0.85rem; line-height: 1; color: var(--text-muted);
+  font-family: var(--font-body); letter-spacing: 0.04em;
+  display: flex; align-items: center; gap: 0.3rem;
+  padding: 0; margin: 0; transition: color 0.2s;
+}
+.nav-dropdown-toggle:hover, .nav-dropdown.open .nav-dropdown-toggle { color: var(--text); }
+.nav-dropdown-toggle .chev { font-size: 0.6rem; transition: transform 0.2s; color: var(--purple); }
+.nav-dropdown.open .nav-dropdown-toggle .chev { transform: rotate(180deg); }
+
+/* No gap between the toggle and the menu — a gap here is what makes the
+   menu vanish before the cursor reaches it while moving diagonally. The
+   padding-top below creates visual breathing room without an actual gap. */
+.nav-dropdown-menu {
+  display: none;
+  position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+  padding-top: 14px;
+  min-width: 240px;
+  z-index: 150;
+}
+.nav-dropdown-menu::before {
+  /* Inner visual panel — the box below is what actually looks like the dropdown */
+  content: '';
+  position: absolute; inset: 14px 0 0 0;
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.45);
+  z-index: -1;
+}
+.nav-dropdown:hover .nav-dropdown-menu,
+.nav-dropdown.open .nav-dropdown-menu { display: flex; flex-direction: column; gap: 1px; padding: 14px 0.5rem 0.5rem; }
+
+.nav-dropdown-menu a {
+  padding: 0.6rem 0.75rem; font-size: 0.82rem;
+  color: var(--text-muted); border-radius: 6px; text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+}
+.nav-dropdown-menu a:hover { background: var(--bg-subtle); color: var(--text); opacity: 1; }
+.nav-dropdown-menu a.active { color: var(--purple); }
+.nav-dropdown-menu .soon-tag {
+  float: right; font-size: 0.6rem; letter-spacing: 0.04em; text-transform: uppercase;
+  color: var(--text-dim); background: var(--bg-subtle); padding: 0.1rem 0.4rem; border-radius: 3px;
+}
+
+/* --- Mobile burger nav (canonical — do not duplicate per-page) --- */
+.burger {
+  display: none; flex-direction: column; gap: 5px; cursor: pointer;
+  padding: 4px; background: none; border: none;
+}
+.burger span { display: block; width: 22px; height: 2px; background: var(--text-muted); border-radius: 2px; transition: all 0.3s; }
+.burger.open span:nth-child(1) { transform: rotate(45deg) translate(5px,5px); }
+.burger.open span:nth-child(2) { opacity: 0; }
+.burger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px,-5px); }
+
+.mobile-menu {
+  display: none; position: fixed; top: 64px; left: 0; right: 0;
+  background: rgba(10,12,15,0.98); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border); padding: 1.5rem 2rem; z-index: 99;
+  flex-direction: column; max-height: calc(100vh - 64px); overflow-y: auto;
+}
+.mobile-menu.open { display: flex; }
+.mobile-menu a {
+  font-size: 1rem; color: var(--text-muted); text-decoration: none;
+  padding: 0.9rem 0; border-bottom: 1px solid var(--border); transition: color 0.2s;
+}
+.mobile-menu a:last-child { border-bottom: none; }
+.mobile-menu a.active { color: var(--purple); }
+
+@media (max-width: 640px) {
+  .nav-links { display: none; }
+  .burger { display: flex; }
+}
+
+.mobile-menu-section-label {
+  font-size: 0.66rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--purple); padding: 1rem 0 0.4rem;
+}
+
+/* --- Language switcher --- */
+.lang-switch {
+  display: flex; align-items: center; gap: 2px;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 6px; padding: 2px; margin-left: 0.75rem;
+}
+.lang-switch button {
+  background: none; border: none; cursor: pointer;
+  font-family: var(--font-display); font-size: 0.7rem; font-weight: 500;
+  letter-spacing: 0.03em; color: var(--text-dim);
+  padding: 0.3rem 0.55rem; border-radius: 4px; transition: all 0.15s;
+}
+.lang-switch button:hover { color: var(--text-muted); }
+.lang-switch button.active { background: var(--purple-dim); color: var(--purple); }
+
+.mobile-lang-switch {
+  display: flex; gap: 0.5rem; padding: 1rem 0 0.5rem; margin-top: 0.5rem;
+  border-top: 1px solid var(--border);
+}
+.mobile-lang-switch button {
+  flex: 1; background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px;
+  color: var(--text-muted); font-family: var(--font-display); font-size: 0.8rem;
+  padding: 0.5rem; cursor: pointer;
+}
+.mobile-lang-switch button.active { background: var(--purple-dim); color: var(--purple); border-color: var(--border-accent-purple); }

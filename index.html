@@ -22,6 +22,9 @@
       height: 100%;
       object-fit: cover;
       z-index: 0;
+      transform: scale(1.18);
+      transform-origin: center top;
+      will-change: transform;
     }
 
     .hero-video-overlay {
@@ -437,7 +440,7 @@
 
 <!-- ══ HERO ══ -->
 <section class="hero">
-  <video class="hero-video" autoplay muted loop playsinline preload="auto">
+  <video class="hero-video" id="heroVideo" autoplay muted loop playsinline preload="auto">
     <source src="assets/hero-video.mp4" type="video/mp4">
   </video>
   <div class="hero-video-overlay"></div>
@@ -685,16 +688,20 @@ document.addEventListener('click', (e) => {
   document.querySelectorAll('.nav-dropdown.open').forEach(dd => { if (!dd.contains(e.target)) dd.classList.remove('open'); });
 });
 
-// ── Hero text reveal, tied directly to scroll position ──
-// Video shows immediately on load; the text block rises up + fades in
-// as the visitor starts scrolling (first ~380px of scroll), with each
-// line staggered slightly for a cascading effect.
+// ── Hero: video parallax + text reveal, both tied directly to scroll ──
+// Video shows immediately and drifts slightly (parallax) as you scroll.
+// Text rises up + fades in fast — fully visible within the first ~250px
+// of scroll regardless of screen size, each line lightly staggered.
 const revealEls = Array.from(document.querySelectorAll('.hero-reveal'));
-const REVEAL_RANGE = 380;   // px of scroll over which the reveal completes
-const STAGGER = 70;         // px offset between each successive element
+const heroVideo = document.getElementById('heroVideo');
+const REVEAL_RANGE = 160;   // px of scroll over which each element's reveal completes
+const STAGGER = 28;         // px offset between each successive element
+const PARALLAX_SPEED = 0.25; // fraction of scroll the video shifts by
+const PARALLAX_MAX = 120;    // px cap so it never drifts too far
 
-function updateHeroReveal() {
+function updateHeroScroll() {
   const y = window.scrollY;
+
   revealEls.forEach(el => {
     const order = +el.dataset.reveal || 0;
     const start = order * STAGGER;
@@ -702,9 +709,14 @@ function updateHeroReveal() {
     el.style.opacity = progress;
     el.style.transform = `translateY(${46 * (1 - progress)}px)`;
   });
+
+  if (heroVideo) {
+    const shift = Math.min(y * PARALLAX_SPEED, PARALLAX_MAX);
+    heroVideo.style.transform = `scale(1.18) translateY(${shift}px)`;
+  }
 }
-updateHeroReveal();
-window.addEventListener('scroll', () => requestAnimationFrame(updateHeroReveal), { passive: true });
+updateHeroScroll();
+window.addEventListener('scroll', () => requestAnimationFrame(updateHeroScroll), { passive: true });
 </script>
 
 <script src="js/i18n.js" defer></script>

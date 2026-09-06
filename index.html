@@ -63,6 +63,12 @@
 
     .hero-content { position: relative; z-index: 2; padding: 2rem 0; }
 
+    .hero-reveal {
+      opacity: 0;
+      transform: translateY(46px);
+      will-change: opacity, transform;
+    }
+
     .hero-eyebrow {
       display: inline-flex;
       align-items: center;
@@ -438,17 +444,17 @@
   <div class="hero-grid"></div>
   <div class="hero-crosshair"></div>
   <div class="container hero-content">
-    <div class="hero-eyebrow">
+    <div class="hero-eyebrow hero-reveal" data-reveal="0">
       <span class="hero-eyebrow-line"></span>
       <span data-i18n="hero.eyebrow">Гражданская авиация · БПЛА</span>
     </div>
-    <h1><span data-i18n="hero.title1">Дроны меняют</span><br><span data-i18n="hero.title2">гражданскую авиацию</span></h1>
-    <p class="hero-desc" data-i18n="hero.desc">Разбираемся в технологиях беспилотных летательных аппаратов, их применении в реальных задачах, регулировании и будущем отрасли.</p>
-    <div class="hero-actions">
+    <h1 class="hero-reveal" data-reveal="1"><span data-i18n="hero.title1">Дроны меняют</span><br><span data-i18n="hero.title2">гражданскую авиацию</span></h1>
+    <p class="hero-desc hero-reveal" data-reveal="2" data-i18n="hero.desc">Разбираемся в технологиях беспилотных летательных аппаратов, их применении в реальных задачах, регулировании и будущем отрасли.</p>
+    <div class="hero-actions hero-reveal" data-reveal="3">
       <a href="#overview" class="btn btn-primary" data-i18n="hero.btnReadOverview">Читать обзор</a>
       <a href="courses.html" class="btn btn-outline" data-i18n="hero.btnViewCourses">Посмотреть курсы</a>
     </div>
-    <div class="hero-stats">
+    <div class="hero-stats hero-reveal" data-reveal="4">
       <div>
         <div class="hero-stat-num">120<span>+</span></div>
         <div class="hero-stat-label" data-i18n="hero.stat1">стран легализовали БПЛА</div>
@@ -678,6 +684,27 @@ document.querySelectorAll('.nav-dropdown-toggle').forEach(btn => {
 document.addEventListener('click', (e) => {
   document.querySelectorAll('.nav-dropdown.open').forEach(dd => { if (!dd.contains(e.target)) dd.classList.remove('open'); });
 });
+
+// ── Hero text reveal, tied directly to scroll position ──
+// Video shows immediately on load; the text block rises up + fades in
+// as the visitor starts scrolling (first ~380px of scroll), with each
+// line staggered slightly for a cascading effect.
+const revealEls = Array.from(document.querySelectorAll('.hero-reveal'));
+const REVEAL_RANGE = 380;   // px of scroll over which the reveal completes
+const STAGGER = 70;         // px offset between each successive element
+
+function updateHeroReveal() {
+  const y = window.scrollY;
+  revealEls.forEach(el => {
+    const order = +el.dataset.reveal || 0;
+    const start = order * STAGGER;
+    const progress = Math.min(Math.max((y - start) / REVEAL_RANGE, 0), 1);
+    el.style.opacity = progress;
+    el.style.transform = `translateY(${46 * (1 - progress)}px)`;
+  });
+}
+updateHeroReveal();
+window.addEventListener('scroll', () => requestAnimationFrame(updateHeroReveal), { passive: true });
 </script>
 
 <script src="js/i18n.js" defer></script>

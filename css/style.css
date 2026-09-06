@@ -72,6 +72,9 @@ a:hover { opacity: 0.8; }
 .section {
   padding: 6rem 0;
   border-top: 1px solid var(--border);
+  background: var(--bg);
+  position: relative;
+  z-index: 1;
 }
 
 .section-label {
@@ -367,7 +370,7 @@ a:hover { opacity: 0.8; }
 
 /* --- Language switcher (same dropdown pattern as Обучение/Сервисы) --- */
 .lang-dropdown .nav-dropdown-toggle { min-width: 40px; }
-.lang-menu { min-width: 160px !important; }
+.lang-menu { min-width: 90px !important; }
 .lang-option {
   display: flex; align-items: center; gap: 0.6rem;
 }

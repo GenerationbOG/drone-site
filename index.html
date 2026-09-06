@@ -16,15 +16,13 @@
     }
 
     .hero-video {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
       object-fit: cover;
       z-index: 0;
-      transform: scale(1.18);
-      transform-origin: center top;
-      will-change: transform;
     }
 
     .hero-video-overlay {
@@ -34,6 +32,14 @@
       background:
         linear-gradient(180deg, rgba(10,12,15,0.55) 0%, rgba(10,12,15,0.75) 55%, rgba(10,12,15,0.96) 100%),
         linear-gradient(90deg, rgba(10,12,15,0.85) 0%, rgba(10,12,15,0.35) 45%, rgba(10,12,15,0.55) 100%);
+    }
+
+    /* Overview section fades from transparent (revealing the fixed hero
+       video behind it) down to the site's normal solid background —
+       giving the video one extra block of "screen time" before it's
+       fully covered by regular opaque content underneath. */
+    #overview {
+      background: linear-gradient(180deg, transparent 0%, var(--bg) 75%) !important;
     }
 
     .hero-grid {
@@ -688,16 +694,16 @@ document.addEventListener('click', (e) => {
   document.querySelectorAll('.nav-dropdown.open').forEach(dd => { if (!dd.contains(e.target)) dd.classList.remove('open'); });
 });
 
-// ── Hero: video parallax + text reveal, both tied directly to scroll ──
-// Video shows immediately and drifts slightly (parallax) as you scroll.
-// Text rises up + fades in fast — fully visible within the first ~250px
-// of scroll regardless of screen size, each line lightly staggered.
+// ── Hero: text reveal + video fade-out as you scroll ──
+// The video is a calm, static full-screen background (position:fixed —
+// it doesn't move or zoom, so it never competes for attention). Text
+// rises up + fades in quickly. The video itself stays visible through
+// the hero AND fades gently through the "overview" section right below
+// it, then disappears for the rest of the page.
 const revealEls = Array.from(document.querySelectorAll('.hero-reveal'));
 const heroVideo = document.getElementById('heroVideo');
-const REVEAL_RANGE = 160;   // px of scroll over which each element's reveal completes
-const STAGGER = 28;         // px offset between each successive element
-const PARALLAX_SPEED = 0.25; // fraction of scroll the video shifts by
-const PARALLAX_MAX = 120;    // px cap so it never drifts too far
+const REVEAL_RANGE = 160;
+const STAGGER = 28;
 
 function updateHeroScroll() {
   const y = window.scrollY;
@@ -711,8 +717,12 @@ function updateHeroScroll() {
   });
 
   if (heroVideo) {
-    const shift = Math.min(y * PARALLAX_SPEED, PARALLAX_MAX);
-    heroVideo.style.transform = `scale(1.18) translateY(${shift}px)`;
+    const vh = window.innerHeight;
+    const fadeStart = vh * 0.85;   // still fully visible through the hero
+    const fadeEnd = vh * 1.9;      // faded out by partway through "overview"
+    const fadeProgress = Math.min(Math.max((y - fadeStart) / (fadeEnd - fadeStart), 0), 1);
+    heroVideo.style.opacity = 1 - fadeProgress;
+    heroVideo.style.display = fadeProgress >= 1 ? 'none' : '';
   }
 }
 updateHeroScroll();

@@ -9,7 +9,7 @@
     /* ── Hero ── */
     .hero {
       position: relative;
-      min-height: 92vh;
+      min-height: calc(100vh - 64px); /* exactly fills the screen below the sticky nav — nothing else peeks in until you actually scroll */
       display: flex;
       align-items: center;
       overflow: hidden;
@@ -325,7 +325,7 @@
     @media (max-width: 640px) {
       /* Nav */      
       /* Hero */
-      .hero { min-height: 85vh; }
+      .hero { min-height: calc(100vh - 64px); }
       .hero-crosshair { width: 200px; height: 200px; }
       .hero h1 { font-size: 2rem; }
       .hero-desc { font-size: 0.95rem; }

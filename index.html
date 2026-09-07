@@ -9,9 +9,10 @@
     /* ── Hero ── */
     .hero {
       position: relative;
-      min-height: calc(100vh - 64px); /* exactly fills the screen below the sticky nav — nothing else peeks in until you actually scroll */
+      min-height: calc(100vh - 64px);
       display: flex;
-      align-items: center;
+      align-items: flex-start; /* content starts near the top, right under the logo/nav, not vertically centered */
+      padding-top: 5rem;
       overflow: hidden;
     }
 

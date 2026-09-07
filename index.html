@@ -25,25 +25,31 @@
       z-index: 0;
     }
 
+    /* Single continuous darkening layer, also fixed to the viewport —
+       its opacity is set purely as a function of scroll position (JS),
+       so the video-to-solid fade is one smooth curve with no seam,
+       regardless of how tall the hero/overview sections happen to be. */
+    .hero-video-dim {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 1;
+      background: var(--bg);
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
     .hero-video-overlay {
       position: absolute;
       inset: 0;
       z-index: 1;
-      background:
-        linear-gradient(180deg, rgba(10,12,15,0.55) 0%, rgba(10,12,15,0.72) 55%, rgba(10,12,15,0.88) 100%),
-        linear-gradient(90deg, rgba(10,12,15,0.85) 0%, rgba(10,12,15,0.35) 45%, rgba(10,12,15,0.55) 100%);
-    }
-
-    /* Overview section continues the exact same darkness the hero ends
-       on (0.88) — no seam — dips a little lighter mid-section so the
-       fixed video still peeks through, then settles into the site's
-       normal solid background well before the section ends. */
-    #overview {
-      background: linear-gradient(180deg,
-        rgba(10,12,15,0.88) 0%,
-        rgba(10,12,15,0.5) 30%,
-        rgba(10,12,15,0.5) 45%,
-        var(--bg) 85%) !important;
+      /* Horizontal-only darkening (keeps hero text readable on the left).
+         Vertical fade-to-solid is now handled by the single fixed
+         .hero-video-dim layer below — driven by scroll in JS — so there
+         is no seam between independently-sized sections. */
+      background: linear-gradient(90deg, rgba(10,12,15,0.85) 0%, rgba(10,12,15,0.35) 45%, rgba(10,12,15,0.55) 100%);
     }
 
     .hero-grid {
@@ -453,6 +459,7 @@
   <video class="hero-video" id="heroVideo" autoplay muted loop playsinline preload="auto">
     <source src="assets/hero-video.mp4" type="video/mp4">
   </video>
+  <div class="hero-video-dim" id="heroVideoDim"></div>
   <div class="hero-video-overlay"></div>
   <div class="hero-grid"></div>
   <div class="hero-crosshair"></div>
@@ -698,14 +705,14 @@ document.addEventListener('click', (e) => {
   document.querySelectorAll('.nav-dropdown.open').forEach(dd => { if (!dd.contains(e.target)) dd.classList.remove('open'); });
 });
 
-// ── Hero: text reveal + video fade-out as you scroll ──
-// The video is a calm, static full-screen background (position:fixed —
-// it doesn't move or zoom, so it never competes for attention). Text
-// rises up + fades in quickly. The video itself stays visible through
-// the hero AND fades gently through the "overview" section right below
-// it, then disappears for the rest of the page.
+// ── Hero: text reveal + one continuous video-darkening curve ──
+// The video is a calm, static full-screen background (position:fixed,
+// no movement). A single fixed dim layer (also viewport-pinned) grows
+// darker as you scroll — one smooth curve, so there's no seam between
+// the hero and the section below it, regardless of their heights.
 const revealEls = Array.from(document.querySelectorAll('.hero-reveal'));
 const heroVideo = document.getElementById('heroVideo');
+const heroDim = document.getElementById('heroVideoDim');
 const REVEAL_RANGE = 160;
 const STAGGER = 28;
 
@@ -720,13 +727,14 @@ function updateHeroScroll() {
     el.style.transform = `translateY(${46 * (1 - progress)}px)`;
   });
 
-  if (heroVideo) {
+  if (heroDim && heroVideo) {
     const vh = window.innerHeight;
-    const fadeStart = vh * 0.85;   // still fully visible through the hero
-    const fadeEnd = vh * 1.9;      // faded out by partway through "overview"
-    const fadeProgress = Math.min(Math.max((y - fadeStart) / (fadeEnd - fadeStart), 0), 1);
-    heroVideo.style.opacity = 1 - fadeProgress;
-    heroVideo.style.display = fadeProgress >= 1 ? 'none' : '';
+    // 0 at the very top -> 1 by ~1.7 viewport-heights of scroll, eased.
+    const raw = Math.min(Math.max(y / (vh * 1.7), 0), 1);
+    const eased = raw * raw * (3 - 2 * raw); // smoothstep — no kinks anywhere
+    heroDim.style.opacity = 0.68 + eased * 0.32; // 0.68 → 1.0 (fully solid, matches --bg)
+    heroVideo.style.display = eased >= 1 ? 'none' : '';
+    heroDim.style.display = eased >= 1 ? 'none' : ''; // once solid, plain .section bg beneath is identical
   }
 }
 updateHeroScroll();

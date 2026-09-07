@@ -30,16 +30,20 @@
       inset: 0;
       z-index: 1;
       background:
-        linear-gradient(180deg, rgba(10,12,15,0.55) 0%, rgba(10,12,15,0.75) 55%, rgba(10,12,15,0.96) 100%),
+        linear-gradient(180deg, rgba(10,12,15,0.55) 0%, rgba(10,12,15,0.72) 55%, rgba(10,12,15,0.88) 100%),
         linear-gradient(90deg, rgba(10,12,15,0.85) 0%, rgba(10,12,15,0.35) 45%, rgba(10,12,15,0.55) 100%);
     }
 
-    /* Overview section fades from transparent (revealing the fixed hero
-       video behind it) down to the site's normal solid background —
-       giving the video one extra block of "screen time" before it's
-       fully covered by regular opaque content underneath. */
+    /* Overview section continues the exact same darkness the hero ends
+       on (0.88) — no seam — dips a little lighter mid-section so the
+       fixed video still peeks through, then settles into the site's
+       normal solid background well before the section ends. */
     #overview {
-      background: linear-gradient(180deg, transparent 0%, var(--bg) 75%) !important;
+      background: linear-gradient(180deg,
+        rgba(10,12,15,0.88) 0%,
+        rgba(10,12,15,0.5) 30%,
+        rgba(10,12,15,0.5) 45%,
+        var(--bg) 85%) !important;
     }
 
     .hero-grid {

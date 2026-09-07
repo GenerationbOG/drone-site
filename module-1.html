@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Модуль 1 · Введение в беспилотную авиацию — COREPLUS</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    :root {
+      --bg-main: #0A0C0F;
+      --bg-card: rgba(17, 20, 24, 0.75);
+      --bg-card-hover: rgba(22, 26, 32, 0.85);
+      --accent-cyan: #00A8FF;
+      --accent-cyan-dim: rgba(0, 168, 255, 0.15);
+      --accent-amber: #FFB400;
+      --accent-amber-dim: rgba(255, 180, 0, 0.15);
+      --accent-green: #00D68F;
+      --accent-purple: #9D5CFF;
+      --text-main: #E8ECF0;
+      --text-muted: #6B7580;
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-glow: rgba(0, 168, 255, 0.35);
+      --font-family: 'Onest', sans-serif;
+      --font-display: 'Sora', sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      font-family: var(--font-family);
+      line-height: 1.6;
+      overflow-x: hidden;
+      background-image:
+        radial-gradient(circle at 15% 15%, rgba(0, 168, 255, 0.05) 0%, transparent 40%),
+        radial-gradient(circle at 85% 65%, rgba(157, 92, 255, 0.05) 0%, transparent 40%),
+        linear-gradient(to bottom, rgba(10, 12, 15, 0.95), rgba(10, 12, 15, 0.98)),
+        repeating-linear-gradient(0deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 40px),
+        repeating-linear-gradient(90deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 40px);
+    }
+
+    h1, h2, h3, h4, .logo, .stat-num, .timeline-year, .calc-gauge-val,
+    .section-title, .tab-btn, .btn-action, .quiz-q-title { font-family: var(--font-display); }
+
+    /* ── Module breadcrumb bar ── */
+    .module-crumb {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.9rem 1.5rem;
+    }
+    .module-crumb-inner {
+      max-width: 1280px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+    }
+    .module-crumb a {
+      color: var(--text-muted); text-decoration: none; font-size: 0.85rem;
+      display: flex; align-items: center; gap: 0.4rem; transition: color 0.2s;
+    }
+    .module-crumb a:hover { color: var(--accent-cyan); }
+    .module-free-badge {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--accent-green); background: rgba(0,214,143,0.1);
+      border: 1px solid rgba(0,214,143,0.3); padding: 0.3rem 0.8rem; border-radius: 20px; font-weight: 600;
+    }
+
+    /* HERO SECTION */
+    .hero { max-width: 1280px; margin: 3rem auto 4rem auto; padding: 0 1.5rem; text-align: left; }
+
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: var(--accent-cyan-dim); border: 1px solid rgba(0, 168, 255, 0.3);
+      color: var(--accent-cyan); padding: 0.35rem 0.85rem; border-radius: 20px;
+      font-size: 0.8rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 1.5rem;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.2rem, 5vw, 3.8rem); font-weight: 700; line-height: 1.15; margin-bottom: 1.25rem;
+      background: linear-gradient(135deg, #ffffff 40%, var(--accent-cyan) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    .hero p { font-size: 1.15rem; color: var(--text-muted); max-width: 780px; margin-bottom: 2rem; line-height: 1.7; }
+
+    .hero-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem; margin-top: 2.5rem; }
+
+    .stat-card {
+      background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px;
+      padding: 1.25rem; backdrop-filter: blur(8px); transition: transform 0.2s, border-color 0.2s;
+    }
+    .stat-card:hover { transform: translateY(-3px); border-color: var(--border-glow); }
+
+    .stat-num { font-size: 2rem; font-weight: 700; color: var(--accent-cyan); display: block; margin-bottom: 0.25rem; }
+    .stat-label { font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; }
+
+    /* SECTION LAYOUT */
+    section { max-width: 1280px; margin: 5rem auto; padding: 0 1.5rem; }
+    .section-header { margin-bottom: 2.5rem; }
+    .section-subtitle {
+      color: var(--accent-cyan); font-size: 0.85rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; display: block; margin-bottom: 0.5rem;
+    }
+    .section-title { font-size: 2rem; font-weight: 700; color: #fff; }
+
+    /* TIMELINE */
+    .timeline { position: relative; padding-left: 2rem; border-left: 2px solid rgba(0, 168, 255, 0.25); margin-left: 1rem; }
+    .timeline-item { position: relative; margin-bottom: 2.5rem; }
+    .timeline-item:last-child { margin-bottom: 0; }
+    .timeline-dot {
+      position: absolute; left: -2.6rem; top: 0.35rem; width: 1.1rem; height: 1.1rem; border-radius: 50%;
+      background: var(--bg-main); border: 2px solid var(--accent-cyan); box-shadow: 0 0 10px var(--accent-cyan);
+    }
+    .timeline-year {
+      font-size: 0.85rem; font-weight: 700; color: var(--accent-cyan); background: var(--accent-cyan-dim);
+      display: inline-block; padding: 0.2rem 0.6rem; border-radius: 4px; margin-bottom: 0.5rem;
+    }
+    .timeline-content { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.25rem 1.5rem; backdrop-filter: blur(8px); }
+    .timeline-content h3 { font-size: 1.2rem; color: #fff; margin-bottom: 0.5rem; }
+    .timeline-content p { color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; }
+
+    /* GRID CARDS (TECH STACK) */
+    .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+    .tech-card {
+      background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.75rem;
+      backdrop-filter: blur(8px); position: relative; overflow: hidden; transition: all 0.3s;
+    }
+    .tech-card::before {
+      content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px;
+      background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent); opacity: 0; transition: opacity 0.3s;
+    }
+    .tech-card:hover { transform: translateY(-4px); border-color: rgba(0, 168, 255, 0.3); box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+    .tech-card:hover::before { opacity: 1; }
+    .card-icon {
+      width: 48px; height: 48px; background: var(--accent-cyan-dim); border-radius: 8px;
+      display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem; color: var(--accent-cyan); font-size: 1.5rem;
+    }
+    .tech-card h3 { font-size: 1.25rem; margin-bottom: 0.75rem; color: #fff; }
+    .tech-card p { color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; }
+    .tech-badge {
+      display: inline-block; margin-top: 1rem; font-size: 0.75rem; color: var(--accent-amber);
+      background: var(--accent-amber-dim); padding: 0.2rem 0.6rem; border-radius: 4px; font-weight: 600;
+    }
+
+    /* PLATFORMS TABS */
+    .tabs-nav { display: flex; gap: 0.75rem; margin-bottom: 2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; overflow-x: auto; }
+    .tab-btn {
+      background: transparent; border: 1px solid transparent; color: var(--text-muted); padding: 0.65rem 1.25rem;
+      border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.2s; white-space: nowrap;
+    }
+    .tab-btn:hover { color: #fff; background: rgba(255, 255, 255, 0.05); }
+    .tab-btn.active { color: var(--accent-cyan); background: var(--accent-cyan-dim); border-color: rgba(0, 168, 255, 0.3); }
+    .tab-pane { display: none; animation: fadeIn 0.3s ease; }
+    .tab-pane.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+    .platform-detail-grid {
+      display: grid; grid-template-columns: 1.2fr 1fr; gap: 2rem; background: var(--bg-card);
+      border: 1px solid var(--border-color); border-radius: 14px; padding: 2rem;
+    }
+    @media (max-width: 860px) { .platform-detail-grid { grid-template-columns: 1fr; } }
+    .platform-info h3 { font-size: 1.5rem; color: #fff; margin-bottom: 1rem; }
+    .platform-info p { color: var(--text-muted); margin-bottom: 1.25rem; font-size: 0.95rem; }
+    .platform-specs-list { list-style: none; margin-top: 1.5rem; }
+    .platform-specs-list li { display: flex; justify-content: space-between; padding: 0.6rem 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-size: 0.9rem; }
+    .platform-specs-list li span:first-child { color: var(--text-muted); }
+    .platform-specs-list li span:last-child { color: var(--accent-cyan); font-weight: 600; }
+
+    /* TABLE */
+    .table-container { overflow-x: auto; margin-top: 2rem; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 0.5rem; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
+    th { background: rgba(255, 255, 255, 0.03); color: var(--accent-cyan); font-weight: 700; padding: 1rem; border-bottom: 1px solid var(--border-color); white-space: nowrap; }
+    td { padding: 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.04); color: var(--text-muted); }
+    tr:hover td { background: rgba(255, 255, 255, 0.02); color: #fff; }
+
+    /* AERODYNAMICS & CALCULATOR */
+    .interactive-box {
+      background: linear-gradient(135deg, rgba(17, 20, 24, 0.9), rgba(12, 14, 18, 0.95));
+      border: 1px solid rgba(0, 168, 255, 0.25); border-radius: 16px; padding: 2.5rem; box-shadow: 0 0 30px rgba(0, 168, 255, 0.08);
+    }
+    .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; margin-top: 1.5rem; }
+    @media (max-width: 800px) { .calc-grid { grid-template-columns: 1fr; } }
+    .calc-input-group { margin-bottom: 1.25rem; }
+    .calc-input-group label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.4rem; }
+    .calc-input-group input, .calc-input-group select {
+      width: 100%; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-color); color: #fff;
+      padding: 0.75rem 1rem; border-radius: 8px; font-size: 1rem; outline: none; transition: border-color 0.2s; font-family: var(--font-family);
+    }
+    .calc-input-group input:focus, .calc-input-group select:focus { border-color: var(--accent-cyan); }
+    .calc-result-box {
+      background: rgba(0, 0, 0, 0.4); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.75rem;
+      display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
+    }
+    .calc-gauge-val { font-size: 3rem; font-weight: 700; color: var(--accent-cyan); margin: 0.5rem 0; }
+    .calc-badge-status { display: inline-block; padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.85rem; font-weight: 700; letter-spacing: 0.05em; }
+    .status-optimal { background: rgba(0, 214, 143, 0.15); color: var(--accent-green); border: 1px solid var(--accent-green); }
+    .status-warning { background: rgba(255, 180, 0, 0.15); color: var(--accent-amber); border: 1px solid var(--accent-amber); }
+    .status-danger { background: rgba(255, 68, 85, 0.15); color: #FF4455; border: 1px solid #FF4455; }
+    .status-sport { background: rgba(157, 92, 255, 0.15); color: var(--accent-purple); border: 1px solid var(--accent-purple); }
+
+    /* FORMULA DISPLAY */
+    .formula-card {
+      background: rgba(0, 168, 255, 0.03); border-left: 4px solid var(--accent-cyan); padding: 1.5rem;
+      border-radius: 0 10px 10px 0; margin: 1.5rem 0; font-family: 'Times New Roman', serif;
+    }
+    .formula-card .math { font-size: 1.5rem; font-weight: bold; color: var(--accent-cyan); font-style: italic; display: block; margin-bottom: 0.75rem; }
+    .formula-desc { font-family: var(--font-family); font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; }
+
+    /* REGULATIONS & MTOW */
+    .mtow-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem; }
+    .mtow-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; position: relative; }
+    .mtow-badge {
+      position: absolute; top: 1.25rem; right: 1.25rem; font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.5rem;
+      border-radius: 4px; background: rgba(255, 255, 255, 0.05); color: var(--text-muted);
+    }
+    .mtow-card h4 { font-size: 1.15rem; color: #fff; margin-bottom: 0.5rem; font-family: var(--font-display); }
+    .mtow-card p { font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; }
+
+    /* INDUSTRY CARDS */
+    .industry-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; }
+    .ind-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.75rem; transition: all 0.25s; }
+    .ind-card:hover { border-color: rgba(0, 168, 255, 0.3); transform: translateY(-3px); }
+    .ind-card h4 { font-size: 1.15rem; color: #fff; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; font-family: var(--font-display); }
+    .ind-card p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; }
+
+    /* QUIZ SECTION */
+    .quiz-container { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 14px; padding: 2rem; max-width: 800px; margin: 0 auto; }
+    .quiz-q { margin-bottom: 1.75rem; padding-bottom: 1.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+    .quiz-q:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    .quiz-q-title { font-size: 1rem; color: #fff; margin-bottom: 0.75rem; font-weight: 600; }
+    .quiz-options { display: flex; flex-direction: column; gap: 0.5rem; }
+    .quiz-opt {
+      background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); padding: 0.75rem 1rem; border-radius: 8px;
+      color: var(--text-muted); font-size: 0.9rem; cursor: pointer; text-align: left; transition: all 0.2s; font-family: var(--font-family);
+    }
+    .quiz-opt:hover { background: rgba(255, 255, 255, 0.07); color: #fff; }
+    .quiz-opt.correct { background: rgba(0, 214, 143, 0.2) !important; border-color: var(--accent-green) !important; color: #fff !important; }
+    .quiz-opt.incorrect { background: rgba(255, 68, 85, 0.2) !important; border-color: #FF4455 !important; color: #fff !important; }
+
+    /* Module completion CTA */
+    .module-complete-cta {
+      max-width: 1280px; margin: 0 auto 5rem; padding: 0 1.5rem;
+    }
+    .module-complete-inner {
+      background: var(--purple-dim, rgba(157,92,255,0.1)); border: 1px solid rgba(157,92,255,0.3);
+      border-radius: 16px; padding: 2.5rem; display: flex; align-items: center; justify-content: space-between; gap: 2rem; flex-wrap: wrap;
+    }
+    .module-complete-inner h3 { font-family: var(--font-display); font-size: 1.4rem; color: #fff; margin-bottom: 0.5rem; }
+    .module-complete-inner p { color: var(--text-muted); font-size: 0.9rem; max-width: 480px; }
+
+    .burger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; background: none; border: none; }
+    @media (max-width: 640px) { .nav-links { display: none; } .burger { display: flex; } }
+  </style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <img src="assets/logo.jpeg" alt="COREPLUS" style="width:26px;height:26px;object-fit:cover;mix-blend-mode:lighten;">
+      COREPLUS
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Обзор</a></li>
+      <li><a href="events.html">Ивенты</a></li>
+      <li><a href="expertise.html">Экспертиза</a></li>
+      <li><a href="news.html">Новости</a></li>
+      <li class="nav-dropdown">
+        <button class="nav-dropdown-toggle">Обучение <span class="chev">▾</span></button>
+        <div class="nav-dropdown-menu">
+        <a href="courses.html" class="active">Курсы</a>
+        <a href="cases.html">Кейсы</a>
+        <a href="stats.html">Статистика</a>
+        <a href="simulator.html">Симулятор</a>
+        <a href="builder.html">Сборка</a>
+        <a href="delivery.html">Доставка</a>
+        </div>
+      </li>
+      <li class="nav-dropdown">
+        <button class="nav-dropdown-toggle">Сервисы <span class="chev">▾</span></button>
+        <div class="nav-dropdown-menu">
+        <a href="permit.html">Разрешение на полёт</a>
+        <a href="waybill.html">Электронная накладная</a>
+        <a href="print-schemes.html">Схемы для 3D-принтера</a>
+        <a href="guides.html">Гайды по сборке и разборке</a>
+        <a href="job-hunter.html">Job Hunter</a>
+        <a href="flight-map.html">Карта полётов</a>
+        <a href="leasing.html">Лизинг</a>
+        <a href="regulations.html">Регуляторика</a>
+        <a href="pilot-license.html">Права на управление</a>
+        </div>
+      </li>
+      <li class="nav-dropdown lang-dropdown">
+        <button class="nav-dropdown-toggle"><span class="lang-toggle-code">RU</span> <span class="chev">▾</span></button>
+        <div class="nav-dropdown-menu lang-menu">
+        <a href="#" class="lang-option" data-lang="ru"><span class="lang-code">RU</span></a>
+        <a href="#" class="lang-option" data-lang="en"><span class="lang-code">EN</span></a>
+        <a href="#" class="lang-option" data-lang="fr"><span class="lang-code">FR</span></a>
+        </div>
+      </li>
+    </ul>
+    <button class="burger" id="burger" aria-label="Меню"><span></span><span></span><span></span></button>
+  </div>
+</header>
+<nav class="mobile-menu" id="mobileMenu">
+  <a href="index.html">Обзор</a>
+  <a href="events.html">Ивенты</a>
+  <a href="expertise.html">Экспертиза</a>
+  <a href="news.html">Новости</a>
+  <div class="mobile-menu-section-label">Обучение</div>
+  <a href="courses.html" class="active">Курсы</a>
+  <a href="cases.html">Кейсы</a>
+  <a href="stats.html">Статистика</a>
+  <a href="simulator.html">Симулятор</a>
+  <a href="builder.html">Сборка</a>
+  <a href="delivery.html">Доставка</a>
+  <div class="mobile-menu-section-label">Сервисы</div>
+  <a href="permit.html">Разрешение на полёт</a>
+  <a href="waybill.html">Электронная накладная</a>
+  <a href="print-schemes.html">Схемы для 3D-принтера</a>
+  <a href="guides.html">Гайды по сборке и разборке</a>
+  <a href="job-hunter.html">Job Hunter</a>
+  <a href="flight-map.html">Карта полётов</a>
+  <a href="leasing.html">Лизинг</a>
+  <a href="regulations.html">Регуляторика</a>
+  <a href="pilot-license.html">Права на управление</a>
+  <div class="mobile-lang-switch">
+    <button data-lang="ru">RU</button>
+    <button data-lang="en">EN</button>
+    <button data-lang="fr">FR</button>
+  </div>
+</nav>
+
+<div class="module-crumb">
+  <div class="module-crumb-inner">
+    <a href="courses.html">← Назад к курсу «Оператор БПЛА: от нуля до сертификации»</a>
+    <span class="module-free-badge">🔓 Модуль 1 · Бесплатный доступ</span>
+  </div>
+</div>
+
+<!-- HERO SECTION (#overview) -->
+<section id="overview" class="hero">
+  <div class="hero-tag">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
+    Модуль 1 • Базовый минимум для будущего оператора
+  </div>
+  <h1>Введение в беспилотную авиацию</h1>
+  <p>
+    От механических «летающих торпед» 1918 года до автономных дронопортов, машинного зрения и роевых вычислений.
+    Полный инженерно-практический справочник для будущих внешних пилотов, инженеров и операторов БАС.
+  </p>
+
+  <div class="hero-stats">
+    <div class="stat-card">
+      <span class="stat-num">1918</span>
+      <span class="stat-label">Год запуска первого прототипа БпЛА Чарльза Кеттеринга</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-num">≥ 2.0</span>
+      <span class="stat-label">Оптимальная тяговооруженность (T/W) надежного мультиротора</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-num">1–2 см</span>
+      <span class="stat-label">Точность геодезической привязки с технологией RTK/PPK</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-num">150 м</span>
+      <span class="stat-label">Верхняя граница цифрового воздушного пространства класса «H»</span>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 1: TIMELINE -->
+<section id="timeline">
+  <div class="section-header">
+    <span class="section-subtitle">Хроника прогресса</span>
+    <h2 class="section-title">Исторический генезис и ключевые этапы</h2>
+  </div>
+
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <span class="timeline-year">1910–1930-е</span>
+      <div class="timeline-content">
+        <h3>Ранние телемеханические аппараты и зарождение термина «Дрон»</h3>
+        <p>
+          Первым концептуальным прообразом стала автоматическая <strong>«летающая торпеда» Чарльза Кеттеринга (1918 г.)</strong> — биплан с пневматическим гироскопом и механическим счетчиком оборотов винта, отсчитывавшим дистанцию до сброса крыльев над позицией цели.
+          В 1930-х гг. в Великобритании Арчибальд Лоу и de Havilland создали многоразовый радиоуправляемый аппарат-мишень <strong>DH.82B Queen Bee</strong> («Королевская пчела»), навсегда закрепивший в обиходе термин <em>drone</em> («трутень»).
+        </p>
+      </div>
+    </div>
+
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <span class="timeline-year">1940–1980-е</span>
+      <div class="timeline-content">
+        <h3>Аналоговая телеметрия, реактивная тяга и фоторазведка</h3>
+        <p>
+          Эпоха Второй мировой и холодной войн: от массовых серийных мишеней Radioplane Реджинальда Денни до сверхзвуковых тяжелых реактивных разведчиков
+          (<strong>Ту-141 «Стриж»</strong>, <strong>Ту-143 «Рейс»</strong>, Ryan Firebee).
+          Полеты выполнялись по жестко заданной автономной программе счисления или радиоканалу прямой видимости с парашютной посадкой.
+        </p>
+      </div>
+    </div>
+
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <span class="timeline-year">1990–2000-е</span>
+      <div class="timeline-content">
+        <h3>Информационно-цифровая конвергенция и спутниковая навигация</h3>
+        <p>
+          Глобальное развертывание группировок <strong>GPS</strong> и <strong>ГЛОНАСС</strong> в сочетании с компактными бортовыми компьютерами открыло эру автоматического полета по координатным путевым точкам (waypoints) с замкнутым контуром навигации без непрерывного ручного радиоуправления (MQ-1 Predator, IAI Searcher).
+        </p>
+      </div>
+    </div>
+
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <span class="timeline-year">2010-е — Настоящее время</span>
+      <div class="timeline-content">
+        <h3>Потребительская революция и переход в промышленный стандарт</h3>
+        <p>
+          Конвергенция кремниевой микроэлектроники, высокотоковых аккумуляторов и бесколлекторных двигателей превратила беспилотники из секретной военной технологии в общедоступный коммерческий и промышленный инструмент.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 2: TECH STACK -->
+<section id="tech-stack">
+  <div class="section-header">
+    <span class="section-subtitle">Инженерная база</span>
+    <h2 class="section-title">4 технологических столпа современной БАС</h2>
+  </div>
+
+  <div class="cards-grid">
+    <div class="tech-card">
+      <div class="card-icon">🧭</div>
+      <h3>MEMS-датчики</h3>
+      <p>Твердотельные кремниевые гироскопы и акселерометры микроэлектромеханических систем заменили громоздкие гироплатформы. Чипы размером в несколько миллиметров регистрируют угловые скорости и ускорения по трем осям.</p>
+      <span class="tech-badge">Микроразмер • Нулевой люфт</span>
+    </div>
+
+    <div class="tech-card">
+      <div class="card-icon">⚡</div>
+      <h3>ARM Cortex & PID</h3>
+      <p>Микроконтроллеры (семейства STM32, 100–480 МГц) обрабатывают фильтры Калмана и контуры обратной связи PID (пропорционально-интегрально-дифференцирующие) с частотой обновления от 1000 до 8000 Гц.</p>
+      <span class="tech-badge">Расчет за микросекунды</span>
+    </div>
+
+    <div class="tech-card">
+      <div class="card-icon">🔋</div>
+      <h3>LiPo & Li-ion элементы</h3>
+      <p>Плотность энергии 150–250 Вт·ч/кг при токах разряда до 100–200С (сотни ампер) дала коптерам колоссальную удельную мощность, недостижимую для свинцовых или никелевых аккумуляторов прошлого.</p>
+      <span class="tech-badge">150–250 Вт·ч/кг</span>
+    </div>
+
+    <div class="tech-card">
+      <div class="card-icon">🌀</div>
+      <h3>BLDC-электротяга</h3>
+      <p>Синхронные бесколлекторные двигатели с постоянными неодимовыми магнитами (NdFeB). Отсутствие щеточного узла обеспечивает КПД 85–90%, ресурс в тысячи часов и тягу 8–12 грамм на ватт мощности.</p>
+      <span class="tech-badge">КПД 85–90% • Без трения</span>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 3: FUTURE & AUTONOMY -->
+<section id="frontier">
+  <div class="section-header">
+    <span class="section-subtitle">Индустрия 4.0</span>
+    <h2 class="section-title">Автономия, Дронопорты и Цифровое Небо</h2>
+  </div>
+
+  <div class="cards-grid">
+    <div class="tech-card">
+      <div class="card-icon">🛰️</div>
+      <h3>Автономные дронопорты (Dock)</h3>
+      <p>Базовые станции полного цикла (DJI Dock, Hive): автоматическое открытие купола, термостатирование аккумуляторов, посадка по визуальным кодам ArUco, экспресс-зарядка за 25–40 минут и прямая отправка сырых данных в облако без участия человека на площадке.</p>
+    </div>
+
+    <div class="tech-card">
+      <div class="card-icon">👁️</div>
+      <h3>Бортовой ИИ & SLAM</h3>
+      <p>Бортовые суперкомпьютеры (Nvidia Jetson) анализируют стереопары и лидары на лету. Алгоритмы SLAM строят 3D-карту окружения, позволяя дрону на скорости облетать ветви, провода и конструкции даже при полной потере спутников GPS/ГЛОНАСС.</p>
+    </div>
+
+    <div class="tech-card">
+      <div class="card-icon">📡</div>
+      <h3>Единое небо: UTM и Remote ID</h3>
+      <p>Цифровое эшелонирование в классе пространства «H» (до 150 м). С 1 марта 2025 года в РФ внедряется требование обязательной прямой радиопередачи идентификатора (Remote ID) для предотвращения инцидентов и безопасной интеграции с пилотируемой авиацией.</p>
+    </div>
+
+    <div class="tech-card">
+      <div class="card-icon">🚁</div>
+      <h3>Гибридные силовые установки</h3>
+      <p>Связка легких ДВС-генераторов или водородных топливных элементов с буферными LiPo-батареями увеличивает автономность полета с привычных 30–40 минут до рекордных 4–10 часов для трансконтинентального мониторинга.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 4: PLATFORMS -->
+<section id="platforms">
+  <div class="section-header">
+    <span class="section-subtitle">Аэродинамические схемы</span>
+    <h2 class="section-title">Классификация БпЛА по типу конструкции</h2>
+  </div>
+
+  <div class="tabs-nav">
+    <button class="tab-btn active" onclick="openTab('multirotor', this)">Мультироторные системы</button>
+    <button class="tab-btn" onclick="openTab('fixedwing', this)">Самолетные комплексы (Fixed-Wing)</button>
+    <button class="tab-btn" onclick="openTab('vtol', this)">Гибридные конвертопланы (VTOL)</button>
+  </div>
+
+  <div id="multirotor" class="tab-pane active">
+    <div class="platform-detail-grid">
+      <div class="platform-info">
+        <h3>Мультироторные платформы (Multi-Rotor)</h3>
+        <p><strong>Принцип:</strong> Вся подъемная сила создается вертикально ориентированными воздушными винтами. Изменение пространственного положения (крен, тангаж, рыскание) достигается за счет дифференциального изменения оборотов моторов.</p>
+        <p><strong>Компоновки:</strong></p>
+        <ul style="padding-left: 1.25rem; color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
+          <li><strong>Квадрокоптеры (4 мотора):</strong> Максимально энергоэффективная масса, но нулевая избыточность — отказ одного мотора ведет к падению.</li>
+          <li><strong>Гекса- и октокоптеры (6 / 8 моторов):</strong> Аппаратная избыточность. При выходе из строя одного двигателя полетный контроллер мгновенно пересчитывает микширование тяги, сохраняя управляемость.</li>
+          <li><strong>Соосные схемы (Y6, X8):</strong> Парные моторы навстречу друг другу. Компактность и стойкость к штормовому ветру при потере 5–10% КПД на нижних пропеллерах.</li>
+        </ul>
+      </div>
+      <div>
+        <ul class="platform-specs-list">
+          <li><span>Режим взлета/посадки</span> <span>Вертикальный (VTOL)</span></li>
+          <li><span>Зависание над точкой</span> <span>Идеальное (0 км/ч)</span></li>
+          <li><span>Аэродинамическое качество (L/D)</span> <span>1.0 – 2.5</span></li>
+          <li><span>Удельный расход энергии</span> <span>40 – 90 Вт·ч/км</span></li>
+          <li><span>Крейсерская скорость</span> <span>10 – 18 м/с</span></li>
+          <li><span>Автономность</span> <span>25 – 45 минут</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div id="fixedwing" class="tab-pane">
+    <div class="platform-detail-grid">
+      <div class="platform-info">
+        <h3>Самолетные комплексы (Fixed-Wing)</h3>
+        <p><strong>Принцип:</strong> Подъемная сила формируется набегающим потоком воздуха на аэродинамический профиль несущего крыла. Моторы расходуют энергию только на преодоление лобового сопротивления воздуха (тяги вперед).</p>
+        <p><strong>Компоновки:</strong></p>
+        <ul style="padding-left: 1.25rem; color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
+          <li><strong>Классическая схема:</strong> Фюзеляж, крыло и хвостовое оперение (киль + стабилизатор). Высокая продольная устойчивость и предсказуемость.</li>
+          <li><strong>«Летающее крыло» (Flying Wing):</strong> Редуцированный фюзеляж, аппаратура внутри профиля. Минимальное сопротивление и феноменальная живучесть, но чувствительность к центровке и сваливанию.</li>
+          <li><strong>Инфраструктура:</strong> Требует старта с катапульты, резинового леера или шасси. Посадка: на полосу, парашют или посадочную лыжу («на брюхо»).</li>
+        </ul>
+      </div>
+      <div>
+        <ul class="platform-specs-list">
+          <li><span>Режим взлета/посадки</span> <span>ВПП / Катапульта / Парашют</span></li>
+          <li><span>Зависание над точкой</span> <span>Невозможно (риск сваливания)</span></li>
+          <li><span>Аэродинамическое качество (L/D)</span> <span>10.0 – 18.0 (Высокое)</span></li>
+          <li><span>Удельный расход энергии</span> <span>8 – 20 Вт·ч/км (В 4 раза экономичнее!)</span></li>
+          <li><span>Крейсерская скорость</span> <span>18 – 35 м/с (65–125 км/ч)</span></li>
+          <li><span>Автономность</span> <span>1.5 – 8.0 часов</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div id="vtol" class="tab-pane">
+    <div class="platform-detail-grid">
+      <div class="platform-info">
+        <h3>Гибридные платформы и Конвертопланы (VTOL)</h3>
+        <p><strong>Принцип:</strong> Объединяют преимущества двух миров — вертикальный старт с неподготовленного пятачка и дальний полет на несущем крыле.</p>
+        <p><strong>Инженерные реализации:</strong></p>
+        <ul style="padding-left: 1.25rem; color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
+          <li><strong>Lift & Cruise (QuadPlane):</strong> Отдельные вертикальные лучи с 4 моторами для взлета и горизонтальный толкающий винт. Просто, но несет «мертвый вес» отключенных моторов в крейсерском полете.</li>
+          <li><strong>Поворотные винты (Tiltrotor / Tiltwing):</strong> Сервоприводы поворачивают силовые установки на 90° при разгоне. Высокая эффективность без балластной массы.</li>
+          <li><strong>Тейлситтеры (Tailsitter):</strong> Старт «на хвосте» вертикально с последующим наклоном всего фюзеляжа на 90 градусов в горизонт.</li>
+        </ul>
+      </div>
+      <div>
+        <ul class="platform-specs-list">
+          <li><span>Режим взлета/посадки</span> <span>Вертикальный (без ВПП)</span></li>
+          <li><span>Поведение в транзитной фазе</span> <span>Сложная аэродинамика перехода</span></li>
+          <li><span>Аэродинамическое качество (L/D)</span> <span>7.0 – 13.0</span></li>
+          <li><span>Удельный расход энергии</span> <span>18 – 45 Вт·ч/км</span></li>
+          <li><span>Крейсерская скорость</span> <span>20 – 30 м/с</span></li>
+          <li><span>Автономность</span> <span>1.0 – 3.5 часа</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Тип платформы</th>
+          <th>Ключевые преимущества</th>
+          <th>Эксплуатационные ограничения</th>
+          <th>Качество (L/D)</th>
+          <th>Расход (Вт·ч/км)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong style="color:#fff;">Мультироторы</strong></td>
+          <td>Взлет/посадка VTOL, зависание, ювелирная маневренность</td>
+          <td>Малая скорость (10–18 м/с), постоянный расход на вес, до 45 мин</td>
+          <td><span style="color:var(--accent-amber);">1.0 – 2.5</span></td>
+          <td>40 – 90</td>
+        </tr>
+        <tr>
+          <td><strong style="color:#fff;">Самолеты (Fixed-Wing)</strong></td>
+          <td>Огромная дальность (до 8 ч), скорость 18–35 м/с, большая площадь</td>
+          <td>Не могут зависать, сваливание (V<sub>stall</sub>), нужна катапульта/ВПП</td>
+          <td><span style="color:var(--accent-green); font-weight:700;">10.0 – 18.0</span></td>
+          <td>8 – 20 (Эко)</td>
+        </tr>
+        <tr>
+          <td><strong style="color:#fff;">Гибриды (VTOL)</strong></td>
+          <td>Старт без катапульты + дальность и скорость крыла</td>
+          <td>Балластный вес моторов в горизонте, сложная механика поворота</td>
+          <td><span style="color:var(--accent-cyan);">7.0 – 13.0</span></td>
+          <td>18 – 45</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- SECTION 5: AERODYNAMICS & CALCULATOR -->
+<section id="aerodynamics">
+  <div class="section-header">
+    <span class="section-subtitle">Физика и кинематика</span>
+    <h2 class="section-title">Аэродинамический расчет и тяговооруженность</h2>
+  </div>
+
+  <div class="formula-card">
+    <div class="math">Y = C<sub>y</sub> · (ρ · V² / 2) · S</div>
+    <div class="formula-desc">
+      <strong>Формула подъемной силы крыла:</strong>
+      где <em>C<sub>y</sub></em> — коэффициент подъемной силы (зависит от угла атаки α и формы профиля),
+      <em>ρ</em> — плотность воздуха (≈ 1.225 кг/м³ на уровне моря),
+      <em>V</em> — истинная воздушная скорость (подъемная сила растет <strong>пропорционально квадрату скорости!</strong>),
+      <em>S</em> — площадь несущей поверхности крыла.
+    </div>
+  </div>
+
+  <div id="calculator" class="interactive-box">
+    <h3 style="color:#fff; font-size:1.4rem; margin-bottom:0.5rem;">Лаборатория оператора: Калькулятор тяговооруженности (T/W)</h3>
+    <p style="color:var(--text-muted); font-size:0.9rem;">Рассчитайте отношение суммарной статической тяги двигателей к взлетному весу дрона. Тяговооруженность определяет устойчивость к порывам ветра и безопасность полета.</p>
+
+    <div class="calc-grid">
+      <div>
+        <div class="calc-input-group">
+          <label>Полетный вес аппарата (MTOW в граммах):</label>
+          <input type="number" id="droneWeight" value="1200" step="50" oninput="calculateTW()">
+        </div>
+        <div class="calc-input-group">
+          <label>Количество моторов:</label>
+          <select id="motorCount" onchange="calculateTW()">
+            <option value="4" selected>4 (Квадрокоптер)</option>
+            <option value="6">6 (Гексакоптер)</option>
+            <option value="8">8 (Октокоптер)</option>
+          </select>
+        </div>
+        <div class="calc-input-group">
+          <label>Максимальная статическая тяга одного мотора (грамм):</label>
+          <input type="number" id="singleThrust" value="650" step="25" oninput="calculateTW()">
+        </div>
+      </div>
+
+      <div class="calc-result-box">
+        <span style="color:var(--text-muted); font-size:0.85rem; text-transform:uppercase; letter-spacing:0.05em;">Тяговооруженность (T / W)</span>
+        <div id="twResult" class="calc-gauge-val">2.17</div>
+        <div id="twStatus" class="calc-badge-status status-optimal">ОПТИМАЛЬНО ДЛЯ РАБОТЫ</div>
+        <p id="twExplain" style="color:var(--text-muted); font-size:0.85rem; margin-top:0.75rem; max-width:320px;">Идеальный баланс: аппарат отлично справляется с порывистым ветром до 12–15 м/с и стабильно удерживает точку висения.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 6: CLASSIFICATION & REGULATIONS -->
+<section id="classification">
+  <div class="section-header">
+    <span class="section-subtitle">Нормативно-правовая база</span>
+    <h2 class="section-title">Классификация по взлетной массе (MTOW) и дальности</h2>
+  </div>
+
+  <div class="mtow-grid">
+    <div class="mtow-card">
+      <span class="mtow-badge">До 250 г</span>
+      <h4>Микро-БАС (Micro)</h4>
+      <p>Кинетическая энергия падения менее 69 Дж (безопасны для наземного персонала). <strong>Внимание к закону РФ:</strong> порог обязательного государственного учета составляет <strong>150 грамм</strong>. Аппараты менее 150 г учету не подлежат.</p>
+    </div>
+
+    <div class="mtow-card" style="border-color: rgba(0, 168, 255, 0.3);">
+      <span class="mtow-badge" style="color:var(--accent-cyan);">250 г – 30 кг</span>
+      <h4>Малые БАС (Small Commercial)</h4>
+      <p>Основной рабочий инструмент индустрии (DJI Mavic/Matrice, Geoscan, Supercam). Обязателен учет в Росавиации. С 1 марта 2025 г. обязательно оснащение <strong>Remote ID</strong>. Полеты до 150 м вне аэродромов разрешены в спец-классе «H».</p>
+    </div>
+
+    <div class="mtow-card">
+      <span class="mtow-badge">30 кг – 500 кг</span>
+      <h4>Средние БАС (Heavy Commercial)</h4>
+      <p>Тяжелые агродроны (DJI Agras T40/T50, XAG) и грузовая логистика. Требуется официальная государственная регистрация как ВС, сертификат летной годности и <strong>свидетельство внешнего пилота</strong>.</p>
+    </div>
+
+    <div class="mtow-card">
+      <span class="mtow-badge">Более 500 кг</span>
+      <h4>Тяжелые комплексы</h4>
+      <p>Беспилотные суда аэродромного базирования для дальних магистральных линий. Полеты выполняются строго по эшелонам и правилам пилотируемой гражданской авиации.</p>
+    </div>
+  </div>
+
+  <div style="margin-top: 2.5rem; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.75rem;">
+    <h3 style="color:#fff; font-size:1.2rem; margin-bottom:1rem; font-family: var(--font-display);">Радиус действия и радиоканалы управления:</h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem;">
+      <div>
+        <strong style="color:var(--accent-cyan); display:block; margin-bottom:0.25rem;">VLOS (Прямая видимость)</strong>
+        <p style="color:var(--text-muted); font-size:0.85rem;">До 500–1000 м. Пилот контролирует курс и пространственную ориентацию невооруженным глазом.</p>
+      </div>
+      <div>
+        <strong style="color:var(--accent-cyan); display:block; margin-bottom:0.25rem;">Малая дальность (RLOS)</strong>
+        <p style="color:var(--text-muted); font-size:0.85rem;">До 15–25 км. Прямой радиоканал на частотах 868/915 МГц и 2.4/5.8 ГГц с направленными антенными трекерами.</p>
+      </div>
+      <div>
+        <strong style="color:var(--accent-cyan); display:block; margin-bottom:0.25rem;">BVLOS / Сотовая связь</strong>
+        <p style="color:var(--text-muted); font-size:0.85rem;">До 50–100 км. Полет вне зоны видимости через сеть 4G LTE/5G или промежуточные ретрансляторы на крыле.</p>
+      </div>
+      <div>
+        <strong style="color:var(--accent-cyan); display:block; margin-bottom:0.25rem;">SATCOM (Спутниковый канал)</strong>
+        <p style="color:var(--text-muted); font-size:0.85rem;">Более 100 км. Глобальное стратегическое управление без ограничений рельефа местности в любой точке планеты.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 7: INDUSTRIES -->
+<section id="industries">
+  <div class="section-header">
+    <span class="section-subtitle">Рынок труда и практика</span>
+    <h2 class="section-title">Где востребован сертифицированный оператор</h2>
+  </div>
+
+  <div class="industry-grid">
+    <div class="ind-card"><h4>🌲 Мониторинг & МЧС</h4><p>Раннее обнаружение лесных пожаров с помощью тепловизионных сенсоров, патрулирование заповедников, координация спасателей при паводках и поисково-спасательных операциях (LizaAlert).</p></div>
+    <div class="ind-card"><h4>🗺️ Геодезия и Маркшейдерия</h4><p>Создание высокоточных цифровых моделей рельефа (ЦМР/ЦММ) и ортофотопланов масштаба 1:500. Модули RTK/PPK обеспечивают сантиметровую точность центров снимков и точный подсчет объемов выемки карьеров.</p></div>
+    <div class="ind-card"><h4>🌾 Агропромышленный комплекс (АПК)</h4><p>Мультиспектральная съемка с расчетом вегетационных индексов NDVI/NDRE. Прецизионное ультрамалообъемное опрыскивание тяжелыми дронами на высоте 1.5–3 м над культурой с экономией до 30% СЗР.</p></div>
+    <div class="ind-card"><h4>📦 Транспортная логистика (Last-Mile)</h4><p>Экспресс-доставка медикаментов, крови и биоматериалов в труднодоступные горные и островные поселения; коммерческая доставка посылок с тросовыми лебедками и парашютами стандарта ASTM F3322.</p></div>
+    <div class="ind-card"><h4>⚙️ Промышленная дефектоскопия</h4><p>Инспекция лопастей ветрогенераторов, факельных оголовков, высоковольтных ЛЭП под напряжением. Осмотр резервуаров и шахт внутри защитных каркасов типа «сфера».</p></div>
+    <div class="ind-card"><h4>🏎️ Дрон-рейсинг & FPV Инженерия</h4><p>Пилотирование на скоростях до 160–200 км/ч с тяговооруженностью 10:1–14:1 по видеошлему с задержкой менее 15 мс. Класс FAI F9U и спортивная карьера.</p></div>
+  </div>
+</section>
+
+<!-- SECTION 8: PILOT READINESS QUIZ -->
+<section id="quiz">
+  <div class="section-header" style="text-align:center;">
+    <span class="section-subtitle">Проверка знаний</span>
+    <h2 class="section-title">Экспресс-тест готовности внешнего пилота</h2>
+  </div>
+
+  <div class="quiz-container">
+    <div class="quiz-q">
+      <div class="quiz-q-title">1. Какова минимальная рекомендуемая тяговооруженность (T/W) мультиротора для безопасного полета при ветре?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="checkAnswer(this, false)">0.8 – 1.0 (достаточно уравновесить силу тяжести)</button>
+        <button class="quiz-opt" onclick="checkAnswer(this, true)">1.8 – 2.2 (необходим запас на маневры и порывы ветра)</button>
+        <button class="quiz-opt" onclick="checkAnswer(this, false)">8.0 – 12.0 (стандарт для любого мониторингового коптера)</button>
+      </div>
+    </div>
+
+    <div class="quiz-q">
+      <div class="quiz-q-title">2. С какой массы БпЛА в Российской Федерации наступает требование обязательной постановки на государственный учет?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="checkAnswer(this, true)">От 150 грамм</button>
+        <button class="quiz-opt" onclick="checkAnswer(this, false)">От 250 грамм</button>
+        <button class="quiz-opt" onclick="checkAnswer(this, false)">От 30 килограмм</button>
+      </div>
+    </div>
+
+    <div class="quiz-q">
+      <div class="quiz-q-title">3. Почему аппарат самолетного типа (Fixed-Wing) расходует в 4–5 раз меньше энергии на километр, чем мультиротор?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="checkAnswer(this, false)">У самолетов всегда используются более емкие аккумуляторы</button>
+        <button class="quiz-opt" onclick="checkAnswer(this, true)">Подъемную силу создает набегающий поток на крыло, а мотор преодолевает лишь сопротивление</button>
+        <button class="quiz-opt" onclick="checkAnswer(this, false)">Самолеты летают только при попутном ветре</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MODULE COMPLETE CTA -->
+<div class="module-complete-cta">
+  <div class="module-complete-inner">
+    <div>
+      <h3>Модуль 1 пройден — что дальше?</h3>
+      <p>Остальные 8 модулей курса (правовая база, первые полёты, планирование миссий, фотограмметрия и финальный проект) открываются в личном кабинете после оплаты.</p>
+    </div>
+    <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+      <a href="courses.html" class="btn btn-outline">← К программе курса</a>
+      <a href="account.html" class="btn btn-primary">Открыть полный доступ</a>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="nav-logo" style="font-size:0.9rem;">
+      <img src="assets/logo.jpeg" alt="COREPLUS" style="width:22px;height:22px;object-fit:cover;mix-blend-mode:lighten;">
+      COREPLUS
+    </div>
+    <div class="footer-legal">
+      <a href="privacy-policy.html">Privacy Policy</a>
+      <a href="terms-of-service.html">Terms of Service</a>
+      <a href="mobile-messaging-terms.html">Mobile Messaging Terms</a>
+    </div>
+    <div class="footer-copy">© 2025 COREPLUS · Дроны в гражданской авиации</div>
+  </div>
+</footer>
+
+<script>
+const burger = document.getElementById('burger');
+const mobileMenu = document.getElementById('mobileMenu');
+burger.addEventListener('click', () => { burger.classList.toggle('open'); mobileMenu.classList.toggle('open'); });
+mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => { burger.classList.remove('open'); mobileMenu.classList.remove('open'); }));
+document.querySelectorAll('.nav-dropdown-toggle').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const dd = btn.closest('.nav-dropdown');
+    document.querySelectorAll('.nav-dropdown.open').forEach(o => { if (o !== dd) o.classList.remove('open'); });
+    dd.classList.toggle('open');
+  });
+});
+document.addEventListener('click', (e) => {
+  document.querySelectorAll('.nav-dropdown.open').forEach(dd => { if (!dd.contains(e.target)) dd.classList.remove('open'); });
+});
+
+function openTab(tabId, btn) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+  btn.classList.add('active');
+}
+
+function calculateTW() {
+  const weight = parseFloat(document.getElementById('droneWeight').value) || 1;
+  const motorCount = parseInt(document.getElementById('motorCount').value) || 4;
+  const singleThrust = parseFloat(document.getElementById('singleThrust').value) || 0;
+
+  const totalThrust = motorCount * singleThrust;
+  const ratio = (totalThrust / weight).toFixed(2);
+
+  const resultEl = document.getElementById('twResult');
+  const statusEl = document.getElementById('twStatus');
+  const explainEl = document.getElementById('twExplain');
+
+  resultEl.innerText = ratio;
+  statusEl.className = 'calc-badge-status';
+
+  if (ratio < 1.2) {
+    statusEl.classList.add('status-danger');
+    statusEl.innerText = 'ОПАСНО: КРИТИЧЕСКИЙ ДЕФИЦИТ ТЯГИ';
+    explainEl.innerText = 'Аппарат с трудом оторвется от земли. Любой порыв ветра приведет к потере высоты и аварии!';
+  } else if (ratio < 1.8) {
+    statusEl.classList.add('status-warning');
+    statusEl.innerText = 'ВЯЛАЯ ТЯГА: ПОЛЕТЫ ТОЛЬКО В ШТИЛЬ';
+    explainEl.innerText = 'Тяги хватит для спокойного полета в помещении, но на открытом воздухе дрон будет сносить ветром.';
+  } else if (ratio <= 2.8) {
+    statusEl.classList.add('status-optimal');
+    statusEl.innerText = 'ОПТИМАЛЬНО ДЛЯ РАБОТЫ (1.8 - 2.8)';
+    explainEl.innerText = 'Идеальный баланс! Достаточный запас для противостояния порывам до 12-15 м/с и стабильного висения.';
+  } else {
+    statusEl.classList.add('status-sport');
+    statusEl.innerText = 'СПОРТИВНЫЙ / FPV РЕЖИМ (ТЯГА > 2.8)';
+    explainEl.innerText = 'Экстремальная энерговооруженность. Мгновенный разгон, резкие акробатические маневры.';
+  }
+}
+
+function checkAnswer(btn, isCorrect) {
+  const parent = btn.closest('.quiz-options');
+  parent.querySelectorAll('.quiz-opt').forEach(b => {
+    b.disabled = true;
+    b.style.pointerEvents = 'none';
+  });
+  if (isCorrect) {
+    btn.classList.add('correct');
+    btn.innerText = '✓ Верно! ' + btn.innerText;
+  } else {
+    btn.classList.add('incorrect');
+    btn.innerText = '✗ Ошибка! ' + btn.innerText;
+  }
+}
+
+calculateTW();
+</script>
+
+<script src="js/i18n.js" defer></script>
+</body>
+</html>
